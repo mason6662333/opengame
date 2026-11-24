@@ -1,5 +1,6 @@
 import { buildCapabilityParameters } from '../shared/capability-registry.ts';
 import type { OmTracking } from '../shared/tracking.ts';
+import type { HostContext } from '../tracking/host.ts';
 import path from 'node:path';
 import type { WorkspaceStore } from '../workspace.ts';
 import { AssetLibrary } from './asset-library.ts';
@@ -15,6 +16,7 @@ export async function assetOperation(
   importProject?: (input: any, options?: { receiptName: string; reusePinnedContent: boolean }) => Promise<any>,
   tracking?: OmTracking,
   channel: 'gui' | 'mcp' = 'mcp',
+  host?: HostContext,
 ) {
   const library = new AssetLibrary(store), gateway = gatewayFor(store, tracking);
   if (args.action === 'list') return library.list(args);
@@ -47,7 +49,7 @@ export async function assetOperation(
       library: { assetId: args.assetId, title: args.name, parentVersionId: args.parentVersionId,
         ...(args.capabilityId ? { capabilityId: args.capabilityId } : {}),
         ...(effectiveOptions ? { capabilityOptions: effectiveOptions } : {}),
-        references: args.references, conversationId: args.conversationId } });
+        references: args.references, conversationId: args.conversationId } }, host);
     return { job, next: { action: 'status', jobId: job.id } };
   }
   if (args.action === 'jobs') return { jobs: (await gateway.listJobs()).filter(job => (job.library || job.saveToLibrary) && (!args.conversationId || job.library?.conversationId === args.conversationId)).slice(0, 100) };

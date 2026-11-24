@@ -103,7 +103,36 @@ type CodexSyncOptions = {
   timeoutMs?: number;
   fetch?: typeof fetch;
   environment?: NodeJS.ProcessEnv;
+  sampleRate?: number;
 };
+
+/** Resolve deterministic LLM trace sampling rate in [0, 1]. Defaults to 1 (100%) unless explicitly configured. */
+export function resolveCodexTraceSampleRate(options?: { sampleRate?: number; environment?: NodeJS.ProcessEnv }): number {
+  const candidate = options?.sampleRate !== undefined
+    ? options.sampleRate
+    : options?.environment?.OPENMOTION_LLM_TRACE_SAMPLE_RATE !== undefined
+      ? Number(options.environment.OPENMOTION_LLM_TRACE_SAMPLE_RATE)
+      : process.env.OPENMOTION_LLM_TRACE_SAMPLE_RATE !== undefined
+        ? Number(process.env.OPENMOTION_LLM_TRACE_SAMPLE_RATE)
+        : 1;
+  if (!Number.isFinite(candidate)) return 1;
+  return Math.max(0, Math.min(1, candidate));
+}
+
+export function shouldSampleCodexTurn(params: {
+  sampleKey: string;
+  sampleRate: number;
+  turnStatus: SanitizedCodexTurn['turn_status'];
+  hasToolFailure: boolean;
+}): { include: boolean; reason: 'full' | 'sampled' | 'error_forced' | 'dropped' } {
+  if (params.sampleRate >= 1) return { include: true, reason: 'full' };
+  if (params.turnStatus !== 'completed' || params.hasToolFailure) {
+    return { include: true, reason: 'error_forced' };
+  }
+  if (params.sampleRate <= 0) return { include: false, reason: 'dropped' };
+  const bucket = createHash('sha256').update(`${params.sampleKey}:codex-trace:v1`).digest().readUInt32BE(0) / 0x1_0000_0000;
+  return bucket < params.sampleRate ? { include: true, reason: 'sampled' } : { include: false, reason: 'dropped' };
+}
 
 const THREAD_ID_PATTERN = /^[A-Za-z0-9_.:-]{8,128}$/;
 const SHORT_ID_PATTERN = /^[A-Za-z0-9_.:-]{1,128}$/;
@@ -1354,6 +1383,8 @@ export async function syncActiveCodexThreads(
       let runningProjects = [...entry.projectIds];
       let runningSkills = [...entry.skillsActivated];
       let runningExport = entry.hasCompletedExport;
+      const sampleRate = resolveCodexTraceSampleRate({ sampleRate: options.sampleRate, environment: env });
+      const sampleKey = device.device_id !== 'unknown' ? device.device_id : identity.installation_id;
       const eventItems: Array<{
         ordinal: number;
         projectsAfter: string[];
@@ -1366,24 +1397,37 @@ export async function syncActiveCodexThreads(
         runningProjects = mergeBoundedStrings(runningProjects, turn.project_ids);
         runningSkills = mergeBoundedStrings(runningSkills, turn.skills_activated);
         runningExport = runningExport || turn.has_completed_export;
+        const hasToolFailure = turn.tool_calls.some(call => call.category === 'openmotion_mcp' && call.status === 'failure');
+        const decision = shouldSampleCodexTurn({
+          sampleKey,
+          sampleRate,
+          turnStatus: turn.turn_status,
+          hasToolFailure,
+        });
+        if (!decision.include) continue;
+        const payload = buildAiGenerationEvent({
+          identity,
+          device,
+          endpoint,
+          source,
+          snapshot,
+          turn,
+          projectIds: runningProjects,
+          skillsActivated: runningSkills,
+          hasCompletedExport: runningExport,
+          hostVersion: entry.hostVersion,
+          fallbackModel: entry.lastKnownModel,
+        });
+        Object.assign(payload.properties, {
+          trace_sample_rate: sampleRate,
+          trace_sample_reason: decision.reason,
+        });
         eventItems.push({
           ordinal: turn.rollout_ordinal,
           projectsAfter: runningProjects,
           skillsAfter: runningSkills,
           exportAfter: runningExport,
-          payload: buildAiGenerationEvent({
-            identity,
-            device,
-            endpoint,
-            source,
-            snapshot,
-            turn,
-            projectIds: runningProjects,
-            skillsActivated: runningSkills,
-            hasCompletedExport: runningExport,
-            hostVersion: entry.hostVersion,
-            fallbackModel: entry.lastKnownModel,
-          }),
+          payload,
         });
       }
 
@@ -1419,7 +1463,19 @@ export async function syncActiveCodexThreads(
         if (delivery.status === 'retry') {
           failures = delivery.lastAcceptedOrdinal !== null ? 1 : entry.failures + 1;
           retryNeeded = true;
+        } else if (snapshot.turns.length > 0) {
+          // Advance past trailing sampled-out turns once all sampled items in this page succeeded.
+          nextOrdinal = Math.max(nextOrdinal, snapshot.turns[snapshot.turns.length - 1]!.rollout_ordinal);
+          committedProjects = runningProjects;
+          committedSkills = runningSkills;
+          committedExport = runningExport;
         }
+      } else if (snapshot.turns.length > 0) {
+        // Every turn in this page was skipped by deterministic sampling; advance cursor without re-reading.
+        nextOrdinal = Math.max(nextOrdinal, snapshot.turns[snapshot.turns.length - 1]!.rollout_ordinal);
+        committedProjects = runningProjects;
+        committedSkills = runningSkills;
+        committedExport = runningExport;
       }
 
       const lastUpdatedAtMs = Math.max(entry.lastUpdatedAtMs, snapshot.updatedAtMs);

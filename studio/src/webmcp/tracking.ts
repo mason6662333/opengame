@@ -1,5 +1,5 @@
 import { webMcpToolNames } from '../../../tracking/events';
-import { toolFailureFields, toolInputFields } from '../../../tracking/tool-fields';
+import { toolFailureFields, toolInputFields, toolResultFields } from '../../../tracking/tool-fields';
 import type { studioEvents } from '../../../tracking/events';
 import type { EventFields } from '../../../tracking/core';
 import type { ModelContextTool } from './types';
@@ -57,6 +57,7 @@ export function withWebMcpTracking(tool: ModelContextTool): ModelContextTool {
           : reply?.kind === 'invalid' ? 'INVALID_ARGUMENT' : reply?.kind === 'blocked' ? 'STUDIO_TOOL_BLOCKED'
           : reply?.kind === 'internal' ? 'STUDIO_TOOL_INTERNAL' : undefined;
         report('webmcp_tool_finished', { tool_name: toolName, transport: 'webmcp', call_id: call.call_id, ...fields,
+          ...toolResultFields(toolName, input, result),
           outcome: observed, duration_ms: duration(call.started),
           ...(['failure', 'partial', 'cancelled'].includes(observed) ? toolFailureFields(code ? { code } : reply?.error ?? error) : {}) });
       } catch { /* Results, errors and private contents belong to the caller, not telemetry. */ }

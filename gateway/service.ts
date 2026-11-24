@@ -22,6 +22,32 @@ import { loadRegistry, toOpenMotionGenerationOptions } from '../packages/multimo
 import { audioAssetTitle, classifyAudioKind } from '../shared/audio-kind.ts';
 import { MAX_ASSET_BYTES } from '../shared/asset-limits.ts';
 import { rankSearchResults } from '../shared/fuzzy-search.ts';
+import { slug } from '../tracking/core.ts';
+import { validHostContext, type HostContext } from '../tracking/host.ts';
+import { mediaGenerationError, safeCapabilityId } from '../tracking/tool-fields.ts';
+
+const safeCodePattern = /^[A-Za-z0-9_.-]{1,128}$/;
+function generationTrackingFields(job: GenerationJob) {
+  const provider_kind: 'builtin' | 'custom' | 'account' | 'agent' =
+    job.model.provider === 'account' ? 'account'
+      : job.model.provider === 'codex' ? 'agent'
+        : isGatewayProvider(job.model.provider) ? 'builtin' : 'custom';
+  const model_provider = provider_kind !== 'custom' && slug.test(job.model.provider) ? job.model.provider : undefined;
+  const model_id = provider_kind !== 'custom' && job.model.source !== 'custom' && safeCodePattern.test(job.model.modelId)
+    ? job.model.modelId : undefined;
+  const capability_id = safeCapabilityId(job.capabilityId ?? job.library?.capabilityId);
+  const reference_count = job.references?.length ?? (job.reference ? 1 : 0);
+  return {
+    provider_kind,
+    ...(model_provider ? { model_provider } : {}),
+    ...(model_id ? { model_id } : {}),
+    ...(capability_id ? { capability_id } : {}),
+    reference_count,
+  };
+}
+function jobTrackingHost(job: GenerationJob): HostContext | undefined {
+  return validHostContext(job.trackingHost) ? job.trackingHost : undefined;
+}
 
 /** Queued input-image snapshot; the first keeps its historical name for older jobs. */
 const referenceFile = (index: number, mimeType: string) => (index ? `reference-${index}.` : 'reference.') + (mimeType === 'image/jpeg' ? 'jpg' : mimeType.split('/')[1]);
@@ -274,18 +300,33 @@ export class ModelGateway {
     return jobs.filter(job => !projectId || job.projectId === projectId).sort((a, b) => b.createdAt - a.createdAt);
   }
   private saveJob(job: GenerationJob) { return atomic(path.join(this.root, 'jobs', job.id + '.json'), job); }
-  private async saveResult(job: GenerationJob) {
+  private async saveResult(job: GenerationJob, cause?: unknown) {
     if (job.state === 'queued' || job.state === 'running') throw new Error('Expected a terminal generation job');
     await this.saveJob(job);
+    const duration_ms = Math.min(86_400_000, Math.max(0, Math.round(job.updatedAt - (job.startedAt ?? job.createdAt))));
+    const queue_wait_ms = job.startedAt !== undefined
+      ? Math.min(86_400_000, Math.max(0, Math.round(job.startedAt - job.createdAt))) : undefined;
+    const error_code = job.state === 'completed' ? undefined : mediaGenerationError(cause ?? job.error, job.phase);
     this.options.tracking?.track('media_generation_result', {
       modality: job.modality, job_id: job.id, job_state: job.state,
       asset_count: Math.max(job.assets.length, job.libraryAssets?.length ?? 0),
-    }, undefined, 'worker');
+      ...generationTrackingFields(job),
+      duration_ms,
+      ...(queue_wait_ms !== undefined ? { queue_wait_ms } : {}),
+      attempt_kind: job.attemptKind ?? 'initial',
+      ...(typeof job.remoteTerminal === 'boolean' ? { remote_terminal: job.remoteTerminal } : {}),
+      ...(error_code ? { error_code } : {}),
+    }, undefined, 'worker', jobTrackingHost(job));
   }
-  async submit(input: GenerateInput): Promise<GenerationJob> {
+  async submit(input: GenerateInput, host?: HostContext): Promise<GenerationJob> {
     if (!input || typeof input !== 'object') throw new Error('Generation input required');
     modality(input.modality);
-    this.options.tracking?.track('media_generation_requested', { modality: input.modality }, undefined, 'worker');
+    const validHost = validHostContext(host) && host.host_agent !== 'unknown' ? host : undefined;
+    const requestedCap = safeCapabilityId(input.capabilityId ?? input.library?.capabilityId);
+    this.options.tracking?.track('media_generation_requested', {
+      modality: input.modality,
+      ...(requestedCap ? { capability_id: requestedCap } : {}),
+    }, undefined, 'worker', validHost);
     if (typeof input.prompt !== 'string' || !input.prompt.trim() || input.prompt.length > 20_000) throw new Error('Prompt must contain 1–20000 characters');
     const params = parameters(input.parameters);
     if (input.library && input.projectId) throw new Error('Choose either an asset library or a project destination');
@@ -348,7 +389,8 @@ export class ModelGateway {
         ...(input.capabilityId ?? input.library?.capabilityId ? { capabilityId: input.capabilityId ?? input.library?.capabilityId } : {}),
         ...(input.capabilityOptions ?? input.library?.capabilityOptions ? { capabilityOptions: input.capabilityOptions ?? input.library?.capabilityOptions } : {}),
         usage: input.usage, idempotencyKey: input.idempotencyKey, requestHash,
-        createdAt: Date.now(), updatedAt: Date.now(), phase: 'queued', assets: [] };
+        createdAt: Date.now(), updatedAt: Date.now(), phase: 'queued', assets: [],
+        attemptKind: 'initial', ...(validHost ? { trackingHost: validHost } : {}) };
       const work = path.join(this.root, 'work', job.id);
       try {
         const sources: { asset?: { assetId: string; versionId: string }; projectPath?: string }[] = input.referenceAsset ? [{ projectPath: input.referenceAsset }]
@@ -372,7 +414,9 @@ export class ModelGateway {
           await writeFile(path.join(work, referenceFile(index, media.mimeType)), bytes, { flag: 'wx', mode: 0o600 });
         }
         await this.saveJob(job);
-        this.options.tracking?.track('media_generation_submitted', { modality: job.modality, job_id: job.id }, undefined, 'worker');
+        this.options.tracking?.track('media_generation_submitted', {
+          modality: job.modality, job_id: job.id, ...generationTrackingFields(job),
+        }, undefined, 'worker', jobTrackingHost(job));
         return job;
       } catch (error) { await rm(work, { recursive: true, force: true }); throw error; }
     });
@@ -390,7 +434,7 @@ export class ModelGateway {
       } else if (job.providerOrigin !== await this.cloudOrigin()) throw new Error('Provider API origin changed; the original task was not resumed');
       if (job.model.provider === 'opendesign' && !(await this.credential('opendesign')).key || !(await this.status()).providers.find(provider => provider.id === job.model.provider)?.available) throw new Error('Provider is no longer available');
       if ((await this.listJobs()).filter(item => ['queued', 'running'].includes(item.state)).length >= 20) throw new Error('Generation queue is full (20 jobs)');
-      job.state = 'queued'; job.phase = 'resuming'; job.updatedAt = Date.now(); delete job.error;
+      job.state = 'queued'; job.phase = 'resuming'; job.attemptKind = 'resume'; job.updatedAt = Date.now(); delete job.error;
       await this.saveJob(job); return job;
     });
   }
@@ -462,7 +506,7 @@ export class ModelGateway {
     return this.store.lock(async () => {
       const job = await this.getJob(id);
       if (['completed', 'queued', 'running'].includes(job.state)) return job;
-      job.savePending = true; job.state = 'queued'; job.phase = 'saving'; job.updatedAt = Date.now(); delete job.error;
+      job.savePending = true; job.state = 'queued'; job.phase = 'saving'; job.attemptKind = 'retry_save'; job.updatedAt = Date.now(); delete job.error;
       await this.saveJob(job); return job;
     });
   }
@@ -640,7 +684,7 @@ export class ModelGateway {
         let message = controller.signal.aborted ? 'Generation stopped or timed out; no automatic retry was made' : error instanceof Error ? error.message : 'Generation failed';
         if (key) message = message.replaceAll(key, '[redacted]');
         if (resumableJob(current) && current.model.provider === 'opendesign') message += ' Check the original Cloud task with action=resume without paying again.';
-        current.error = message.slice(0, 500); await this.saveResult(current);
+        current.error = message.slice(0, 500); await this.saveResult(current, error);
       });
     } finally {
       clearTimeout(timeout); clearInterval(cancelPoll);

@@ -1,5 +1,6 @@
 import { ToolInputError } from '../shared/tool-input-error.ts';
 import type { OmTracking } from '../shared/tracking.ts';
+import type { HostContext } from '../tracking/host.ts';
 import type { WorkspaceStore } from '../workspace.ts';
 import type { GenerateInput } from '../shared/gateway.ts';
 import type { ProviderSetupEntry } from '../shared/workspace-url.ts';
@@ -7,7 +8,7 @@ import { isMediaProvider, registeredProvider } from '../shared/provider-registry
 import { gatewayFor } from './service.ts';
 import { getWorkflow } from '../shared/workflow.ts';
 
-export async function mediaUse(store: WorkspaceStore, args: any, tracking?: OmTracking) {
+export async function mediaUse(store: WorkspaceStore, args: any, tracking?: OmTracking, host?: HostContext) {
   const gateway = gatewayFor(store, tracking);
   const connections = await gateway.connections.list();
   // Codex is a local image Agent: Settings offers it for images, so discovery accepts it; new images go through openmotion_assets_use.
@@ -50,7 +51,7 @@ export async function mediaUse(store: WorkspaceStore, args: any, tracking?: OmTr
       throw new ToolInputError('provider, model, projectId, requestId, modality and prompt are required', missing ?? 'prompt', 'missing');
     }
     const job = await gateway.submit({ projectId: args.projectId, model: `${args.provider}:${args.model}`, modality: args.modality,
-      prompt: args.prompt, parameters: args.parameters, mode: args.mode, referenceAsset: args.referenceAsset, idempotencyKey: args.requestId } as GenerateInput);
+      prompt: args.prompt, parameters: args.parameters, mode: args.mode, referenceAsset: args.referenceAsset, idempotencyKey: args.requestId } as GenerateInput, host);
     return { projectId: job.projectId, job, next: { action: 'status', projectId: job.projectId, jobId: job.id } };
   }
   if (args.action === 'status' || args.action === 'cancel' || args.action === 'retry_save' || args.action === 'resume') {

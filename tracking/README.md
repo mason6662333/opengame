@@ -694,3 +694,11 @@ copying. No titles, material names, instructions, color values, URLs or raw erro
 are admitted. Existing consent, browser admission and product=openmotion filtering
 remain in force. UI tests use fake senders; live readback requires env=test and an
 isolated test-run UUID.
+
+## Strategy telemetry enrichment and cost-controlled sampling
+
+- **Model Gateway dimensions (`media_generation_submitted` / `media_generation_result`):** Worker events carry `provider_kind` (`builtin | custom | account | agent`), `model_provider` and `model_id` (omitted when `provider_kind=custom` or `model.source=custom`), `capability_id`, `reference_count`, `duration_ms`, `queue_wait_ms`, `attempt_kind` (`initial | resume | retry_save`), `remote_terminal`, closed `error_code`, and the calling `host_context` persisted on the job. No additional events are emitted.
+- **Capability Center dimensions (`mcp_tool_started/finished`, `webmcp_tool_started/finished`, `asset_generation_submit_result`):** Tool events extract `capability_id` (registry slug or `other`), `executor_kind` (`model | prompt-preset | dedicated-model | service | script`), `dry_run`, and `fallback_raw_model` without adding separate events or reporting prompts/options.
+- **Template & Host attribution (`work_generation_stage`, `project_create_result`):** `WorkRound` persists the initiating `host_context` and reads `project.templateId` from the workspace catalog to emit `template_id` and `attribution_source` (`project_catalog | none`) alongside `host_context` across `started`, `generated`, `edited` and `exported`.
+- **Super Agent & Scenario Workflows terminal events:** `super_agent_turn_result`, `super_agent_approval_result`, `scenario_run_result` and `scenario_step_result` emit once per committed terminal milestone under anonymous worker ingestion (`$process_person_profile=false`). Idempotent replays never emit duplicate events; prompts, replies, briefs, titles, paths and raw errors are excluded.
+- **Deterministic Codex LLM trace sampling:** `OPENMOTION_LLM_TRACE_SAMPLE_RATE` (`0..1`, default `1`) applies deterministic per-device SHA-256 sampling to `$ai_generation` events while always retaining failed/interrupted turns and turns with MCP tool failures (`trace_sample_reason=error_forced`). Sampled-out turns still advance `lastSyncedOrdinal` so local polling never stalls.

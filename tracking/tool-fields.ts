@@ -19,10 +19,37 @@ const actionSets = {
   openmotion_design_comments: ['list', 'create', 'update', 'delete'],
 } as const;
 const targets = ['project', 'templates', 'providers'] as const;
-export const toolDimensions = { action: [...new Set(Object.values(actionSets).flat())], target: targets } as const;
+export const capabilityExecutorKinds = ['model', 'prompt-preset', 'dedicated-model', 'service', 'script'] as const;
+export const mediaGenerationErrorCodes = [
+  'AUTH_REJECTED', 'BALANCE_LOW', 'RATE_LIMITED', 'PROVIDER_UNAVAILABLE', 'CONFIG_CHANGED',
+  'TIMEOUT', 'WORKER_INTERRUPTED', 'DOWNLOAD_FAILED', 'INVALID_MEDIA', 'SAVE_FAILED',
+  'SAVE_UNAVAILABLE', 'REMOTE_FAILED', 'CANCELLED', 'PROVIDER_ERROR',
+] as const;
+export const superAgentErrorCodes = [
+  'ABORTED', 'INTERRUPTED', 'TIMEOUT', 'AUTH_ERROR', 'RATE_LIMITED', 'RUNTIME_UNAVAILABLE', 'TURN_FAILED',
+] as const;
+
+const capabilitySlug = /^(?=.{1,64}$)[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
+export function safeCapabilityId(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  return capabilitySlug.test(trimmed) ? trimmed : 'other';
+}
+
+export const toolDimensions = {
+  action: [...new Set(Object.values(actionSets).flat())],
+  target: targets,
+  capability_id: 'code',
+  dry_run: 'boolean',
+  executor_kind: capabilityExecutorKinds,
+  fallback_raw_model: 'boolean',
+} as const;
 
 export function toolInputFields(tool: string, input: unknown) {
-  const args = input && typeof input === 'object' && !Array.isArray(input) ? input as { action?: unknown; target?: unknown } : {};
+  const args = input && typeof input === 'object' && !Array.isArray(input)
+    ? input as { action?: unknown; target?: unknown; capabilityId?: unknown; dryRun?: unknown; model?: unknown }
+    : {};
   const actions: readonly typeof toolDimensions.action[number][] = Object.hasOwn(actionSets, tool) ? actionSets[tool as keyof typeof actionSets] : [];
   const defaultAction =
     tool === 'openmotion_export_request'
@@ -35,7 +62,80 @@ export function toolInputFields(tool: string, input: unknown) {
   const action = actions.find(value => value === (args.action === undefined ? defaultAction : args.action));
   const target = tool === 'openmotion_open_preview'
     ? targets.find(value => value === (args.target === undefined ? 'project' : args.target)) : undefined;
-  return { ...(action ? { action } : {}), ...(target ? { target } : {}) };
+  const supportsCapability = tool === 'openmotion_capability_run'
+    || tool === 'openmotion_capability_discover'
+    || tool === 'openmotion_assets_use';
+  const capability_id = supportsCapability ? safeCapabilityId(args.capabilityId) : undefined;
+  const dry_run = tool === 'openmotion_capability_run' && typeof args.dryRun === 'boolean' ? args.dryRun : undefined;
+  const fallback_raw_model = tool === 'openmotion_capability_run' && !capability_id && typeof args.model === 'string' && args.model.trim().length > 0
+    ? true : undefined;
+  return {
+    ...(action ? { action } : {}),
+    ...(target ? { target } : {}),
+    ...(capability_id ? { capability_id } : {}),
+    ...(dry_run !== undefined ? { dry_run } : {}),
+    ...(fallback_raw_model !== undefined ? { fallback_raw_model } : {}),
+  };
+}
+
+export function toolResultFields(tool: string, input: unknown, result: unknown) {
+  if (tool !== 'openmotion_capability_run' && tool !== 'openmotion_capability_discover') return {};
+  const args = input && typeof input === 'object' && !Array.isArray(input)
+    ? input as { capabilityId?: unknown; model?: unknown }
+    : {};
+  const value = result && typeof result === 'object' && !Array.isArray(result)
+    ? result as { capabilityId?: unknown; executorKind?: unknown; dryRun?: unknown }
+    : {};
+  const capability_id = safeCapabilityId(value.capabilityId ?? args.capabilityId);
+  const executor_kind = capabilityExecutorKinds.find(kind => kind === value.executorKind);
+  const dry_run = typeof value.dryRun === 'boolean' ? value.dryRun : undefined;
+  const fallback_raw_model = tool === 'openmotion_capability_run'
+    ? (!capability_id && typeof args.model === 'string' && args.model.trim().length > 0)
+    : undefined;
+  return {
+    ...(capability_id ? { capability_id } : {}),
+    ...(executor_kind ? { executor_kind } : {}),
+    ...(dry_run !== undefined ? { dry_run } : {}),
+    ...(fallback_raw_model !== undefined ? { fallback_raw_model } : {}),
+  };
+}
+
+export function mediaGenerationError(error: unknown, phase?: string): typeof mediaGenerationErrorCodes[number] {
+  if (phase === 'cancelled') return 'CANCELLED';
+  if (phase === 'interrupted') return 'WORKER_INTERRUPTED';
+  if (phase === 'save_unavailable') return 'SAVE_UNAVAILABLE';
+  if (phase === 'save_failed') return 'SAVE_FAILED';
+  const status = error && typeof error === 'object' && 'status' in error && typeof (error as { status?: unknown }).status === 'number'
+    ? (error as { status: number }).status : undefined;
+  if (status === 401 || status === 403) return 'AUTH_REJECTED';
+  if (status === 402) return 'BALANCE_LOW';
+  if (status === 429) return 'RATE_LIMITED';
+  const text = error instanceof Error ? error.message : typeof error === 'string' ? error : '';
+  const lower = text.toLowerCase();
+  if (lower.startsWith('save_not_available:')) return 'SAVE_UNAVAILABLE';
+  if (lower.includes('timed out') || lower.includes('timeout')) return 'TIMEOUT';
+  if (lower.includes('balance') || lower.includes('credit') || lower.includes('insufficient') || lower.includes('quota') || lower.includes('entitlement')) return 'BALANCE_LOW';
+  if (lower.includes('401') || lower.includes('403') || lower.includes('unauthorized') || lower.includes('forbidden') || lower.includes('api key') || lower.includes('credentials') || lower.includes('personal engine key')) return 'AUTH_REJECTED';
+  if (lower.includes('429') || lower.includes('rate limit')) return 'RATE_LIMITED';
+  if (lower.includes('configuration changed') || lower.includes('origin changed')) return 'CONFIG_CHANGED';
+  if (lower.includes('no longer available') || lower.includes('unavailable')) return 'PROVIDER_UNAVAILABLE';
+  if (lower.includes('worker stopped') || lower.includes('interrupted')) return 'WORKER_INTERRUPTED';
+  if (lower.includes('unsupported media') || lower.includes('could not be decoded') || lower.includes('returned no media')) return 'INVALID_MEDIA';
+  if (lower.includes('download') || lower.includes('fetch failed') || lower.includes('econnreset') || lower.includes('enotfound')) return 'DOWNLOAD_FAILED';
+  if (lower.includes('task failed') || lower.includes('remote')) return 'REMOTE_FAILED';
+  return 'PROVIDER_ERROR';
+}
+
+export function superAgentError(error: unknown, cancelled = false): typeof superAgentErrorCodes[number] {
+  if (cancelled) return 'ABORTED';
+  const text = (error instanceof Error ? error.message : typeof error === 'string' ? error : '').toLowerCase();
+  if (text.includes('abort') || text.includes('cancel')) return 'ABORTED';
+  if (text.includes('restart') || text.includes('interrupted')) return 'INTERRUPTED';
+  if (text.includes('timeout') || text.includes('timed out')) return 'TIMEOUT';
+  if (text.includes('401') || text.includes('403') || text.includes('auth') || text.includes('login') || text.includes('credential') || text.includes('api key')) return 'AUTH_ERROR';
+  if (text.includes('429') || text.includes('rate limit') || text.includes('quota')) return 'RATE_LIMITED';
+  if (text.includes('bridge') || text.includes('offline') || text.includes('unavailable') || text.includes('not installed') || text.includes('not found')) return 'RUNTIME_UNAVAILABLE';
+  return 'TURN_FAILED';
 }
 
 export const validationRules = ['missing', 'invalid_type', 'invalid_enum', 'invalid_format', 'out_of_range', 'unknown_field', 'invalid_combination'] as const;

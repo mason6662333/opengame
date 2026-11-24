@@ -1,4 +1,4 @@
-import { assetImportErrorCodes, exportFailureCodes, exportFailureStages, toolDimensions, toolFailureDimensions } from './tool-fields.ts';
+import { assetImportErrorCodes, exportFailureCodes, exportFailureStages, mediaGenerationErrorCodes, superAgentErrorCodes, toolDimensions, toolFailureDimensions } from './tool-fields.ts';
 import type { Entry, Registry } from './core.ts';
 import { studioUsageEvents } from './studio-events.ts';
 import { providerSetupEntries, type ProviderSetupEntry } from '../shared/workspace-url.ts';
@@ -23,6 +23,17 @@ export const webMcpToolNames = ['openmotion_capability_discover', 'openmotion_ca
   'openmotion_studio_frame', 'openmotion_studio_inspect'] as const;
 const webMcp = { tool_name: webMcpToolNames, transport: ['webmcp'] } as const;
 const generation = { modality: ['image', 'video', 'audio'] } as const;
+const mediaGenerationDimensions = {
+  provider_kind: ['builtin', 'custom', 'account', 'agent'],
+  model_provider: 'slug',
+  model_id: 'code',
+  capability_id: 'code',
+  reference_count: 'integer',
+} as const;
+const superAgentRuntimeKinds = ['local-direct', 'local-bridge', 'remote-service'] as const;
+const superAgentIntents = ['chat', 'coding', 'design', 'research', 'visualization', 'image', 'video', 'audio', 'game', 'website', 'slides', 'brand', 'other'] as const;
+const superAgentApprovalKinds = ['generation', 'command', 'file', 'tool', 'other'] as const;
+const scenarioStepStatuses = ['todo', 'in-progress', 'done', 'skipped'] as const;
 // Studio project ids are UUIDs except the built-in local project, whose id is the literal `project`.
 const project = { project_id: 'project_id', project_scope: ['default', 'managed', 'other'] } as const;
 const exportSettings = { origin: ['header', 'export_panel', 'composition_card'], format: ['mp4', 'webm', 'mov', 'gif'],
@@ -118,7 +129,7 @@ export const omEvents = {
   mcp_tool_started: { producers: ['mcp'], fields: tool, required: ['tool_name', 'call_id', 'accepted'] },
   mcp_tool_finished: { producers: ['mcp'], fields: { ...tool, outcome, duration_ms: 'integer', ...toolFailureDimensions, replayed: 'boolean' },
     required: ['tool_name', 'call_id', 'accepted', 'outcome', 'duration_ms'] },
-  project_create_result: { producers: ['mcp'], fields: { ...business, creation_route: ['natural_language', 'template', 'reference_video', 'existing_project'], effect_status: ['applied', 'not_applied', 'unknown'] }, required: ['outcome'] },
+  project_create_result: { producers: ['mcp'], fields: { ...business, creation_route: ['natural_language', 'template', 'reference_video', 'existing_project'], effect_status: ['applied', 'not_applied', 'unknown'], template_id: 'slug', reference_video_id: 'slug' }, required: ['outcome'] },
   project_open_result: { producers: ['mcp'], fields: { ...business, opened_by_host_status: ['unknown', 'opened', 'not_opened'] }, required: ['outcome'] },
   project_edit_result: { producers: ['mcp'], fields: { ...business, changed_file_count: 'integer' }, required: ['outcome'] },
   version_restore_result: { producers: ['mcp'], fields: business, required: ['outcome'] },
@@ -127,10 +138,11 @@ export const omEvents = {
     error_code: [...toolFailureDimensions.error_code, ...assetImportErrorCodes] }, required: ['failed_count', 'error_code'] },
   export_request_result: { producers: ['mcp'], fields: { ...business, job_id: 'uuid', queue_state: ['pending', 'running', 'cancelling', 'cancelled', 'completed', 'failed'] }, required: ['outcome'] },
   export_cancel_result: { producers: ['mcp'], fields: { ...business, job_id: 'uuid', state_after: ['pending', 'running', 'cancelling', 'cancelled', 'completed', 'failed'] }, required: ['outcome'] },
-  media_generation_requested: { producers: ['worker'], fields: generation, required: ['modality'] },
-  media_generation_submitted: { producers: ['worker'], fields: { ...generation, job_id: 'uuid' }, required: ['modality', 'job_id'] },
-  media_generation_result: { producers: ['worker'], fields: { ...generation, job_id: 'uuid',
-    job_state: ['completed', 'failed', 'cancelled'], asset_count: 'integer' }, required: ['modality', 'job_id', 'job_state', 'asset_count'] },
+  media_generation_requested: { producers: ['worker'], fields: { ...generation, capability_id: 'code' }, required: ['modality'] },
+  media_generation_submitted: { producers: ['worker'], fields: { ...generation, ...mediaGenerationDimensions, job_id: 'uuid' }, required: ['modality', 'job_id'] },
+  media_generation_result: { producers: ['worker'], fields: { ...generation, ...mediaGenerationDimensions, job_id: 'uuid',
+    job_state: ['completed', 'failed', 'cancelled'], asset_count: 'integer', duration_ms: 'integer', queue_wait_ms: 'integer',
+    attempt_kind: ['initial', 'resume', 'retry_save'], remote_terminal: 'boolean', error_code: mediaGenerationErrorCodes }, required: ['modality', 'job_id', 'job_state', 'asset_count'] },
   export_result: { producers: ['worker'], fields: { job_id: 'uuid', job_state: ['completed', 'failed', 'cancelled'], duration_ms: 'integer', technical_check: ['passed', 'failed', 'unknown'], failure_stage: exportFailureStages, error_code: exportFailureCodes }, required: ['job_id', 'job_state', 'duration_ms', 'technical_check'] },
   // One per finished OpenDesign sign-in attempt. `replaced` is an interrupted attempt the service refused; the same
   // sign-in continues with a new attempt. Times are milliseconds since the click. Stage values come from the connector
@@ -145,8 +157,33 @@ export const omEvents = {
   work_generation_stage: { producers: ['mcp', 'worker'], fields: {
     work_id: 'uuid', project_id: 'code', stage: ['started', 'generated', 'edited', 'exported'],
     task_type: ['create', 'modify'], version_id: 'code', revision: 'code',
-    export_route: ['mcp', 'studio'],
+    export_route: ['mcp', 'studio'], template_id: 'slug',
+    creation_route: ['natural_language', 'template', 'reference_video', 'existing_project'],
+    attribution_source: ['project_catalog', 'none'],
   }, required: ['work_id', 'project_id', 'stage', 'task_type'] },
+  // Terminal Super Agent turn and approval outcomes. No prompts, replies, titles or raw error text.
+  super_agent_turn_result: { producers: ['worker'], fields: {
+    runtime_kind: superAgentRuntimeKinds, engine: 'slug', model_id: 'code',
+    permission_mode: ['on-request', 'auto'], intent: superAgentIntents,
+    outcome: ['completed', 'failed', 'cancelled'], duration_ms: 'integer',
+    tool_call_count: 'integer', approval_count: 'integer', artifact_count: 'integer', changed_file_count: 'integer',
+    input_tokens: 'integer', output_tokens: 'integer', error_code: superAgentErrorCodes,
+  }, required: ['runtime_kind', 'engine', 'permission_mode', 'outcome', 'duration_ms', 'tool_call_count', 'approval_count', 'artifact_count'] },
+  super_agent_approval_result: { producers: ['worker'], fields: {
+    runtime_kind: superAgentRuntimeKinds, approval_kind: superAgentApprovalKinds,
+    decision: ['approved', 'rejected'], always_allow: 'boolean', wait_ms: 'integer',
+  }, required: ['runtime_kind', 'approval_kind', 'decision', 'always_allow', 'wait_ms'] },
+  // Terminal Scenario Workflow run and step milestones. No briefs, titles or prompt text.
+  scenario_run_result: { producers: ['worker'], fields: {
+    scenario_id: 'slug', action: ['create', 'archive', 'unarchive', 'export'],
+    outcome: ['success', 'failure'], completed_step_count: 'integer', total_step_count: 'integer',
+    pool_item_count: 'integer', duration_ms: 'integer',
+  }, required: ['scenario_id', 'action', 'outcome', 'completed_step_count', 'total_step_count', 'pool_item_count'] },
+  scenario_step_result: { producers: ['worker'], fields: {
+    scenario_id: 'slug', step_id: 'slug',
+    action: ['status_change', 'generate', 'create_page', 'create_motion', 'link_design', 'link_motion', 'add_iteration'],
+    step_status: scenarioStepStatuses, outcome: ['success', 'failure'],
+  }, required: ['scenario_id', 'step_id', 'action', 'outcome'] },
   host_run_started: { producers: ['mcp'], fields: { run_id: 'uuid', entry_type: ['mcp'], task_type: ['create', 'modify'], delivery_mode: ['preview', 'technical_export'] }, required: ['run_id', 'entry_type', 'task_type'] },
   host_run_delivered: { producers: ['mcp', 'worker'], fields: { run_id: 'uuid', delivery_mode: ['preview', 'technical_export'], project_id: 'code', revision: 'code', delivery_evidence_ref: 'code' }, required: ['run_id', 'delivery_mode', 'project_id', 'revision'] },
   host_run_failed: { producers: ['mcp', 'worker'], fields: { run_id: 'uuid', task_type: ['create', 'modify'], error_code: 'code', stage: 'code' }, required: ['run_id', 'task_type', 'error_code'] },
@@ -306,7 +343,7 @@ export const omEvents = {
     copy_status: ['clipboard_written', 'failed'], includes_setup: 'boolean' }, required: ['copy_kind', 'copy_status', 'mcp_client'] },
   // Workspace assets. A submitted generation is accepted work, not a finished asset; the worker reports the media result.
   asset_generation_submit_result: { producers: ['studio'], fields: { page_name: ['assets', 'creative_studio'], modality, outcome: ['success', 'failure'],
-    reference_count: 'integer', new_version: 'boolean', studio_id: creative.studio_id, scene_id: creative.scene_id, model_provider: creative.model_provider, model_id: creative.model_id }, required: ['modality', 'outcome', 'reference_count', 'new_version'] },
+    reference_count: 'integer', new_version: 'boolean', studio_id: creative.studio_id, scene_id: creative.scene_id, model_provider: creative.model_provider, model_id: creative.model_id, capability_id: 'code' }, required: ['modality', 'outcome', 'reference_count', 'new_version'] },
   asset_update_result: { producers: ['studio'], fields: { page_name: ['assets'], modality, action: ['rename', 'trash', 'restore', 'switch_version', 'other'],
     outcome: ['success', 'failure'] }, required: ['action', 'outcome'] },
   // Settings. One result per saved change; credentials, names, URLs and model ids never become fields.

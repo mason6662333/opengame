@@ -2,6 +2,7 @@ import { readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { ToolInputError } from '../shared/tool-input-error.ts';
 import type { OmTracking } from '../shared/tracking.ts';
+import type { HostContext } from '../tracking/host.ts';
 import type { WorkspaceStore } from '../workspace.ts';
 import type { AssetReference, AssetVersion, LibraryAsset } from '../shared/asset-library.ts';
 import { mediaProviders, modelReferenceLimit, type Modality, type Model } from '../shared/gateway.ts';
@@ -512,6 +513,7 @@ export async function capabilityRun(
   args: any,
   tracking?: OmTracking,
   channel: 'gui' | 'mcp' = 'mcp',
+  host?: HostContext,
 ) {
   const action = args.action ?? 'run';
   if (action !== 'run') throw new ToolInputError('unsupported capability run action', 'action', 'invalid_enum');
@@ -898,7 +900,7 @@ export async function capabilityRun(
         references,
         conversationId: args.conversationId,
       },
-    });
+    }, host);
     return {
       capabilityId: cap.id,
       executorKind: cap.executor.kind,
@@ -1015,7 +1017,7 @@ export async function capabilityRun(
       references: args.references,
       conversationId: args.conversationId,
     },
-  });
+  }, host);
   return {
     executorKind: 'model' as const,
     selectedModel: job.model.id,

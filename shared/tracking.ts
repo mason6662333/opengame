@@ -3,7 +3,7 @@ export { trackingError } from '../tracking/tool-fields.ts';
 import path from 'node:path';
 import { readFileSync, watch } from 'node:fs';
 import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
-import { createTracker, uuid } from '../tracking/core.ts';
+import { createTracker, slug, uuid } from '../tracking/core.ts';
 import type { Entry } from '../tracking/core.ts';
 import { createNodeTracking, loadIdentity, parsePosthogEndpoint, type PosthogEndpoint } from '../tracking/node.ts';
 import { loadDeviceIdentity } from '../tracking/device.ts';
@@ -102,8 +102,12 @@ export function trackPhase1Result(tracking: OmTracking | undefined, name: string
     ...(uuid.test(args?.requestId) ? { operation_id: args.requestId } : {}), ...(error ? toolFailureFields(error) : {}) } as const;
   if (name === 'motion_create_project') {
     const creation_route = (['natural_language', 'template', 'reference_video'] as const).find(route => route === args?.projectType);
+    const template_id = typeof args?.templateId === 'string' && slug.test(args.templateId) ? args.templateId : undefined;
+    const reference_video_id = typeof args?.referenceVideoId === 'string' && slug.test(args.referenceVideoId) ? args.referenceVideoId : undefined;
     tracking.track('project_create_result', { ...fields, effect_status: error ? 'unknown' : 'applied',
-      ...(creation_route ? { creation_route } : {}) }, undefined, undefined, host);
+      ...(creation_route ? { creation_route } : {}),
+      ...(template_id ? { template_id } : {}),
+      ...(reference_video_id ? { reference_video_id } : {}) }, undefined, undefined, host);
   }
   if (name === 'motion_open_preview' && args?.target !== 'templates' && args?.target !== 'providers') tracking.track('project_open_result', { ...fields, opened_by_host_status: 'unknown' }, undefined, undefined, host);
   if (name === 'motion_edit_project') tracking.track('project_edit_result', { ...fields,

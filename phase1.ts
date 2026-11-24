@@ -192,7 +192,7 @@ export class Phase1Service {
     this.pending++;
     const result = this.tail.then(run, run).finally(() => { this.pending--; }); this.tail = result.catch(() => {}); return result;
   }
-  async writeRequest(name: string, args: any, task: (record: any) => Promise<any>) {
+  async writeRequest(name: string, args: any, task: (record: any) => Promise<any>, host?: HostContext) {
     if (!args.requestId) throw new ToolInputError('requestId is required', 'requestId', 'missing');
     const file = path.join(this.store.directory, 'phase1', 'requests', digest(args.requestId) + '.json');
     const inputHash = digest({ name, args });
@@ -214,7 +214,7 @@ export class Phase1Service {
       }
       if (name === 'motion_open_preview' && args.action === 'begin' && previous.workId) {
         const project = await this.detail(args.projectId);
-        const inlineWork = await this.workRounds.create(project, args.mode, previous.workId, args.generation !== false);
+        const inlineWork = await this.workRounds.create(project, args.mode, previous.workId, args.generation !== false, host);
         const result = { projectId: project.projectId, sessionId: project.sessionId, authoringGuide: project.authoringGuide, inlineWork };
         await atomicJson(file, { ...previous, state: 'completed', result }); return result;
       }
@@ -428,12 +428,12 @@ export class Phase1Service {
     if (name === 'motion_assets') {
       if (args.action === 'brand_kit') return brandKitOperation(brandKitsFor(this.store.directory), args.brandKit, this.context.origin());
       if (args.action === 'scenario') {
-        return scenarioOperation(scenarioRunsFor(this.store), args.scenario, {
+        return scenarioOperation(scenarioRunsFor(this.store, this.context.tracking), args.scenario, {
           origin: () => this.context.origin(),
-          assets: input => assetOperation(this.store, input, (i, o) => this.importAssets(i, o), this.context.tracking, channel),
+          assets: input => assetOperation(this.store, input, (i, o) => this.importAssets(i, o), this.context.tracking, channel, host),
           design: designProjectsFor(this.store.directory),
           resolveAsset: ref => new AssetLibrary(this.store).resolve(ref),
-          createMotionProject: input => this.dispatch('motion_create_project', input),
+          createMotionProject: input => this.dispatch('motion_create_project', input, host, channel),
           exportMotionArchive: input => projectArchive(this.store, input, this.runtimeRoot),
         });
       }
@@ -497,15 +497,15 @@ export class Phase1Service {
             changedFiles: [name], previewSync: this.context.nativeUrl(input.projectId) ? 'file_watcher_notified' : 'not_open' }));
         })));
       }
-      return assetOperation(this.store, args, (input, importOptions) => this.importAssets(input, importOptions), this.context.tracking, channel);
+      return assetOperation(this.store, args, (input, importOptions) => this.importAssets(input, importOptions), this.context.tracking, channel, host);
     }
     if (name === 'motion_capability_discover') return capabilityDiscover(this.store, args, this.context.tracking, 'mcp');
-    if (name === 'motion_capability_run') return capabilityRun(this.store, args, this.context.tracking, 'mcp');
+    if (name === 'motion_capability_run') return capabilityRun(this.store, args, this.context.tracking, 'mcp', host);
     if (name === 'motion_job_manage') return jobManage(this.store, args, this.context.tracking);
     if (name === 'motion_asset_manage') {
       return assetManage(this.store, args, (input, options) => this.importAssets(input, options), this.context.origin(), this.context.tracking);
     }
-    if (name === 'motion_media_use') return mediaUse(this.store, args, this.context.tracking);
+    if (name === 'motion_media_use') return mediaUse(this.store, args, this.context.tracking, host);
     if (name === 'motion_get_project' && !args.projectId) {
       if (args.file || args.exportJobId || args.expectedRevision || args.workId || args.includeVideo) throw new ToolInputError('projectId is required for details', 'projectId', 'missing');
       const scope = (args.trashed ? 'trash:' : '') + (args.sessionId ?? 'workspace');
@@ -610,13 +610,13 @@ export class Phase1Service {
         if (!args.projectId || !args.mode) throw new ToolInputError('begin requires projectId and mode', !args.projectId ? 'projectId' : 'mode', 'missing');
         return this.writeRequest(name, args, async record => {
           const project = await this.detail(args.projectId);
-          const inlineWork = await this.workRounds.create(project, args.mode, record.workId, args.generation !== false);
+          const inlineWork = await this.workRounds.create(project, args.mode, record.workId, args.generation !== false, host);
           if (this.context.tracking) {
-            this.context.tracking.track('host_run_started', { run_id: inlineWork.id, entry_type: 'mcp', task_type: args.mode });
-            this.context.tracking.track('host_state_changed', { run_id: inlineWork.id, sequence: 1, state: 'active', phase: 'authoring' });
+            this.context.tracking.track('host_run_started', { run_id: inlineWork.id, entry_type: 'mcp', task_type: args.mode }, undefined, undefined, host);
+            this.context.tracking.track('host_state_changed', { run_id: inlineWork.id, sequence: 1, state: 'active', phase: 'authoring' }, undefined, undefined, host);
           }
           return { projectId: project.projectId, sessionId: project.sessionId, authoringGuide: project.authoringGuide, inlineWork };
-        });
+        }, host);
       }
       if (args.action === 'complete_generation') {
         const missing = ['projectId', 'workId', 'expectedRevision', 'expectedVersionId'].find(key => !args[key]);

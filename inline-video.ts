@@ -5,7 +5,8 @@ import { createHash } from 'node:crypto';
 import type { WorkspaceStore } from './workspace.ts';
 import { execute } from './hyperframes.ts';
 import { withProcessLock } from './shared/process-lock.ts';
-import { deviceContext } from './tracking/core.ts';
+import { deviceContext, slug } from './tracking/core.ts';
+import { validHostContext, type HostContext } from './tracking/host.ts';
 import type { OmTracking } from './shared/tracking.ts';
 import { verificationBinaries } from './scripts/verify-export.ts';
 
@@ -90,6 +91,7 @@ export type WorkRound = {
   createdAt: number; updatedAt: number; versionId: string; versionNumber: number; revision: string;
   generation?: { initialVersionId: string; startedAt: number; telemetryEligible: boolean; completionRequestId?: string; completedAt?: number;
     versionId?: string; revision?: string; editedAt?: number; exportedAt?: number; exportRoute?: 'mcp' | 'studio' };
+  trackingHost?: HostContext;
   state: 'authoring' | 'saved' | 'failed'; error?: string; jobId?: string; previousJobId?: string;
 };
 
@@ -107,6 +109,9 @@ export class WorkRounds {
   emitGeneration(work: WorkRound) {
     const generation = work.generation;
     if (!generation?.telemetryEligible || !this.tracking?.enabled()) return;
+    const rawTemplateId = this.store.projectCatalog().projects.find(item => item.id === work.projectId)?.templateId;
+    const templateId = typeof rawTemplateId === 'string' && slug.test(rawTemplateId) ? rawTemplateId : undefined;
+    const hostContext = validHostContext(work.trackingHost) ? work.trackingHost : undefined;
     for (const [stage, stamp] of [['started', generation.startedAt], ['generated', generation.completedAt], ['edited', generation.editedAt], ['exported', generation.exportedAt]] as const) {
       if (stamp === undefined) continue;
       // A retry retains both the occurrence time and the receiver's deduplication key.
@@ -115,9 +120,11 @@ export class WorkRounds {
         '8' + hex.slice(17, 20), hex.slice(20, 32)].join('-');
       this.tracking.ingest({ event: 'work_generation_stage', event_id: eventId, occurred_at: new Date(stamp).toISOString(),
         entrypoint: stage === 'exported' || stage === 'edited' ? 'worker' : 'mcp', ...deviceContext(),
+        ...(hostContext ? { host_context: hostContext } : {}),
         properties: { work_id: work.id, project_id: work.projectId, stage, task_type: work.mode,
           ...(stage !== 'started' ? { version_id: generation.versionId!, revision: generation.revision! } : {}),
-          ...(stage === 'exported' ? { export_route: generation.exportRoute! } : {}) } });
+          ...(stage === 'exported' ? { export_route: generation.exportRoute! } : {}),
+          ...(templateId ? { template_id: templateId, attribution_source: 'project_catalog' as const } : { attribution_source: 'none' as const }) } });
     }
   }
   async generated(projectId: string, id: string, versionId: string, versionNumber: number, revision: string, requestId: string) {
@@ -184,17 +191,19 @@ export class WorkRounds {
     if (!/^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(id)) throw new Error('INVALID_WORK_ID');
     return path.join(this.store.directory, 'phase1', 'work', id + '.json');
   }
-  async create(project: any, mode: WorkRound['mode'], id = crypto.randomUUID(), generation = true) {
+  async create(project: any, mode: WorkRound['mode'], id = crypto.randomUUID(), generation = true, host?: HostContext) {
     const existing = await jsonFile<WorkRound | null>(this.file(id), null);
     if (existing) {
       if (existing.projectId !== project.projectId || existing.mode !== mode) throw new Error('WORK_ID_CONFLICT');
       this.emitGeneration(existing);
       return this.read(project.projectId, id);
     }
+    const validHost = validHostContext(host) && host.host_agent !== 'unknown' ? host : undefined;
     const round: WorkRound = { id, projectId: project.projectId,
       title: this.store.projectCatalog().projects.find(item => item.id === project.projectId)!.title,
       mode, createdAt: Date.now(), updatedAt: Date.now(), versionId: project.currentVersionId,
       versionNumber: project.currentVersionNumber, revision: project.revision, state: 'authoring',
+      ...(validHost ? { trackingHost: validHost } : {}),
       previousJobId: project.exports.find((job: any) => job.state === 'completed' && verified(job.verification))?.id };
     if (generation) round.generation = { initialVersionId: project.currentVersionId, startedAt: round.createdAt, telemetryEligible: this.tracking?.enabled() === true };
     await atomicJson(this.file(round.id), round);

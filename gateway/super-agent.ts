@@ -14,6 +14,18 @@ import { assetMediaUrl, assetReadToolResult, assetVersion, type AssetReadResult 
 import { webAddress } from '../shared/browser.ts';
 import { designRoutes } from '../shared/design-project.ts';
 import { localAgents, type AgentDefinition } from '../shared/local-agents.ts';
+import type { OmTracking } from '../shared/tracking.ts';
+import { slug } from '../tracking/core.ts';
+import { superAgentError } from '../tracking/tool-fields.ts';
+
+const safeSuperAgentModelCode = /^[A-Za-z0-9_.-]{1,128}$/;
+const knownSuperAgentIntents = new Set(['chat', 'coding', 'design', 'research', 'visualization', 'image', 'video', 'audio', 'game', 'website', 'slides', 'brand']);
+const knownSuperAgentApprovalKinds = new Set(['generation', 'command', 'file', 'tool']);
+function superAgentRuntimeKind(runtimeId?: string): 'local-direct' | 'local-bridge' | 'remote-service' {
+  if (isBridgeRuntimeId(runtimeId)) return 'local-bridge';
+  if (isServiceRuntimeId(runtimeId)) return 'remote-service';
+  return 'local-direct';
+}
 import {
   LOCAL_DIRECT_RUNTIME_ID,
   isBridgeRuntimeId,
@@ -125,6 +137,8 @@ interface ActiveSuperAgentChat {
   persistDirty?: boolean;
   inFlightTools: Set<Promise<unknown>>;
   approvals: Map<string, (accepted: boolean) => void>;
+  approvalMeta?: Map<string, { kind: SuperAgentApproval['kind']; requestedAt: number }>;
+  turnApprovalCount?: number;
   done: Promise<void>;
   finish: () => void;
   turnStartedAt: number;
@@ -828,6 +842,7 @@ export class SuperAgentConversations {
     runClaude?: ClaudeTurnRunner;
     runAcp?: (opts: AcpAdapterOptions) => Promise<void>;
     statusPollWaitMs?: number;
+    tracking?: OmTracking;
   };
 
   constructor(store: WorkspaceStore, options: SuperAgentConversations['options'] = {}) {
@@ -1898,6 +1913,8 @@ export class SuperAgentConversations {
     const pending = new Promise<boolean>(resolve => {
       active.approvals.set(id, resolve);
     });
+    active.turnApprovalCount = (active.turnApprovalCount ?? 0) + 1;
+    (active.approvalMeta ??= new Map()).set(id, { kind, requestedAt: Date.now() });
     const described = describeSuperAgentApproval({
       kind,
       title,
@@ -1927,6 +1944,8 @@ export class SuperAgentConversations {
     const answer = active?.approvals.get(approvalId);
     if (!active || !answer || typeof accepted !== 'boolean') throw new Error('Approval is no longer pending');
     active.approvals.delete(approvalId);
+    const meta = active.approvalMeta?.get(approvalId);
+    active.approvalMeta?.delete(approvalId);
     active.chat.approvals = active.chat.approvals.filter(item => item.id !== approvalId);
 
     const extraResolvers: ((ok: boolean) => void)[] = [];
@@ -1934,9 +1953,21 @@ export class SuperAgentConversations {
       active.chat.permissionMode = 'auto';
       for (const [otherId, resolveOther] of active.approvals.entries()) {
         active.approvals.delete(otherId);
+        active.approvalMeta?.delete(otherId);
         extraResolvers.push(resolveOther);
       }
       active.chat.approvals = [];
+    }
+
+    if (meta) {
+      const approvalKind = knownSuperAgentApprovalKinds.has(meta.kind) ? meta.kind : 'other';
+      this.options.tracking?.track('super_agent_approval_result', {
+        runtime_kind: superAgentRuntimeKind(active.runtimeId ?? active.chat.runtimeId),
+        approval_kind: approvalKind as 'generation' | 'command' | 'file' | 'tool' | 'other',
+        decision: accepted ? 'approved' : 'rejected',
+        always_allow: Boolean(accepted && alwaysAllow),
+        wait_ms: Math.min(86_400_000, Math.max(0, Math.round(Date.now() - meta.requestedAt))),
+      }, undefined, 'worker');
     }
 
     active.chat.state = active.chat.approvals.length ? 'waiting' : 'running';
@@ -4253,6 +4284,8 @@ export class SuperAgentConversations {
     active.chat.approvals = [];
     active.chat.intent = inferSuperAgentIntent(active.chat);
     this.syncProjectDir(active.chat);
+    let turnToolCallCount = 0;
+    let turnChangedFileCount = 0;
     if (!active.deleted && active.turnUserMessageId) {
       const postRoots = collectTaskProjectRoots(this.store.directory, active.chat, {
         gameIds: active.touchedGameIds,
@@ -4265,8 +4298,10 @@ export class SuperAgentConversations {
       const turnMessages = turnStartIdx >= 0
         ? active.chat.messages.slice(turnStartIdx + 1)
         : active.chat.messages;
+      turnToolCallCount = turnMessages.filter(m => m.role === 'tool').length;
       const toolFiles = collectToolChangedFiles(turnMessages);
       const merged = mergeTurnChangedFiles(snapshotFiles, toolFiles);
+      turnChangedFileCount = merged.length;
       if (merged.length > 0) {
         const nextMap: Record<string, SuperAgentFileOperation[]> = {
           ...(active.chat.turnChangedFiles ?? {}),
@@ -4281,6 +4316,37 @@ export class SuperAgentConversations {
         active.chat.turnChangedFiles = nextMap;
       }
     }
+    const rawEngine = (active.chat.engine || 'unknown').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+    const safeEngine = slug.test(rawEngine) ? rawEngine : 'other';
+    const safeModelId = typeof active.chat.model === 'string' && safeSuperAgentModelCode.test(active.chat.model)
+      ? active.chat.model : undefined;
+    const turnOutcome: 'completed' | 'failed' | 'cancelled' = error
+      ? 'failed'
+      : state === 'cancelled'
+        ? 'cancelled'
+        : 'completed';
+    const rawIntent = active.chat.intent;
+    const safeIntent = rawIntent && knownSuperAgentIntents.has(rawIntent) ? rawIntent : 'other';
+    const turnUsage = active.chat.lastTurnUsage;
+    const safeInt = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n >= 0 ? Math.min(86_400_000, Math.round(n)) : undefined;
+    const inputTokens = safeInt(turnUsage?.inputTokens);
+    const outputTokens = safeInt(turnUsage?.outputTokens);
+    this.options.tracking?.track('super_agent_turn_result', {
+      runtime_kind: superAgentRuntimeKind(active.runtimeId ?? active.chat.runtimeId),
+      engine: safeEngine,
+      ...(safeModelId ? { model_id: safeModelId } : {}),
+      permission_mode: active.chat.permissionMode === 'auto' ? 'auto' : 'on-request',
+      intent: safeIntent as 'chat' | 'coding' | 'design' | 'research' | 'visualization' | 'image' | 'video' | 'audio' | 'game' | 'website' | 'slides' | 'brand' | 'other',
+      outcome: turnOutcome,
+      duration_ms: Math.min(86_400_000, active.chat.lastTurnDurationMs ?? 0),
+      tool_call_count: turnToolCallCount,
+      approval_count: active.turnApprovalCount ?? 0,
+      artifact_count: active.chat.artifacts.length,
+      changed_file_count: turnChangedFileCount,
+      ...(inputTokens !== undefined ? { input_tokens: inputTokens } : {}),
+      ...(outputTokens !== undefined ? { output_tokens: outputTokens } : {}),
+      ...(turnOutcome !== 'completed' ? { error_code: superAgentError(error, turnOutcome === 'cancelled') } : {}),
+    }, undefined, 'worker');
     if (!error && !active.chat.titleCustomized) {
       const firstUserText =
         active.chat.messages.find(m => m.role === 'user' && !isGenericSuperAgentTitle(generateSuperAgentTitle({ prompt: m.text })))?.text
@@ -4506,12 +4572,14 @@ export class SuperAgentConversations {
 }
 
 const services = new WeakMap<WorkspaceStore, SuperAgentConversations>();
-export function superAgentConversations(store: WorkspaceStore): SuperAgentConversations {
+export function superAgentConversations(store: WorkspaceStore, tracking?: OmTracking): SuperAgentConversations {
   const root = store.workspaceStore ?? store;
   let service = services.get(root);
   if (!service) {
-    service = new SuperAgentConversations(root);
+    service = new SuperAgentConversations(root, tracking ? { tracking } : {});
     services.set(root, service);
+  } else if (tracking) {
+    service.options.tracking = tracking;
   }
   return service;
 }

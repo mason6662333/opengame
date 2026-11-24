@@ -21,7 +21,7 @@ import { createAppTracking, closeTracking, type OmTracking } from './shared/trac
 import { extractCodexThreadMeta, flushCodexSessionTracking, isCompletedExportToolResult, recordCodexThreadActivity, syncActiveCodexThreads } from './shared/codex-session-tracking.ts';
 import { uuid } from './tracking/core.ts';
 import { mcpToolNames } from './tracking/events.ts';
-import { toolFailureFields, toolInputFields } from './tracking/tool-fields.ts';
+import { toolFailureFields, toolInputFields, toolResultFields } from './tracking/tool-fields.ts';
 import { identifyHost, unknownHost } from './tracking/host.ts';
 import type { HostContext } from './tracking/host.ts';
 import { templateCatalogFor } from './prism-templates.ts';
@@ -126,7 +126,7 @@ export async function rpc(message: any, store = new WorkspaceStore(), registry =
   const outcome = value?.isError || content?.status === 'failed' ? 'failure' : content?.status === 'partial' ? 'partial' : value ? 'success' : 'unknown';
   const importRejected = (outcome === 'partial' || outcome === 'failure')
     && (name === 'motion_import_assets' || name === 'motion_assets' && fields.action === 'import_to_project');
-  tracking.track('mcp_tool_finished', { ...fields, outcome, duration_ms: Math.min(86_400_000, Math.round(performance.now() - started)),
+  tracking.track('mcp_tool_finished', { ...fields, ...toolResultFields(publicName, args, content), outcome, duration_ms: Math.min(86_400_000, Math.round(performance.now() - started)),
     ...(value?.isError ? toolFailureFields(content?.error)
       : importRejected ? { error_code: 'ASSET_IMPORT_FAILED' as const } : {}),
     ...(typeof content?.replayed === 'boolean' ? { replayed: content.replayed } : {}) }, undefined, undefined, host);

@@ -814,7 +814,7 @@ export async function handler(req: IncomingMessage, res: ServerResponse, store =
       }
     }
     if (motionRequest && url.pathname.startsWith('/api/super-agent')) {
-      const superAgent = superAgentConversations(store);
+      const superAgent = superAgentConversations(store, context.tracking);
       if (url.pathname === '/api/super-agent/resources' && req.method === 'GET') {
         return json(res, 200, await collectWorkspaceResources(store.workspaceStore ?? store, {
           kind: url.searchParams.get('kind') ?? undefined,
