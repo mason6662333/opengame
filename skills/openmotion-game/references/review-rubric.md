@@ -1,48 +1,37 @@
 > See [source and execution notes](../PROVENANCE.md).
 
-# Game review rubric
+# Game Review Rubric
 
-Run this before setting a game ready or publishing it. Mechanical checks are a floor; actual headless gameplay review (playtest screenshots, assertions, simulation outcomes) is still required, and none of it replaces human play on real devices.
+Run this before setting `status: "ready"` or publishing. Automated checks raise the floor; headless captures do not replace human play, physical GPU/touch performance, or audible review.
 
-## Gameplay and verification
-Game-specific completion checks: six exports; deterministic authoritative rules; bounded validated inputs; no client-trusted damage; relative assets load; clip transitions; reachable win/loss; restart; co-op starts with one player by default; touch joystick/tap and keyboard/mouse (including release/cancel and focus loss); disconnect/rejoin and late join; performance on the weakest target; sound-disabled play; `openmotion_game_validate`; required server-owned `openmotion_game_playtest` with meaningful 1–4 client scripts and inspection of errors, failed requests, screenshots, joined/player-count metrics. Validate real HP/down/revive, solo five-second respawn, dash/nova cooldowns, wave countdown, spawn order and restart. Before publication, require `design/plan.md`, `design/assets.csv` and `design/verification.md`: experience formula, numeric metrics/thresholds, wave/difficulty plan, sources/licenses/costs, actual inputs/results and known gaps. Run `openmotion_game_simulate` for both routes: reference must win, idle must lose terminally; timeout is not a loss. Check `window.__omGame` snapshot/action hooks and `?debug` metrics, then inspect every playtest assertion (player count, phase, net displacement above threshold, no horizontal overflow at 390×844). Missing design files produce non-blocking reminders but still require the Agent to complete the artifacts. Before publication, verify concise title/description/controls, zh-CN i18n and a real project-relative cover set with openmotion_game_update_meta. **Require `openmotion_game_capture_cover` for game-only cover capture. Never operate, attach to or screenshot the user's visible browser, existing profile or desktop. Reject covers containing browser chrome or unrelated windows; metadata enforces at least 960×540 and 16:9 ±5%. A missing headless browser/loopback permission must be reported; do not substitute the user's Chrome.** Review advisory missing-cover/starter-similarity warnings; do not add filler lines to clear them. Report non-blocking publication metadata warnings. Publication requires authorization and stays local.
+## 1. Mechanical & Functional Gate (Fix Every Failure Before `ready`)
 
-## Mechanical gate (code and asset level)
+1. **Zero starter residue:** No leftover starter copy/titles (`TODO`, `lorem`, empty `src=""`, or default placeholder theme).
+2. **Entry & viewport fit (`100dvh`):** Full-viewport playfield with no landing-page layout beside a boxed canvas. Lightweight 2D/arcade games play from frame one; heavy-asset/atmospheric 3D builds using a loading cover must show real progress, block gameplay inputs while loading, enter cleanly via `#start`, and completely remove/hide the cover overlay on entry.
+3. **Readability & style cohesion:** Clear figure-ground separation (environment < obstacles < hero & hazards/objectives), consistent rendering medium (no live-action DSLR photos pasted onto 2D/anime canvases), and no glaring visual fidelity cliff between hero anchors and primary-sightline neighbors.
+4. **Assets complete & clean:** Every used asset in `design/assets.csv` loads with zero 404/network errors in playtest; generated/imported library assets use complete literal `/motion-api/assets/<assetId>/versions/<versionId>/media` URLs (never dynamic concatenation); 3D `.glb` assets checked with `scripts/game-glb-inspect.mjs` (scale, grounding, `alphaMode: BLEND`, payload share).
+5. **Multimodal-first honoured:** When fitting models are available and approved, real generated/imported assets appear inside active gameplay/character scenes (not title-only); any fallback records the concrete blocker in `design/plan.md`.
+6. **Verification matched to architecture:**
+   - `openmotion_game_validate` passes with zero blocking diagnostics.
+   - Rule/score/puzzle/card games using `logic.js`: 3-tier `openmotion_game_simulate` passes (`reference` wins, degraded struggles, `idle` loses cleanly).
+   - All games (and primary for `realtime-3d` / `sandbox-explore`): `openmotion_game_playtest` passes all assertions including **`window.__omGame.runSelfTests()`** invariants, multi-point `{ type: "screenshot", label }` visual inspection, and zero horizontal overflow at `390×844` under peak HUD density.
+7. **Audio, fallbacks & accessibility:** User-gesture AudioContext unlock, mute toggle, playable muted, graceful asset-load fallbacks (never blanking gameplay), `prefers-reduced-motion` respect (no > 3 Hz full-screen flashes), and touch controls (≥ 48–56 px targets).
+8. **Metadata, cover & licenses:** Game-only 1280×720 cover captured via `openmotion_game_capture_cover` (never user's visible browser/desktop; never stuck on a loading frame), concise English + `zh-CN` metadata via `openmotion_game_update_meta`, and preserved `vendor/` / `characters/` licenses.
 
-Check each item; fix every hit before setting ready.
+## 2. Playable-Ad Addendum
 
-1. **Placeholders**: no leftover starter strings (the arcade-2d "catch sparks, dodge rocks" sample, `lorem`, `TODO`, empty `src=""`), no starter title as the game title.
-2. **Game-first screen**: the playfield fills the viewport from the first frame; no landing-page layout, hero headline or feature list beside the game (see `game-genres.md` quality floor).
-3. **Palette follows the approved STYLE FORMULA & combat readability**: palette roles (environment, hero contrast, signal hue) are respected and both heroes and enemies pop clearly against the background. There is no fixed list of banned palettes for games: neon on near-black is right for cyberpunk or synthwave briefs, warm beige for cozy ones. Reject a palette or camera framing when it breaks readability (hero or enemies blend into the ground/skybox, 3D enemies look like tiny unreadable specks in playtest screenshots, signal hue reused on scenery, or critical cues distinguished by color alone).
-4. **Asset kit complete and referenced**: every row in `design/assets.csv` is either used by the game or removed; every generated asset is embedded as a complete literal `/motion-api/assets/<assetId>/versions/<versionId>/media` URL (or a relative bundled path, never assembled dynamically by string concatenation) and loads without errors in the playtest failed-request list; each row records source, license and actual approved cost or zero.
-5. **Multimodal-first & style fidelity honoured**: separate required assets (human/anime characters, portraits, requested illustration/cover art, background music, spoken voice) from optional polish. When discovery lists a fitting model, generated assets must be used for those required roles, **match the requested rendering medium** (e.g. an `anime` / `二次元` brief must look like 2D/2.5D anime illustration consistent with the game art, never a live-action DSLR photograph pasted onto a vector canvas), and be **visually verified in playtest screenshots inside the active gameplay/character scenes** (loading an image only on the title screen while active gameplay still draws primitive stick-figure characters fails this item). Any fallback of a required asset must record the concrete blocker in `design/plan.md` (user declined consent, account lacks entitlement, no fitting model listed, or host lacks media tools).
-6. **Audio floor**: short SFX are synthesized with Web Audio (or generated when a model exists); the audio context starts from a user gesture; a mute toggle exists; the game remains playable muted.
-7. **Fallbacks**: every generated image/audio load has a visible loading state and a code-drawn or silent fallback; a failed asset never blanks the canvas or blocks start.
-8. **Reduced motion and flashes**: screen shake and full-screen flashes have a toggle or respect `prefers-reduced-motion`; nothing flashes more than three times per second.
-9. **Touch and layout**: touch controls exist (buttons at least 56 px), no horizontal overflow at 390×844, `h-dvh`/`100dvh` instead of `100vh` for full-height layouts on mobile.
-10. **Copy self-audit**: title, goal line, controls, HUD and end-card strings re-read in every shipped language (English plus `zh-CN` metadata); no broken grammar, unexplained jargon or fake-precise numbers.
-11. **Licenses**: `vendor/`, `characters/` and any supplied asset keep their license files; generated assets list provider/model in `design/assets.csv`.
+For **Format: playable ad**, score each criterion 0 (missing), 1 (partial), or 2 (meets [game-playable-ad.md](game-playable-ad.md)) in `design/verification.md`. Ship only with zero `0`s and total ≥ 10/12:
 
-## Playable-ad addendum
-
-For a **Format: playable ad** brief, score each line 0 (missing), 1 (partial) or 2 (meets the [playable-ad recipe](game-playable-ad.md)) and record the scores with evidence in `design/verification.md`. Ship only with no 0 and a total of at least 10 of 12; name every 1 in the final message.
-
-| Line | 2 means |
+| Criterion | 2 means |
 |---|---|
-| First-frame play | Scene and player object drawn on the first frame, no title card; the first touch anywhere starts play and scores within 1 s |
-| Tutorial | Animated hand on the exact first-move target with one short line; hides on input, returns after the hint delay |
-| Level arc | 3–8 levels: obvious level-1 win, a near-fail level (pilot `maxDanger` 0.6–0.9), a twist; reference wins and idle loses terminally in `openmotion_game_simulate` |
-| End card and CTA | Win and fail cards both reached in playtest; CTA (primary) and Play again (secondary); CTA tap logs `cta_click` through `openStore()`, Play again never does |
-| Single file | Inlined `index.html` regenerated from the sources; zero requests; no storage, dialogs or SDK stubs; size reported |
-| Polish | No overlapping HUD numbers or popups at 390×844; corners free; feedback on every input; three languages fit |
+| First-frame play | Playable scene on frame one, no title card; first touch plays and scores within 1 s |
+| Tutorial | Animated hand on exact first target + short cue; hides on input, returns after idle hint delay |
+| Level arc | 3–8 levels (easy L1 win, high-tension level, twist); `reference` wins and `idle` loses in `simulate` |
+| End card & CTA | Both win/fail cards verified in playtest; CTA logs `cta_click` via `openStore()`, Play again does not |
+| Single file | Self-contained inlined `index.html`, zero external requests, no storage/dialogs/SDK stubs, size logged |
+| Polish | Clean `390×844` layout, free corners, immediate feedback on every tap, localized copy fits |
 
-## Optional post-publication trailer acceptance
+## 3. Optional Post-Publish Checks
 
-- Offer a trailer after publishing; run `openmotion_game_trailer` only when requested. Use its server-owned headless recording, never the user's visible browser/profile/desktop.
-- Inspect three actual gameplay clips, title/cover, localized title, short captions and Play now/controls in the editable native project. Generic recorded inputs are not a substitute for the required reference-win and idle-loss simulations.
-- Report ready only when the existing export pipeline finishes and videoUrl is available. Verify the final MP4 separately from composition JSON or a created project. The output is silent.
-- Report missing Chrome/ffmpeg/export runtime, interrupted jobs, errors and retained clips/projectId honestly. No dependency download, paid generation, internet hosting or human video acceptance is implied.
-
-## Multiplayer entry checks
-
-Apply the [automatic-join acceptance checklist](../SKILL.md#mandatory-multiplayer-entry-acceptance).
+- **Trailer (`openmotion_game_trailer`):** Only on user request; inspect actual clips and final silent MP4 before claiming ready.
+- **Existing multiplayer projects:** Apply [Mandatory Multiplayer Entry Acceptance](../SKILL.md#mandatory-multiplayer-entry-acceptance).

@@ -1,240 +1,45 @@
 > See [source and execution notes](../PROVENANCE.md).
 
-# Stylization — the style contract for AI-generated game assets
+# Stylization — Cohesive Art Direction for Generated & Code-Made Assets
 
-Self-contained specification of the stylization layer for game pipelines.
-Owns everything that makes independently generated assets look like ONE game.
-Designed to be dropped into any game-generation skill: if your pipeline
-generates a single pixel of game art, it consumes this contract.
+Independent model calls have no memory of each other. Without a shared visual contract, a game quickly drifts into clashing art styles (photoreal backdrop + flat vector hero + neon UI). Store one concise English style direction in `design/style.md` and carry it consistently across every asset prompt and engine lighting choice.
 
-**Interface in one paragraph:** the pipeline derives ONE text string (the
-STYLE FORMULA) per game, gets it user-approved once, then inserts it
-byte-identical into every asset-generation prompt of every subsystem
-(sprites, animations, tiles, backgrounds, textures, 3D). This file defines
-how the formula is built, how prompts are assembled around it, which discovered
-models to call with what parameters, when real generated assets must replace
-code-drawn art (section 9), and how style consistency is verified.
+## 1. Visual Style Direction (`design/style.md`)
 
----
+Compose one concise English paragraph covering five roles — derived from the user's `[locked]` style or a fresh non-cliché direction:
 
-## 1. Why stylization exists
-
-Every asset is produced by an independent model call — the model has no
-memory of previous calls. Different subsystems (and different team members'
-skills) generate different asset kinds. Without a shared rule the result is
-"three different games on one screen": photoreal floor + pixel-art hero +
-cartoon background.
-
-The STYLE FORMULA is the glue: the only piece of shared context that travels
-into every generation.
-
-## 2. STYLE FORMULA recipe
-
-One English paragraph, **60–90 words**, composed once per game right after
-the design brief is parsed, shown to the user for approval, stored in the
-pipeline's state (e.g. `gdd.json.style_formula`).
-
-Concatenate five open structural blocks, in order — fill each slot from the user's explicit style or fresh creative direction rather than reusing any preset palette:
-
-| # | Block | Pins down | Structural slot pattern |
-|---|---|---|---|
-| 1 | Rendering medium | what physical or artistic craft it is "made with" | `[chosen medium, texture grain, and surface finish]` |
-| 2 | Shape & line language | silhouettes, proportions, and edge treatment | `[form vocabulary, contour thickness/contrast, and edge style]` |
-| 3 | Palette **by role** | readability, not uniformity | `[environment/ground value & hue family], [contrasting hero hue/luminance that pops cleanly], [one unmistakable signal hue reserved for hazards/pickups]` |
-| 4 | Light & mood | time of day, light quality, and emotional register | `[lighting direction/temperature, atmosphere, and emotional tone]` |
-| 5 | Game-readability | figure-ground separation + **perspective word** | `high contrast between game elements and backgrounds, clean readable silhouettes, consistent [genre perspective word] perspective across all assets` |
-
-Rules:
-
-- **Block 3 is roles, not one global gamma.** Environment gets its base
-  colors; the hero gets colors that CONTRAST with that base (the hero must
-  pop, never blend); hazards/pickups get one distinct signal hue. A single
-  flat color list paints the whole world one gamma and kills element
-  readability — style identity lives in blocks 1, 2 and 4, color serves
-  readability.
-- **The perspective word in block 5 must match the genre**: platformer /
-  runner → `side-view`; top-down → `top-down`; puzzle / clicker → `flat
-  frontal`. A top-down game with a side-view hero sprite is the most common
-  cross-asset failure; the formula is where it is prevented. (3D pipelines:
-  see section 8 — the perspective word is replaced, not reused.)
-- If the user supplied a style reference image, describe ITS rendering style
-  in your own precise words in block 1 — never paste image URLs into the
-  formula.
-- **Keep one rendering medium across the whole game (no photoreal drift on anime/2D briefs).** When the user asks for `anime` / `二次元` / `真人二次元` / `半写实二次元` / cartoon / pixel art, pin Block 1 explicitly to a 2D illustration medium that matches the game canvas (for example `2D Japanese cel-shaded anime illustration with crisp ink lineart and stylized anime proportions` or `semi-real 2.5D painterly anime game illustration, NOT live-action DSLR photography, NOT photorealistic skin pores`). Never generate a real-world live-action photograph for a character portrait and place it onto a flat vector/anime game screen. Always inspect each generated character image via `action:"read"` and reject/regenerate within budget if it drifts into live-action photography.
-- Do NOT put into the formula: asset-specific content (that's the per-asset
-  description), background/keying instructions (that's the kind suffix),
-  pixel dimensions or resolutions.
-- **Keep raster payload lightweight**: request 1K / game-appropriate sizes for in-game sprites, tiles and backdrops instead of defaulting to 4K multi-megabyte PNGs, keeping total raster assets well under ~8 MB per game for fast browser loading (during `web_publish`, large >=256 KiB PNG/JPEG library assets are automatically transcoded to WebP — lossless for PNGs to preserve exact RGBA pixels, quality 82 for JPEGs).
-
-### STYLE TOKEN (compressed form)
-
-Some downstream fields are length-limited (e.g. an external 3D provider's
-texture prompt, often ≤600 chars — the full formula usually fits; some UI fields may not). When a
-consumer cannot take the full formula, it takes the **STYLE TOKEN**: blocks
-1 + 3-condensed + one accent from block 4, ≤120 chars, derived ONCE from the
-approved formula and then also frozen byte-identical. Structure:
-`[medium], [ground palette role], [contrasting hero & signal accents], [lighting mood], [line/shape language]`.
-The formula is the source of truth; the token is its compression — never
-maintain two competing style strings.
-
-## 3. The byte-identical contract
-
-> The formula is inserted into EVERY generation prompt of EVERY subsystem
-> **without changing a single byte**. No paraphrasing, no shortening, no
-> "improving". Including single-asset regenerations during iteration.
-> Re-deriving the formula mid-game is allowed only when the user explicitly
-> asks to change the art style — that re-opens the approval gate and
-> invalidates all existing assets.
-
-Consumers and their obligations:
-
-| Consumer | Obligation |
+| Role | What It Pins Down |
 |---|---|
-| Static asset generation (sprites, tiles, backgrounds, UI) | formula verbatim in every prompt (assembly in section 4) |
-| Character animation (sprite-sheet generation from a base sprite) | formula verbatim in sheet prompts; the animation view parameter MUST match the formula's perspective word (`side-view` → sidescroller view, `top-down` → top-down view) |
-| Environment textures | formula verbatim + seamless suffix (section 4) |
-| 3D (bundled or procedural meshes; external image-to-3D only if discovered) | formula verbatim in concept, texture and skybox image prompts; engine lighting derived from the formula (section 8) |
-| Level/map presentation sheets | formula or token in the sheet prompt so map icons match the asset kit |
+| **1. Rendering medium** | Physical/artistic craft and surface grain (e.g., *2D Japanese cel-shaded anime illustration with crisp ink lineart*, *tactile matte miniature diorama*, *gritty neon-lit cyberpunk PBR*). Never let 2D/anime briefs drift into live-action DSLR photography. |
+| **2. Shape & silhouette language** | Proportions, contour clarity, and edge treatment so actors read cleanly at gameplay scale. |
+| **3. Palette by readability role** | **Roles, not one flat tint**: muted/cohesive ground & environment base; high-contrast hero hue/luminance that pops cleanly; one unmistakable signal hue reserved for hazards/pickups/objectives. |
+| **4. Light & mood** | Lighting direction, temperature, atmosphere, and time of day. |
+| **5. Camera / perspective consistency** | Match the genre (`side-view`, `top-down`, `isometric`, `flat frontal` for 2D; `three-quarter orthographic/isometric reference` for 3D concepts). |
 
-## 4. Prompt assembly for 2D assets
+Reuse this direction verbatim (or a condensed token for length-limited fields) across every generation prompt in the run. Only re-derive it when the user asks to restyle the whole game.
 
-Every asset prompt is a concatenation of exactly four parts, in order:
+## 2. Prompt Assembly & Transparency
 
-```
-<kind template> + <asset description> + <STYLE FORMULA byte-identical> + <kind suffix>
-```
+Combine: `<asset role & clear visual shorthand> + <style direction> + <framing/seam/transparency constraints>`.
 
-The asset description is a stable 3-4 word shorthand from the design doc
-(`the round blue slime`), never a character name.
+- **Sprites & UI needing transparency:** Prefer live native `parameters.background: "transparent"` when the discovered model lists it, or dedicated live `remove-background` via `openmotion_capability_run`. Only fall back to solid-color chroma-keying (choosing a key color absent from the subject and clearing enclosed holes as well as corners) when neither is available.
+- **Seamless tiles & 3D textures:** Request flat, even, shadowless lighting with wrapping edges; finish tiling/PBR map derivation in code per [game-textures.md](game-textures.md).
+- **Backdrops & key art:** Keep foreground/title safe space clean so HUD, characters, and typography remain effortless to read.
 
-### Kind templates and suffixes
+## 3. Model Selection, Batching & Inspection
 
-**sprite** (characters, objects — needs transparency; drop the key-color suffix when the model supports `background:"transparent"`, section 5)
-- template: `game sprite of <description>, single character/object, full body visible, centered,`
-- suffix: `, on a solid uniform bright <KEY COLOR> background, no shadows cast on the background, no ground plane, nothing cropped at the edges`
+- **Discover live capabilities/models first** (`SKILL.md` §2). Pair higher-quality models for 1–4 focal hero visuals/covers with faster models for tiles/icons/props so batches complete quickly. Pass only live-listed model parameters.
+- **Submit approved assets concurrently** right after planning while writing game logic and UI.
+- **Inspect together before wiring:** Call batch contact-sheet `read` (`items: [{ assetId, versionId }, ...]`, up to 12 images on one neutral-gray sheet) to check style cohesion, rendering-medium fidelity, silhouette clarity, and real alpha cutouts in one turn without bloating context. Cap retries at 2 per asset within approved spend.
+- **Right-size raster payload:** Request game-appropriate sizes matched to actual rendering pixels rather than defaulting every tile or icon to 4K PNGs (during `web_publish`/`exportZip`, large PNG/JPEG assets and embedded GLB textures are automatically WebP-optimized while preserving resolution).
 
-**tile** (repeating surfaces)
-- template: `seamless tileable game texture tile of <description>, uniform pattern density,`
-- suffix: `, perfectly seamless edges that wrap horizontally and vertically, no border, no vignette, flat even lighting, no single focal object`
+## 4. 3D Style Synchronization
 
-**background** (full-frame)
-- template: `game background of <description>, wide establishing view,`
-- suffix: `, no characters, no UI elements, slightly muted detail so foreground game elements stay readable, soft depth layering`
+In 3D scenes, textures alone never sell a style — **engine lighting, skybox/IBL, fog, tone mapping, and geometry density must match `design/style.md`**:
+- Derive directional key light, hemisphere fill, fog tint, and skybox from the style's palette and mood.
+- Fix color drift by retinting materials or adjusting lighting before rebuilding clean meshes; on a full restyle, update lighting, fog, textures, and materials together.
+- Verify same-frame consistency: once a focal hero or vehicle looks sharp, ensure neighboring primary-sightline props do not break immersion with flat unshaded placeholders.
 
-**texture** (3D surface)
-- template: `seamless tileable surface texture of <description>,`
-- suffix: `, perfectly seamless edges, flat even lighting, no perspective, no objects, photographed-flat appearance`
+## 5. Multimodal-First vs. Procedural Fallback
 
-**ui** (buttons, icons — needs transparency; same rule)
-- template: `game UI element: <description>, single element, centered,`
-- suffix: `, on a solid uniform bright <KEY COLOR> background, crisp edges, no drop shadow outside the element`
-
-## 5. Transparency: native alpha first, key color as fallback
-
-Check the chosen image model before choosing a method:
-
-1. **Native transparency.** If the model's discovered `generationOptions` list a `background` option with `"transparent"` (`gpt-image-2.6-sunburst` and `gpt-image-2.6-flare` expose `parameters.background: "transparent"` on both OpenDesign `account` and `opendesign`), request `parameters.background: "transparent"` and drop the key-color suffix. `seedream-5.5` currently exposes `size` only in OpenMotion's catalogue, so route it through the solid key-color fallback unless its live entry explicitly lists `background: "transparent"`. Always verify the returned PNG really has an alpha channel (a drawn checkerboard is not transparency).
-2. **Key-color fallback.** When no transparent background is listed, generate on a solid key color and key it out in code (Canvas `getImageData` pass at load time, or a shader).
-
-**Choosing the key color (fallback only) is a per-asset step, driven by the
-formula's palette:**
-
-1. default: bright magenta `#FF00FF`;
-2. if the asset's own colors (its description OR the formula's role palette)
-   are anywhere near pink/magenta/purple → bright green `#00FF00`;
-3. if both are taken → bright blue `#0000FF`.
-
-The chosen color goes into BOTH the prompt suffix and the keying code.
-Real shipped failure: a pink donut generated on magenta — unkeyable, the
-donut hole stayed pink in the game. Keying must also clear
-ENCLOSED key-colored regions (a donut hole is not connected to the image
-corners, so corner flood-fill alone misses it).
-
-## 6. Models and volumes
-
-Discover with `openmotion_media_use action=models modality=image refresh=true` and follow the `openmotion-media` provider order (OpenDesign account, then OpenDesign Cloud, then other configured providers). Use only returned IDs; the table names OpenDesign models listed at review time.
-
-| What | Preferred model when listed | Composition target & live params | Volume per game |
-|---|---|---|---|
-| Key art, cover art, title screen, character portraits, visual-novel scenes | `gpt-image-2.6-sunburst` (quality) or `seedream-5.5` (painterly/photoreal) | Target `16:9` scenes or `3:4`/`1:1` portraits; send only live-listed params (`quality`/`background` on GPT Image 2.6, `size` on Seedream 5.5 — never bare `aspect_ratio` or `output` unless listed) and crop/pad cleanly in code | 1–4 hero images |
-| Sprites, props, tiles, card art, UI icons | `gpt-image-2.6-flare` (fast + native `background:"transparent"` when listed) or `seedream-5.0-flash` (fast opaque tiles/cards, `size:"1K"`) | Square centered framing using only live-listed params; reserve slower `sunburst` for hero focal art so full batches finish fast | ≤8 assets, submitted upfront together |
-| Backgrounds, seamless textures | `seedream-5.0-flash` (fast) or `seedream-5.5` / `gpt-image-2.6-sunburst` | Target `16:9` (background) or `1:1` (tile/texture) using the model's live `size` / `quality` params | ≤4 |
-| Variants and edits of an approved asset (pose, expression, recolor) | a model returned with `supportsImageReference:true`, passing `references:[{assetId,versionId}]` | within `maxInputImages` and live-listed params | as needed |
-| 3D concept/reference images | any listed image model above | Square centered framing using live-listed params | one per prop |
-
-- **Tier models & overlap work for speed:** submit the entire approved asset batch concurrently right after planning so the gateway runs jobs in parallel while you author `logic.js`, `index.html`, and `client.js`; pair 1–4 hero visuals on a quality model with faster models (`gpt-image-2.6-flare` for transparent cutouts, `seedream-5.0-flash` for opaque tiles/cards) to avoid multi-minute tail queues.
-- Keep style cohesion via the verbatim STYLE FORMULA across tiers (never mix wildly different art directions).
-- Pick resolution at generation time from the catalogue profile; never upscale afterwards.
-- **Regeneration budget: 2 attempts per asset** within the approved spend (style drift / keying /
-  tiling failures), then take the best attempt and compensate in code
-  (tint, scale, 1px overlap). Style drift usually heals with a re-roll of
-  the SAME prompt; only edit the description when the content itself is wrong. Extra attempts beyond the approved list need a new approval.
-- The only legitimate full-set regeneration: the user asked to change the
-  whole style (new formula → new approval → all assets redone). Never
-  regenerate everything in response to point feedback.
-- When no image model is listed or the user declines spend, draw with Canvas/SVG/Three.js and record the gap; see section 9.
-
-## 7. Scale, proportion and coherence checks
-
-- Every object in the design doc carries `relative_scale` — height in
-  hero-units (hero = `1.0`, spike trap ≈ `0.6`, doorway ≈ `2.0`). It drives
-  in-game sizing and the contact sheet; it is NOT inserted into generation
-  prompts.
-- **Contact sheet before asset approval:** inspect all generated image assets together in **one** batch call — `openmotion_assets_use(action="read", items=[{assetId, versionId}, ...])` (composites up to 12 images onto one labeled grid over neutral gray so style cohesion, palette separation, framing, and transparent alpha cutouts are visible side-by-side without injecting 8–10 full-resolution images into later turns). Use single-asset `read` with `maxEdge: 512` only when zooming in on one doubtful asset. A problem caught here costs one regen; caught after coding it costs a debugging session.
-- Per-set style checklist: same rendering style on every asset (block 1)?
-  outlines consistent (block 2)? palette roles respected — hero contrasts
-  environment, signal hue only on hazards/pickups (block 3)? one perspective
-  everywhere (block 5)?
-- Final in-game sizes (2D): sprite 128px, tile 256px (power-of-two), background
-  1280×720. Downscale with NEAREST for pixel-art formulas (LANCZOS smears
-  them), LANCZOS otherwise.
-
-## 8. 2D vs 3D stylization — what changes
-
-3D consumes the same formula but through different mechanics:
-
-| Aspect | 2D | 3D (bundled GLBs, Three.js meshes) |
-|---|---|---|
-| Style carrier | formula in every asset prompt | formula in concept, texture and skybox image prompts; engine lighting from blocks 3–4 |
-| Background for subject shots | native transparent background, else solid key color (section 5) | concept images for modelling reference: pure flat white, no shadow, no ground (also the input rule for any discovered image-to-3D provider); textures and skyboxes need no keying |
-| Perspective word | `side-view` / `top-down` / `flat frontal` everywhere | replaced by `three-quarter isometric view` on concept images (shows top + two sides — maximum shape information for modelling); in-game camera is free |
-| Style drift fix | regenerate the asset (budget: 2) | retint materials or swap generated textures on the same mesh — never rebuild a well-shaped mesh for color reasons |
-| Extra style surface | — | engine lighting: light color, fog and ambient intensity must be derived from formula blocks 3-4, or a perfectly styled texture set still reads off-style in-game |
-| Geometry style | — | add a geometry clause to 3D concept prompts when the formula implies it (`low-poly faceted`, `smooth rounded blobby`); polycount tiers: ~8000 hero/interactive props, ~3000 + lowpoly for small decoration |
-
-**Full style change in 3D** (user asks to restyle the whole game): new
-formula → **re-approval gate** (never skip it) → regenerate textures →
-**re-derive engine lighting, fog and ambient from the new formula's blocks
-3-4** → revisit the geometry clause. New textures on old lighting and old
-primitives read as "a picture slapped on the old game" — this exact failure
-shipped once (Roblox-style scene "restyled" to Mafia 3 by swapping textures
-only).
-
-**Realism ceiling (say it at the gate):** OpenMotion discovery listed no
-3D generation or rigging model at review. Characters come from the bundled
-CC0 GLBs (`characters/` Mage/Knight) or carefully modelled Three.js
-geometry; a photoreal target ("like Mafia 3") cannot be honestly met. State
-the limit at the approval gate and offer the achievable version: stylized
-low-poly with PBR materials (`MeshStandardMaterial` / `MeshPhysicalMaterial`),
-an HDRI or gradient environment map, generated textures and skybox from the
-image models above, fog, tone mapping and light post-processing within the
-performance budget. If a later catalogue lists a 3D model, follow the
-discovery contract in `game-3d-animation.md`.
-
-Everything else (byte-identical contract, palette roles, regen budget,
-checks) applies to 3D unchanged.
-
-## 9. Multimodal-first trigger
-
-Procedural Canvas art is right for abstract, geometric, pixel or minimalist games. It is the wrong tool for people and illustration. A run that spends millions of tokens hand-drawing a racing driver or an anime heroine from circles and bezier paths, then ships with beeps for music, fails the brief even if the code is clever.
-
-**Generate real assets first** when the brief contains any of the following and discovery lists a fitting model:
-
-- a realistic or anime/illustrated human character, portrait, mascot or visual-novel cast;
-- polished illustration: cover, poster, key art, title screen, story scenes, detailed backgrounds;
-- background music, a theme song mood, or atmosphere that depends on sound;
-- spoken character lines, narration or an announcer.
-
-In that case plan the assets in `design/assets.csv`, ask one batched spend question (asset, count, provider/model), and after approval generate through `openmotion_assets_use action=generate`. Keep gameplay-critical shapes (hitboxes, tracks, bullets, tiles that must collide precisely) in code; use generated images for what players look at: characters, scenery, UI art, covers. Wire each completed version by its `/motion-api/assets/<assetId>/versions/<versionId>/media` URL.
-
-**Code-made art is the fallback**, used when no fitting model is listed, the host lacks the media tools, or the user declines. Then say so plainly in the plan and final message, and keep the art floor from `game-genres.md`: outlines, two-tone shading, real silhouettes, synthesized music and SFX rather than silence. Never draw a human portrait from primitives while a generation question is still unanswered.
+Procedural Canvas/SVG art excels for abstract, geometric, pixel, or minimalist briefs, but is the wrong tool for illustrated characters, key art, or atmospheric audio when real models are available. Generate real assets first whenever fitting models are connected and approved; use crisp code-drawn art and Web Audio synthesis cleanly whenever generation is unavailable or declined, and record the reason in `design/assets.csv`.

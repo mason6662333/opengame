@@ -1,126 +1,23 @@
 > See [source and execution notes](../PROVENANCE.md).
 
-# Image→3D input rules — read BEFORE any submit
+# Image-to-3D Input Rules (Provider-Agnostic Preflight)
 
-These rules prevent the two most expensive failure classes: garbage geometry
-from bad reference images, and wrong polycount paths. Every image→3D submit
-must pass this preflight if an external 3D provider is separately configured and authorized. OpenMotion has no built-in equivalent to the upstream native/raw 3D paths. Keep these image, pose and geometry principles; use bundled CC0 GLBs when no such capability is available. The provider-specific fields and limits below were checked upstream on 2026-06-11, not verified against a current OpenMotion integration.
+Apply whenever submitting reference images to a live Image-to-3D capability or preparing external 3D generation inputs (Hunyuan 3D, Tripo, Meshy, etc.). Good geometry starts with clean orthographic inputs; always check live provider schemas (`openmotion_capability_discover` / `openmotion_media_use action="reference"`) for exact parameter names.
 
-## Rule 1 — ONE figure per input image (character sheets)
+## 1. Reference Image Preflight
 
-Meshy reconstructs **everything in the frame as a single object**. A
-character sheet with 4 views becomes "a statuette of 4 fused figures".
+- **One subject per single-view image:** Image-to-3D models reconstruct everything in frame as one fused mesh. Never pass an uncropped multi-view character sheet to a single-image endpoint — either crop the best single view or split identical-pose orthographic views (front/side/back) into separate files for a multi-view endpoint.
+- **Neutral rig-ready pose:** For characters that will be rigged or skinned, use a clean **A-pose or T-pose** with arms and legs visually separated from the torso (touching limbs fuse into unriggable geometry).
+- **Clean framing:** Full subject in frame with nothing cropped; plain uniform background with no ground shadows, props, text, or watermarks.
 
-Mandatory preflight on every user-provided reference:
+## 2. Polygon & Texture Budget Guidance
 
-1. Vision check: "how many separate figures/views are in this image?"
-2. If more than one figure → crop. Two valid paths:
-   - **One best view** (front or 3/4) → regular `image-to-3d`.
-   - **Each view as its own file** → `multi-image-to-3d` (1–4 images) —
-     better geometry, but ONLY if the pose is identical on all panels.
-     Different poses across panels ⇒ fall back to the single-view path.
-3. Cropping in the sandbox: use **ffmpeg** (`ffmpeg -i sheet.png -vf
-   "crop=w:h:x:y" view.png`) — PIL is not in the system python.
-
-## Rule 2 — pose normalization
-
-Add `"pose_mode": "t-pose"` (or `"a-pose"`): Meshy straightens the character
-regardless of the reference pose. This repairs "awkward" references before
-auto-rig and matches donor skeletons in the local rig-transfer path.
-
-## Rule 3 — framing
-
-- Full body in frame, nothing cut off.
-- Clean/plain background; no shadows, text, watermarks, logos.
-- Limbs visually separated from the torso (arms not pressed to the body) —
-  fused silhouettes produce fused geometry and break auto-rig.
-- One character, no props overlapping the silhouette.
-- `image_enhancement: false` only if the exact input style must be preserved.
-
-## Rule 4 — low-poly: two MUTUALLY EXCLUSIVE paths
-
-Do not mix them:
-
-| Goal | Params | Caveat |
+| Asset Class | Typical Target Triangles | Notes |
 |---|---|---|
-| Stylized faceted low-poly LOOK | `"model_type": "lowpoly"` | Meshy IGNORES `topology`, `target_polycount`, `should_remesh`, `ai_model` in this mode — no precise budget control |
-| Precise polygon BUDGET | `"should_remesh": true, "topology": "triangle", "target_polycount": N` | normal high-detail look, decimated |
+| Focal hero / hero vehicle | 15,000 – 50,000 | Preserve silhouette fidelity; embedded 4K PNGs are the main byte cost and auto-transcode to WebP on publish/export |
+| Secondary NPC / interactive prop | 3,000 – 15,000 | Keep draw calls instanced when repeated |
+| Background / small filler | 300 – 3,000 | Prefer shared materials and merged static geometry |
 
-Polycount budgets (game-ready guidance):
-
-| Asset class | target_polycount |
-|---|---|
-| Hero / player character | 15 000 – 30 000 |
-| NPC | 5 000 – 15 000 |
-| Mob / prop | 1 000 – 5 000 |
-| Background filler | 300 – 1 500 |
-
-Valid API range: **100 – 300 000**.
-
-**Hard rig limit: models > 300 000 faces are rejected by `/rigging`** — if
-the mesh came out heavier, run `POST /openapi/v1/remesh` before rigging.
-
-## Rule 5 — economy / QC params
-
-- `"enable_pbr": false` — skip metallic/roughness/normal maps unless the
-  project needs PBR (base color only is cheaper and faster).
-- `"target_formats": ["glb"]` — don't generate unused fbx/obj/usdz/stl;
-  task completes faster.
-- `"multi_view_thumbnails": true` — 4 cardinal-view PNGs (front/right/back/
-  left) in the task result for vision QC without downloading the GLB.
-
-## Payload templates
-
-Game humanoid, exact budget (recommended default):
-
-```json
-{
-  "image_url": "<cropped single-figure reference>",
-  "pose_mode": "t-pose",
-  "should_remesh": true,
-  "topology": "triangle",
-  "target_polycount": 20000,
-  "should_texture": true,
-  "enable_pbr": false,
-  "target_formats": ["glb"],
-  "multi_view_thumbnails": true
-}
-```
-
-Stylized faceted low-poly look:
-
-```json
-{
-  "image_url": "<cropped single-figure reference>",
-  "model_type": "lowpoly",
-  "pose_mode": "t-pose",
-  "should_texture": true,
-  "enable_pbr": false,
-  "target_formats": ["glb"],
-  "multi_view_thumbnails": true
-}
-```
-
-Multi-view (character sheet split into same-pose panels):
-
-```json
-{
-  "image_urls": ["front.png", "side.png", "back.png"],
-  "should_remesh": true,
-  "topology": "triangle",
-  "target_polycount": 20000,
-  "should_texture": true,
-  "target_formats": ["glb"]
-}
-```
-(endpoint: `POST /openapi/v1/multi-image-to-3d`)
-
-## Preflight checklist (run through it verbatim)
-
-- [ ] Vision-counted figures in the reference == 1 (or split for multi-image)
-- [ ] Full body, clean background, no text/watermark/shadows
-- [ ] `pose_mode` set for characters that will be rigged
-- [ ] Low-poly path chosen consciously (look vs budget) — params not mixed
-- [ ] `target_polycount` matches asset class table
-- [ ] `target_formats: ["glb"]`, `enable_pbr: false` unless PBR required
-- [ ] Plan stays under rig limit (300k faces) if rigging follows
+- Export **`.glb`** directly rather than unused FBX/OBJ/USDZ archives.
+- Prefer PBR (`baseColor`, `normal`, `roughness/metalness`) for hero focal assets and vehicles; omit unnecessary PBR maps for tiny distant props.
+- After obtaining any `.glb`, import via `openmotion_asset_manage` / `openmotion_assets_use` (`action:"import"`) or run `node scripts/game-glb-inspect.mjs <file.glb>` to inspect bounds, `minY`, `alphaMode: BLEND` flags, and texture byte ratio before wiring it into the scene.
