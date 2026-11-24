@@ -186,7 +186,7 @@ export type CapabilityResourceRef =
       id: string;
       title: string;
       subtitle?: string;
-      modality: 'image' | 'video' | 'audio';
+      modality: 'image' | 'video' | 'audio' | '3d';
       versionId: string;
       previewUrl?: string;
       model?: string;
@@ -464,7 +464,7 @@ function defaultModeForRef(ref: CapabilityResourceRef): SuperAgentHandoffPayload
     case 'asset':
     case 'model':
     case 'scene-prompt':
-      return ref.modality === 'audio' ? 'audio' : ref.modality === 'video' ? 'media' : 'image';
+      return ref.modality === '3d' ? 'game' : ref.modality === 'audio' ? 'audio' : ref.modality === 'video' ? 'media' : 'image';
     case 'workflow':
       return 'motion';
   }

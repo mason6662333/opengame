@@ -62,7 +62,7 @@ export function resolveLayoutAspect({
   height?: number;
   parameters?: Record<string, unknown>;
   fallbackRatio?: number;
-  modality: 'image' | 'video' | 'audio';
+  modality: 'image' | 'video' | 'audio' | '3d';
 }): number {
   if (width && height && width > 0 && height > 0) return clampLayoutAspect(width / height);
   if (parameters) {

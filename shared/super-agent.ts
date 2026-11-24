@@ -110,7 +110,7 @@ export type SuperAgentResourceAttachment = {
   title: string;
   subtitle?: string;
   playableAd?: boolean;
-  modality?: 'image' | 'video' | 'audio';
+  modality?: 'image' | 'video' | 'audio' | '3d';
   versionId?: string;
   scenario?: string;
   previewUrl?: string;

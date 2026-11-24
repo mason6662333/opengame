@@ -293,7 +293,7 @@ export function AssetsPage({ active, hasProject = false, studio, routeId, routeV
     setTaskIds(current => ({ ...current, [nextMode]: undefined })); setTaskEpoch(value => value + 1); setCreating(true);
   };
   const edit = () => {
-    if (!selected || !version) return;
+    if (!selected || !version || selected.modality === '3d') return;
     tracking.reportAssetsClick('asset_detail', 'edit_version', { modality: selected.modality });
     startDraft({ modality: selected.modality, prompt: version.prompt ?? '', model: version.model, parameters: version.parameters, target: { asset: selected, versionId }, references: selected.modality === 'image' ? [{ reference: { assetId: selected.id, versionId }, name: selected.name }] : [] });
   };
@@ -620,7 +620,7 @@ export function AssetsPage({ active, hasProject = false, studio, routeId, routeV
       editLabel={soundWorkbench ? t('Recreate') : undefined}
       navigation={<AssetBrowserContent browser={browser} onOpen={open} compact selectedId={selected.id} />}
       onBack={() => { tracking.reportAssetsClick('asset_detail', 'close_detail', { modality: selected.modality }); closePreview(); }} onVersion={id => { if (id !== versionId) tracking.reportAssetsClick('asset_detail', 'switch_version', { modality: selected.modality }); setVersionId(id); onAssetRoute?.(selected.id, id); }} onUpdate={changes => update(selected.id, changes)} onEdit={soundWorkbench ? editSoundAsset : edit}
-      onReference={selected.modality === 'image' ? () => { tracking.reportAssetsClick('asset_detail', 'use_as_reference', { modality: selected.modality }); startDraft({ modality: selected.modality, prompt: '', references: [{ reference: { assetId: selected.id, versionId }, name: selected.name }] }); } : undefined}
+      onReference={selected.modality === 'image' ? () => { tracking.reportAssetsClick('asset_detail', 'use_as_reference', { modality: 'image' }); startDraft({ modality: 'image', prompt: '', references: [{ reference: { assetId: selected.id, versionId }, name: selected.name }] }); } : undefined}
       onFirstFrame={studio?.useAsFirstFrame && selected.modality === 'image' && version ? () => studio.useAsFirstFrame?.({ reference: { assetId: selected.id, versionId: version.id }, name: selected.name }) : undefined}
       onOpenReference={reference => { void openReference(reference); }}
       onUpload={() => { tracking.reportAssetsClick('asset_detail', 'upload', { modality: selected.modality }); replace.current?.click(); }} onDownload={() => { tracking.reportAssetsClick('asset_detail', 'download_asset', { modality: selected.modality }); toast.showToast(t('Download started'), 'info'); }} /> : soundWorkbench && studio ? <SoundStudioWorkspace

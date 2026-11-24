@@ -272,7 +272,8 @@ export function SkillsPage({ skillId, onSkillChange, routeCategory, onCategoryCh
     </Collapsible.Panel>
     {studio && selected && picking && <AssetPicker onClose={() => setPicking(false)} onPick={(reference, asset) => {
       const number = asset.versions.findIndex(version => version.id === reference.versionId) + 1;
-      updateBrief({ ...parameters, reference: { ...reference, modality: asset.modality, label: `${asset.name} · V${number}` } });
+      const modality = asset.modality === '3d' ? undefined : asset.modality;
+      updateBrief({ ...parameters, reference: { ...reference, modality, label: `${asset.name} · V${number}` } });
       setPicking(false);
     }} />}
   </Collapsible.Root>;

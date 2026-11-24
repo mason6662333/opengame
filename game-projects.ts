@@ -13,6 +13,7 @@ import { mkdtemp } from 'node:fs/promises';
 import { browserExecutable, browserAutomation } from './browser.ts';
 import type { Page, Browser, KeyInput } from 'puppeteer-core';
 import { assetHttp } from './gateway/asset-http.ts';
+import { buildPublishBundle } from './gateway/web-publish-bundle.ts';
 import { WorkspaceStore } from './workspace.ts';
 import { ensureRuntime, execute, pluginRoot, HYPERFRAMES_VERSION } from './hyperframes.ts';
 import { verificationBinaries } from './scripts/verify-export.ts';
@@ -68,7 +69,7 @@ async function safeFile(root: string, relative: string, writing = false) {
   return current;
 }
 
-async function gameEntryDependencyErrors(html: string, dir: string, game: GameCard, runtimeRoot: string) {
+async function gameEntryDependencies(html: string, dir: string, game: GameCard, runtimeRoot: string) {
   // Resolve the same installed DOM parser used by the Hyperframes source tools.
   const runtimeRequire = createRequire(path.join(runtimeRoot, 'package.json'));
   const parserRequire = createRequire(runtimeRequire.resolve('@hyperframes/parsers/package.json'));
@@ -79,6 +80,15 @@ async function gameEntryDependencyErrors(html: string, dir: string, game: GameCa
   const authoredBase = document.querySelector('base[href]')?.getAttribute('href');
   const base = (authoredBase && URL.parse(authoredBase, entry)) || entry;
   const errors = new Set<string>();
+  const entryScripts: string[] = [];
+  const inlineScripts: string[] = [];
+
+  for (const element of document.querySelectorAll('script:not([src])')) {
+    if (element.closest('template, noscript')) continue;
+    const type = element.getAttribute('type')?.trim().toLowerCase();
+    if (type && type !== 'module' && !/^(?:text|application)\/(?:x-)?(?:java|ecma)script(?:\s*;|$)/.test(type)) continue;
+    if (element.textContent?.trim()) inlineScripts.push(element.textContent);
+  }
 
   for (const element of document.querySelectorAll('script[src], link[href]')) {
     if (element.closest('template, noscript')) continue;
@@ -111,13 +121,131 @@ async function gameEntryDependencyErrors(html: string, dir: string, game: GameCa
         errors.add(`Referenced ${kind} is not a file: ${reference}`);
       } else if (!mime[path.extname(file).toLowerCase()]?.startsWith(script ? 'text/javascript' : 'text/css')) {
         errors.add(`Referenced ${kind} has an unsupported file type: ${reference}`);
+      } else if (script) {
+        entryScripts.push(relative);
       }
     } catch (error) {
       const reason = (error as NodeJS.ErrnoException).code === 'ENOENT' ? 'not found' : 'not readable as a game file';
       errors.add(`Referenced ${kind} ${reason}: ${reference}`);
     }
   }
-  return [...errors];
+  return { errors: [...errors], entryScripts, inlineScripts };
+}
+
+function extractStaticModuleSpecifiers(source: string): { specifiers: string[]; syntaxError?: string } {
+  let ast: any;
+  try {
+    ast = parseModule(source, { ecmaVersion: 'latest', sourceType: 'module' });
+  } catch (error) {
+    try {
+      ast = parseModule(source, { ecmaVersion: 'latest', sourceType: 'script' });
+    } catch {
+      return { specifiers: [], syntaxError: (error as Error).message };
+    }
+  }
+  const specifiers: string[] = [];
+  const walk = (node: any): void => {
+    if (!node || typeof node !== 'object') return;
+    if ((node.type === 'ImportDeclaration' || node.type === 'ExportNamedDeclaration' || node.type === 'ExportAllDeclaration')
+      && typeof node.source?.value === 'string') {
+      specifiers.push(node.source.value);
+    } else if (node.type === 'ImportExpression' && node.source?.type === 'Literal' && typeof node.source.value === 'string') {
+      specifiers.push(node.source.value);
+    }
+    for (const value of Object.values(node)) {
+      if (Array.isArray(value)) value.forEach(walk);
+      else if (value && typeof value === 'object') walk(value);
+    }
+  };
+  walk(ast);
+  return { specifiers };
+}
+
+function findDisallowedHostDiagnostics(relative: string, source: string, allowedHosts: string[]): { path: string; message: string }[] {
+  const diagnostics: { path: string; message: string }[] = [];
+  for (const match of source.matchAll(/(?:[a-z][a-z0-9+.-]*:\/\/|(?<=["'`(=])\/\/)[^\s"'<>`\\)]+/gi)) {
+    // XML namespace URIs are identifiers, never requested: allow them only where markup declares one or code passes one
+    // to a namespace-aware DOM call (bundled libraries such as Three.js create XHTML elements this way).
+    if (xmlNamespaces.has(match[0])
+      && /(?:\sxmlns(?::[a-z]+)?\s*=\s*["']|\b(?:create(?:Element|Attribute)NS|(?:get|set|has|remove)AttributeNS)\s*\(\s*["'])$/i.test(source.slice(0, match.index))) continue;
+    const host = new URL(match[0].startsWith('//') ? 'https:' + match[0] : match[0]).hostname;
+    if (!allowedHosts.includes(host)) diagnostics.push({ path: relative, message: `External network host is not allowed: ${host}` });
+  }
+  return diagnostics;
+}
+
+async function inspectLocalModuleGraph(
+  dir: string,
+  entryScripts: string[],
+  inlineScripts: string[],
+  allowedHosts: string[],
+): Promise<{ diagnostics: { path: string; message: string }[]; importsLogic: boolean; visitedModules: string[] }> {
+  const diagnostics: { path: string; message: string }[] = [];
+  const visited = new Set<string>();
+  const queue: string[] = [];
+  let importsLogic = false;
+
+  const enqueueSpecifier = async (fromPath: string, specifier: string) => {
+    const clean = specifier.replace(/[?#].*$/, '');
+    if (/^(?:https?:)?\/\//i.test(clean)) {
+      try {
+        const host = new URL(clean.startsWith('//') ? 'https:' + clean : clean).hostname;
+        if (!allowedHosts.includes(host)) diagnostics.push({ path: fromPath, message: `External network host is not allowed: ${host}` });
+      } catch {
+        diagnostics.push({ path: fromPath, message: `Invalid external module URL: ${specifier}` });
+      }
+      return;
+    }
+    if (!clean.startsWith('./') && !clean.startsWith('../')) return;
+    const baseDir = fromPath === 'index.html' ? '' : path.posix.dirname(fromPath);
+    const resolved = path.posix.normalize(baseDir && baseDir !== '.' ? `${baseDir}/${clean}` : clean);
+    if (resolved === 'logic.js') importsLogic = true;
+    try {
+      const target = await safeFile(dir, resolved);
+      if (!(await lstat(target)).isFile()) {
+        diagnostics.push({ path: fromPath, message: `Imported module is not a file: ${specifier}` });
+        return;
+      }
+      if (/\.(?:m?js|cjs)$/i.test(resolved) && !resolved.startsWith('vendor/') && !visited.has(resolved)) {
+        queue.push(resolved);
+      }
+    } catch (error) {
+      if (resolved === 'logic.js') return; // logic.js missing is reported under path 'logic.js' below.
+      const reason = (error as NodeJS.ErrnoException).code === 'ENOENT' ? 'not found' : 'not readable';
+      diagnostics.push({ path: fromPath, message: `Imported module ${reason}: ${specifier}` });
+    }
+  };
+
+  for (const script of inlineScripts) {
+    const { specifiers } = extractStaticModuleSpecifiers(script);
+    for (const specifier of specifiers) await enqueueSpecifier('index.html', specifier);
+  }
+  for (const entry of entryScripts) {
+    if (entry === 'logic.js') importsLogic = true;
+    if (!entry.startsWith('vendor/') && !visited.has(entry)) queue.push(entry);
+  }
+
+  while (queue.length > 0 && visited.size < 200) {
+    const relative = queue.shift()!;
+    if (visited.has(relative)) continue;
+    visited.add(relative);
+    let source: string;
+    try {
+      source = await readFile(await safeFile(dir, relative), 'utf8');
+    } catch {
+      continue;
+    }
+    if (relative !== 'client.js') {
+      diagnostics.push(...findDisallowedHostDiagnostics(relative, source, allowedHosts));
+    }
+    const { specifiers, syntaxError } = extractStaticModuleSpecifiers(source);
+    if (syntaxError) {
+      diagnostics.push({ path: relative, message: `JavaScript syntax error: ${syntaxError}` });
+      continue;
+    }
+    for (const specifier of specifiers) await enqueueSpecifier(relative, specifier);
+  }
+  return { diagnostics, importsLogic, visitedModules: [...visited] };
 }
 async function inventory(root: string, prefix = ''): Promise<{ path: string; bytes: number }[]> {
   const result: { path: string; bytes: number }[] = [];
@@ -155,7 +283,7 @@ function instruction(game: GameCard, brief: GameBrief, remix = false) {
   const assetInstructions = brief.playableAd
     ? 'Follow the playable-ad recipe and keep all game assets inline in index.html.'
     : gameAssetInstructions;
-  return `Use the openmotion-game Skill to ${remix ? 'remix' : 'build'} game ${game.id} in this workspace. Read openmotion://workflow/game/start (or use your host's workflow reader if provided) and openmotion_game_get with id=${game.id}. Brief: ${summary ? summary + '. ' : ''}${brief.prompt}\nAsk whether to publish to the local market only when the decision is missing. Build a single-player game. Propose a visual direction and a 60–90 word style formula. ${assetInstructions} Set building with openmotion_game_set_status; author only this game's files through openmotion_game_write_files and self-test with openmotion_game_playtest. Never operate the user's browser or desktop. Use openmotion_game_update_meta to set a concise title, description, keyboard/mouse and touch controls, zh-CN i18n, and a cover captured by openmotion_game_capture_cover (game-only headless screenshot). Write design/plan.md, design/assets.csv and design/verification.md. Before publication run openmotion_game_simulate for reference and idle: reference must win and idle must lose. Run openmotion_game_validate, fix diagnostics, set ready, and call openmotion_game_publish only when publication is authorized. Report the actual playUrl, validation and play-test evidence; local publication is not internet deployment.`;
+  return `Use the openmotion-game Skill to ${remix ? 'remix' : 'build'} game ${game.id} in this workspace. Read openmotion://workflow/game/start and openmotion_game_get(id=${game.id}). Brief: ${summary ? summary + '. ' : ''}${brief.prompt}\nBuild a single-player game. Ask for local-market publication consent only when missing. ${assetInstructions} Follow the skill workflow: openmotion_game_set_status("building"), author files via openmotion_game_write_files, verify via openmotion_game_validate, openmotion_game_playtest (and openmotion_game_simulate when using logic.js), capture a game-only cover with openmotion_game_capture_cover, update metadata via openmotion_game_update_meta, then set ready (and openmotion_game_publish only when authorized). Never operate the user's visible browser or desktop.`;
 }
 export const starterLogic = `export const meta = { minPlayers: 1, maxPlayers: 4, tickRate: 20, serverTick: true };
 export function setup(ctx, players) { return { scores: Object.fromEntries(players.map(id => [id, 0])) }; }
@@ -198,11 +326,13 @@ canvas.onclick=()=>socket.send(JSON.stringify({type:'input',action:{type:'score'
 export type GameBrowserAction =
   | { type: 'key'; key: string; event?: 'down' | 'up' | 'press' }
   | { type: 'mouse'; event: 'move' | 'down' | 'up' | 'click'; x?: number; y?: number; selector?: string; button?: 'left' | 'middle' | 'right' }
-  | { type: 'wait'; ms: number };
+  | { type: 'wait'; ms: number }
+  | { type: 'screenshot'; label?: string };
 
 export function validateGameScript(value: unknown): GameBrowserAction[] {
   if (!Array.isArray(value) || value.length > 100) throw new GameError('Use at most 100 input actions per client');
   let waits = 0;
+  let screenshots = 0;
   for (const a of value) {
     if (!a || typeof a !== 'object') throw new GameError('Invalid playtest action');
     if (a.type === 'key') {
@@ -214,7 +344,10 @@ export function validateGameScript(value: unknown): GameBrowserAction[] {
     } else if (a.type === 'wait') {
       if (!Number.isInteger(a.ms) || a.ms < 0 || a.ms > 10000) throw new GameError('Each wait must be 0–10000 ms');
       waits += a.ms;
-    } else throw new GameError('Only key, mouse and wait actions are supported');
+    } else if (a.type === 'screenshot') {
+      if (a.label !== undefined && (typeof a.label !== 'string' || !/^[a-zA-Z0-9_-]{1,40}$/.test(a.label))) throw new GameError('Screenshot labels must be 1–40 ASCII alphanumeric/dash/underscore characters');
+      if (++screenshots > 8) throw new GameError('Use at most 8 screenshot actions per client');
+    } else throw new GameError('Only key, mouse, wait and screenshot actions are supported');
   }
   if (waits > 60000) throw new GameError('Script waits must total at most 60000 ms');
   return value;
@@ -296,7 +429,44 @@ export function gameRoomEntryErrors(source:string):string[] {
 }
 function readsRoomQuery(source:string) {return /(?:URLSearchParams|searchParams)/.test(source)&&/(?:\.get\s*\(\s*["'`]room["'`]|\broom\s*[:},])/.test(source);}
 
-export function gamePlaytestAssertions(input: {before:any;after:any;clients:number;script:GameBrowserAction[];mobile:{width:number;height:number;scrollWidth:number;overflowElements?:string[]};movementThreshold?:number;expectedPhase?:string;autoJoin?:{joined:boolean;elapsedMs:number|null}}) {
+export function normalizeSelfTestAssertions(raw: unknown): Array<{ name: string; passed: boolean; expected: string; actual: unknown; reason?: string }> {
+  if (!raw || typeof raw !== 'object') return [];
+  const obj = raw as Record<string, unknown>;
+  if (typeof obj.__error === 'string') {
+    return [{ name: 'selfTest', passed: false, expected: 'window.__omGame.runSelfTests() succeeds', actual: obj.__error, reason: obj.__error }];
+  }
+  const rows: Array<{ name: string; passed: boolean; expected: string; actual: unknown; reason?: string }> = [];
+  const pushItem = (name: string, entry: unknown) => {
+    const cleanName = String(name || 'check').slice(0, 80);
+    if (typeof entry === 'boolean') {
+      rows.push({ name: `selfTest:${cleanName}`, passed: entry, expected: 'self-test passes', actual: entry, ...(entry ? {} : { reason: 'Self-test returned false' }) });
+    } else if (entry && typeof entry === 'object') {
+      const rec = entry as Record<string, unknown>;
+      const passed = typeof rec.pass === 'boolean' ? rec.pass : typeof rec.passed === 'boolean' ? rec.passed : Boolean(rec.ok);
+      const detail = rec.detail ?? rec.reason ?? rec.message;
+      rows.push({
+        name: `selfTest:${cleanName}`,
+        passed,
+        expected: 'self-test passes',
+        actual: detail ?? passed,
+        ...(passed ? {} : { reason: typeof detail === 'string' && detail ? detail : 'Self-test failed' }),
+      });
+    }
+  };
+  if (Array.isArray(raw)) {
+    raw.forEach((entry, idx) => pushItem(String((entry as any)?.name ?? idx), entry));
+  } else if (Array.isArray(obj.checks)) {
+    obj.checks.forEach((entry, idx) => pushItem(String((entry as any)?.name ?? idx), entry));
+  } else {
+    for (const [key, value] of Object.entries(obj)) {
+      if (key === 'passed' || key === 'pass') continue;
+      pushItem(key, value);
+    }
+  }
+  return rows.slice(0, 50);
+}
+
+export function gamePlaytestAssertions(input: {before:any;after:any;clients:number;script:GameBrowserAction[];mobile:{width:number;height:number;scrollWidth:number;overflowElements?:string[]};movementThreshold?:number;expectedPhase?:string;autoJoin?:{joined:boolean;elapsedMs:number|null};selfTests?:unknown}) {
   const state=input.after?.state,players=state?.players;
   const count=players&&typeof players==='object'?Object.values(players).filter((p:any)=>p?.connected!==false).length:0;
   const self=state?.selfId,before=input.before?.state?.players?.[self],after=players?.[self];
@@ -306,13 +476,14 @@ export function gamePlaytestAssertions(input: {before:any;after:any;clients:numb
   return [
     ...(input.autoJoin?[{name:'autoJoin',passed:input.autoJoin.joined&&input.autoJoin.elapsedMs!==null&&input.autoJoin.elapsedMs<=5000,expected:'joined within 5000ms without clicks or typing',actual:input.autoJoin,reason:input.autoJoin.joined?undefined:'No joined socket message or authoritative self player before inputs'}]:[]),
     {name:'playerCount',passed:count===input.clients,expected:input.clients,actual:count,reason:state?undefined:'Missing authoritative __omGame state'},
-    {name:'phase',passed:input.expectedPhase?phase===input.expectedPhase:['breather','combat','playing','win','loss','over'].includes(phase),expected,actual:phase??null},
+    {name:'phase',passed:input.expectedPhase?phase===input.expectedPhase:['breather','combat','playing','explore','sandbox','win','loss','over'].includes(phase),expected,actual:phase??null},
     // movementThreshold 0 marks a game with no moving player (tap puzzles, pull-the-pin). Movement is then not asserted, and the
     // record says so; authoritative state is still required, so a missing hook or selfId fails instead of passing silently.
     input.movementThreshold===0
       ?{name:'scriptedMovement',passed:Boolean(state&&self),skipped:true,expected:'movement not asserted (threshold 0)',actual:distance,reason:state&&self?undefined:'Missing authoritative __omGame state or selfId'}
       :{name:'scriptedMovement',passed:scripted&&distance!==null&&distance>(input.movementThreshold??.5),expected:`net displacement > ${input.movementThreshold??.5} world units`,actual:distance,reason:scripted?(distance===null?'Missing selfId or authoritative coordinates':undefined):'No directional key input was scripted'},
     {name:'mobileHorizontalOverflow',passed:input.mobile.width===390&&input.mobile.height===844&&input.mobile.scrollWidth<=391&&!(input.mobile.overflowElements?.length),expected:'390x844 viewport without horizontal overflow',actual:input.mobile},
+    ...normalizeSelfTestAssertions(input.selfTests),
   ];
 }
 
@@ -353,13 +524,31 @@ export function trailerTransition(previous:GameTrailerStatus,next:GameTrailerSta
   return next==='failed'&&trailerRunning(previous)||({recording:'composing',composing:'rendering',rendering:'ready'} as Record<string,string>)[previous]===next;
 }
 
+/** Wait for async loading screens (phase==="loading" or disabled #start) before starting play. */
+async function waitForGameReady(page: Pick<Page, 'evaluate' | 'waitForFunction'>, waitForReadyMs = 10000) {
+  if (waitForReadyMs <= 0) return;
+  const needsWait = await page.evaluate(() => {
+    const hook = (window as any).__omGame;
+    if (hook?.getState?.()?.phase === 'loading') return true;
+    const btn = document.querySelector('#start, #play, [data-action="start"]') as HTMLButtonElement | null;
+    return Boolean(btn && btn.disabled);
+  }).catch(() => false);
+  if (!needsWait) return;
+  await page.waitForFunction(() => {
+    const hook = (window as any).__omGame;
+    if (hook?.getState?.()?.phase === 'loading') return false;
+    const btn = document.querySelector('#start, #play, [data-action="start"]') as HTMLButtonElement | null;
+    return !(btn && btn.disabled);
+  }, { timeout: waitForReadyMs }).catch(() => {});
+}
+
 /** Shared start convention for isolated playtests, covers and trailer recording. */
 export async function startGameBrowserPage(page: Pick<Page, '$' | 'evaluate' | 'waitForFunction' | 'keyboard' | 'mouse'>, recording = false) {
   const initialTick = await page.evaluate(() => {
     const hook = (window as any).__omGame;
     return hook?.getState?.()?.tick ?? hook?.getStats?.()?.tick ?? null;
   });
-  const start = await page.$('#start:not([disabled]), #play:not([disabled]), [data-action="start"]');
+  const start = await page.$('#start:not([disabled]), #play:not([disabled]), [data-action="start"]:not([disabled])');
   if (start) await start.click();
   else {
     const started = await page.evaluate(() => {
@@ -374,7 +563,7 @@ export async function startGameBrowserPage(page: Pick<Page, '$' | 'evaluate' | '
     if (!hook) return true; // Legacy games have no authoritative startup observation.
     const state = hook.getState?.(), current = state?.tick ?? hook.getStats?.()?.tick;
     if (tick !== null && typeof current === 'number') return current > tick;
-    return state?.running === true || ['playing', 'running', 'win', 'loss'].includes(state?.phase);
+    return state?.running === true || ['playing', 'running', 'explore', 'sandbox', 'win', 'loss'].includes(state?.phase);
   }, { timeout: 5000 }, initialTick);
 }
 
@@ -555,16 +744,101 @@ export class GameProjects {
   }); }
   async detail(id: string) { const game = await this.get(id); return { ...game, files: await inventory((await this.locate(id)).dir) }; }
   async exportZip(id: string): Promise<{ filename: string; data: Buffer }> {
+    const offlineServeScript = `import http from 'node:http';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import zlib from 'node:zlib';
+import { exec } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const root = path.dirname(fileURLToPath(import.meta.url));
+const MIME = {
+  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml',
+  '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif',
+  '.glb': 'model/gltf-binary', '.gltf': 'model/gltf+json', '.wasm': 'application/wasm',
+  '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.m4a': 'audio/mp4', '.mp4': 'video/mp4', '.webm': 'video/webm',
+  '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf',
+};
+const COMPRESS = new Set(['.html', '.js', '.mjs', '.css', '.json', '.svg', '.glb', '.gltf', '.wasm']);
+
+const server = http.createServer(async (req, res) => {
+  try {
+    const urlPath = decodeURIComponent(new URL(req.url || '/', 'http://127.0.0.1').pathname);
+    const rel = urlPath === '/' ? 'index.html' : urlPath.replace(/^\\/+/, '');
+    const target = path.resolve(root, rel);
+    if (!target.startsWith(root + path.sep) && target !== root) { res.writeHead(403); res.end(); return; }
+    const data = await fs.readFile(target);
+    const ext = path.extname(target).toLowerCase();
+    const headers = { 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600' };
+    if (COMPRESS.has(ext) && /gzip/i.test(String(req.headers['accept-encoding'] || '')) && data.length > 1024) {
+      const gz = zlib.gzipSync(data, { level: 6 });
+      res.writeHead(200, { ...headers, 'Content-Encoding': 'gzip', 'Content-Length': gz.length });
+      res.end(gz);
+      return;
+    }
+    res.writeHead(200, { ...headers, 'Content-Length': data.length });
+    res.end(data);
+  } catch {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Not found');
+  }
+});
+
+let port = Number(process.env.PORT) || 8765;
+server.on('error', err => {
+  if (err && err.code === 'EADDRINUSE' && port < 8799) { server.listen(++port, '127.0.0.1'); return; }
+  console.error(err); process.exit(1);
+});
+server.listen(port, '127.0.0.1', () => {
+  const url = \`http://127.0.0.1:\${port}/\`;
+  console.log('Game server running at ' + url);
+  if (process.argv.includes('--open')) {
+    const cmd = process.platform === 'darwin' ? \`open "\${url}"\` : process.platform === 'win32' ? \`start "" "\${url}"\` : \`xdg-open "\${url}"\`;
+    exec(cmd, () => {});
+  }
+});
+`;
+    const offlineMacLauncher = `#!/bin/bash\ncd "$(dirname "$0")"\nif command -v node >/dev/null 2>&1; then\n  node serve.mjs --open\nelif command -v python3 >/dev/null 2>&1; then\n  (sleep 1 && open "http://127.0.0.1:8765/") &\n  python3 -m http.server 8765 --bind 127.0.0.1\nelse\n  echo "Please install Node.js or Python 3 to run the local game server."\nfi\n`;
+    const offlineWinLauncher = `@echo off\r\ncd /d "%~dp0"\r\nwhere node >nul 2>nul\r\nif %errorlevel%==0 (\r\n  node serve.mjs --open\r\n) else (\r\n  start "" "http://127.0.0.1:8765/"\r\n  py -m http.server 8765 --bind 127.0.0.1\r\n)\r\n`;
+    const offlinePlayReadme = `Play this game locally\n======================\nBrowsers block ES modules and 3D assets when opening index.html directly via file://.\n\n- macOS: double-click Start-Mac.command (or run: node serve.mjs --open)\n- Windows: double-click Start-Windows.bat (or run: node serve.mjs --open)\n- Any OS: run "node serve.mjs" and open the printed http://127.0.0.1 URL.\n`;
     const game = await this.get(id);
     const { dir } = await this.locate(id);
-    const files = await inventory(dir);
-    let total = 0;
-    const entries: { name: string; data: Buffer }[] = [];
-    for (const item of files) {
-      total += item.bytes;
-      if (total > 64 * 1024 * 1024) throw new GameError('Game export exceeds 64 MiB limit', 413);
-      const file = await safeFile(dir, item.path);
-      entries.push({ name: item.path, data: await readFile(file) });
+    const maxExportBytes = 64 * 1024 * 1024;
+    let entries: { name: string; data: Buffer }[];
+    try {
+      const bundle = await buildPublishBundle({
+        dataDirectory: path.dirname(this.root),
+        kind: 'game',
+        targetId: id,
+        sourcePath: dir,
+        entryPath: 'index.html',
+        maxBytes: maxExportBytes,
+      });
+      entries = bundle.files.map(item => ({ name: item.file, data: item.data }));
+    } catch (error) {
+      if (!/Entry HTML file "index\.html" does not exist/i.test((error as Error).message)) {
+        if (/exceeds .* MiB limit/i.test((error as Error).message)) throw new GameError('Game export exceeds 64 MiB limit', 413);
+        throw error;
+      }
+      const files = await inventory(dir);
+      let total = 0;
+      entries = [];
+      for (const item of files) {
+        if (/^(?:game\.json$|(?:trailer|design|assets\/playtests|assets-raw)(?:\/|$))/i.test(item.path)) continue;
+        total += item.bytes;
+        if (total > maxExportBytes) throw new GameError('Game export exceeds 64 MiB limit', 413);
+        entries.push({ name: item.path, data: await readFile(await safeFile(dir, item.path)) });
+      }
+    }
+    const existing = new Set(entries.map(e => e.name.toLowerCase()));
+    for (const [name, content] of [
+      ['serve.mjs', offlineServeScript],
+      ['Start-Mac.command', offlineMacLauncher],
+      ['Start-Windows.bat', offlineWinLauncher],
+      ['PLAY-README.txt', offlinePlayReadme],
+    ] as const) {
+      if (!existing.has(name.toLowerCase())) entries.push({ name, data: Buffer.from(content, 'utf8') });
     }
     const slug = (game.title || game.id)
       .toLowerCase()
@@ -707,25 +981,25 @@ export class GameProjects {
     const allowedHosts = game.playableAd ? adStoreHosts : gameCdnHosts;
     for(const file of ['design/plan.md','design/assets.csv','design/verification.md'])try{await this.read(id,file);}catch(error){warnings.push(`Missing or unreadable ${file}: ${(error as Error).message}`);}
     if(!game.cover) warnings.push('No cover image is set; use openmotion_game_capture_cover.');
+    let entryScripts: string[] = [];
+    let inlineScripts: string[] = [];
     for (const relative of ['index.html','client.js']) try {
       const source = (await this.read(id, relative)).content;
       if (relative === 'index.html') {
-        for (const message of await gameEntryDependencyErrors(source, dir, game, this.runtimeRoot)) {
+        const deps = await gameEntryDependencies(source, dir, game, this.runtimeRoot);
+        entryScripts = deps.entryScripts;
+        inlineScripts = deps.inlineScripts;
+        for (const message of deps.errors) {
           diagnostics.push({ path: relative, message });
         }
       }
       if(game.multiplayer)for(const message of gameRoomEntryErrors(source))diagnostics.push({path:relative,message});
-      for (const match of source.matchAll(/(?:[a-z][a-z0-9+.-]*:\/\/|(?<=["'`(=])\/\/)[^\s"'<>`\\)]+/gi)) {
-        // XML namespace URIs are identifiers, never requested: allow them only where markup declares one or code passes one
-        // to a namespace-aware DOM call (bundled libraries such as Three.js create XHTML elements this way).
-        if (xmlNamespaces.has(match[0])
-          && /(?:\sxmlns(?::[a-z]+)?\s*=\s*["']|\b(?:create(?:Element|Attribute)NS|(?:get|set|has|remove)AttributeNS)\s*\(\s*["'])$/i.test(source.slice(0, match.index))) continue;
-        const host = new URL(match[0].startsWith('//') ? 'https:' + match[0] : match[0]).hostname;
-        if (!allowedHosts.includes(host)) diagnostics.push({ path: relative, message: `External network host is not allowed: ${host}` });
-      }
+      diagnostics.push(...findDisallowedHostDiagnostics(relative, source, allowedHosts));
     } catch (e) {
       if (relative !== 'client.js' || (e as NodeJS.ErrnoException).code !== 'ENOENT') diagnostics.push({ path: relative, message: (e as Error).message });
     }
+    const moduleGraph = await inspectLocalModuleGraph(dir, entryScripts, inlineScripts, allowedHosts);
+    diagnostics.push(...moduleGraph.diagnostics);
     if(game.multiplayer){
       let client='';try{client=(await this.read(id,'client.js')).content;}catch{}
       if(!client)try{client=(await this.read(id,'index.html')).content;}catch{}
@@ -734,19 +1008,30 @@ export class GameProjects {
     const { kit } = await jsonFile<StoredGame>(path.join(dir, 'game.json'));
     // Older projects have no kit marker; preserve their multiplayer comparison.
     const baseline = kit === 'coop-3d' || kit === 'arcade-2d' ? kit : !kit && game.multiplayer ? 'coop-3d' : null;
-    if (baseline) try {
-      const source = (await this.read(id, 'logic.js')).content;
-      if (gameChangedLines(source, await readFile(path.join(this.kits, baseline, 'logic.js'), 'utf8')) < 20) warnings.push('Gameplay still equals the starter kit (fewer than 20 approximate changed lines); implement and playtest the requested mechanics.');
+    const hasCustomEntry = !game.multiplayer && entryScripts.length > 0 && !moduleGraph.importsLogic;
+    // Adaptive logic.js check:
+    // - Multiplayer games and games whose entry/module graph imports logic.js require valid deterministic logic.js.
+    // - Solo games with custom modular ESM entries that do not import logic.js are allowed to omit logic.js
+    //   (or leave an untouched starter logic.js unused) without false validation errors or starter warnings.
+    let logic: string | null = null;
+    try { logic = (await this.read(id, 'logic.js')).content; }
+    catch (e) {
+      const logicRequired = game.multiplayer || moduleGraph.importsLogic || (Boolean(baseline) && !hasCustomEntry);
+      if (logicRequired || (e as NodeJS.ErrnoException).code !== 'ENOENT') diagnostics.push({ path: 'logic.js', message: (e as Error).message });
+    }
+    let isUnusedStarterLogic = false;
+    if (baseline && logic !== null) try {
+      const kitSource = await readFile(path.join(this.kits, baseline, 'logic.js'), 'utf8');
+      const changed = gameChangedLines(logic, kitSource);
+      if (hasCustomEntry && changed === 0) {
+        isUnusedStarterLogic = true;
+      } else if (changed < 20) {
+        warnings.push('Gameplay still equals the starter kit (fewer than 20 approximate changed lines); implement and playtest the requested mechanics.');
+      }
     } catch (error) {
       warnings.push(`Starter kit comparison unavailable: ${(error as Error).message}`);
     }
-    // Every game with rules gets the bounded smoke run; the kit clients import logic.js, so a broken file is a blank page.
-    // Room checks stay multiplayer-only; a solo game's validateAction may reject the probe action, as live play would.
-    // A hand-written solo game without logic.js has nothing to run.
-    let logic: string | null = null;
-    try { logic = (await this.read(id, 'logic.js')).content; }
-    catch (e) { if (game.multiplayer || baseline || (e as NodeJS.ErrnoException).code !== 'ENOENT') diagnostics.push({ path: 'logic.js', message: (e as Error).message }); }
-    if (logic !== null) try {
+    if (logic !== null && !isUnusedStarterLogic) try {
       const runtime = new GameRuntime(logic, 'validation');
       const players = game.multiplayer ? ['one','two'] : Array.from({ length: Math.max(1, runtime.meta.minPlayers) }, (_, i) => 'player-' + (i + 1));
       runtime.setup(players);
@@ -776,7 +1061,13 @@ export class GameProjects {
     const {players,maxTicks,scripts}=options;
     if(!Number.isInteger(players)||players<1||players>4)throw new GameError('players must be 1–4');
     if(!Number.isInteger(maxTicks)||maxTicks<1||maxTicks>10000)throw new GameError('maxTicks must be 1–10000');
-    const runtime=new GameRuntime((await this.read(id,'logic.js')).content,'game-simulation');
+    let logicSource: string;
+    try { logicSource = (await this.read(id, 'logic.js')).content; }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') throw new GameError('This game does not use a deterministic logic.js module; verify gameplay invariants through openmotion_game_playtest and window.__omGame.runSelfTests().', 400);
+      throw error;
+    }
+    const runtime=new GameRuntime(logicSource,'game-simulation');
     if(players<runtime.meta.minPlayers||players>runtime.meta.maxPlayers)throw new GameError('Player count is outside the logic meta limits');
     const ids=Array.from({length:players},(_,i)=>'player-'+(i+1));runtime.setup(ids);
     const choices=typeof scripts==='string'?Array(players).fill(scripts):scripts;
@@ -909,20 +1200,23 @@ export class GameProjects {
   }
 
   private browserBusy = false;
-  async captureCover(id: string, options: {room?: string;actions?:GameBrowserAction[];delayMs?:number} = {}) {
+  async captureCover(id: string, options: {room?: string;actions?:GameBrowserAction[];delayMs?:number;waitForReadyMs?:number} = {}) {
     const actions=validateGameScript(options.actions??[]),delay=options.delayMs??1000;
+    const waitForReadyMs = options.waitForReadyMs ?? 10000;
     if(!Number.isInteger(delay)||delay<0||delay>10000)throw new GameError('delayMs must be 0–10000');
-    const result=await this.runBrowser(id,1,[actions],delay,options.room,true);
+    if(!Number.isInteger(waitForReadyMs)||waitForReadyMs<0||waitForReadyMs>30000)throw new GameError('waitForReadyMs must be 0–30000');
+    const result=await this.runBrowser(id,1,[actions],delay,options.room,true,{waitForReadyMs});
     const game=await this.updateMeta(id,{cover:'assets/cover.png'});
     return {game,cover:'assets/cover.png',screenshotPath:result.clients[0].screenshotPath,width:1280,height:720,diagnostics:result.clients[0]};
   }
-  async playtest(id: string, options: {clients?:number;scripts?:GameBrowserAction[][];durationMs?:number;room?:string;movementThreshold?:number;expectedPhase?:string} = {}) {
+  async playtest(id: string, options: {clients?:number;scripts?:GameBrowserAction[][];durationMs?:number;room?:string;movementThreshold?:number;expectedPhase?:string;waitForReadyMs?:number} = {}) {
     const clients=options.clients??1,duration=options.durationMs??3000;
     if(!Number.isInteger(clients)||clients<1||clients>4)throw new GameError('clients must be 1–4');
     if(!Number.isInteger(duration)||duration<0||duration>60000)throw new GameError('durationMs must be 0–60000');
     if(options.scripts!==undefined&&(!Array.isArray(options.scripts)||options.scripts.length>clients))throw new GameError('Supply at most one script per client');
     if(options.movementThreshold!==undefined&&(!Number.isFinite(options.movementThreshold)||options.movementThreshold<0||options.movementThreshold>100))throw new GameError('movementThreshold must be 0–100');
     if(options.expectedPhase!==undefined&&(typeof options.expectedPhase!=='string'||!options.expectedPhase||options.expectedPhase.length>64))throw new GameError('Invalid expectedPhase');
+    if(options.waitForReadyMs!==undefined&&(!Number.isInteger(options.waitForReadyMs)||options.waitForReadyMs<0||options.waitForReadyMs>30000))throw new GameError('waitForReadyMs must be 0–30000');
     const defaultMove:GameBrowserAction[]=[{type:'key',key:'d',event:'down'},{type:'wait',ms:350},{type:'key',key:'d',event:'up'}];
     const scripts=Array.from({length:clients},(_,i)=>validateGameScript(options.scripts?.[i]??(options.scripts?[]:defaultMove)));
     return this.runBrowser(id,clients,scripts,duration,options.room,false,options);
@@ -968,7 +1262,7 @@ export class GameProjects {
     }
   }
 
-  private async runBrowser(id: string, clients: number, scripts: GameBrowserAction[][], durationMs: number, requestedRoom: string | undefined, cover: boolean, expectations: {movementThreshold?:number;expectedPhase?:string} = {}, recording?:{root:string;runId:string;ffmpeg:string;onClip:(clips:string[])=>Promise<void>}) {
+  private async runBrowser(id: string, clients: number, scripts: GameBrowserAction[][], durationMs: number, requestedRoom: string | undefined, cover: boolean, expectations: {movementThreshold?:number;expectedPhase?:string;waitForReadyMs?:number} = {}, recording?:{root:string;runId:string;ffmpeg:string;onClip:(clips:string[])=>Promise<void>}) {
     const located=await this.locate(id,!recording),dir=recording?.root??located.dir,game=await this.get(id);
     if(clients>game.maxPlayers)throw new GameError('Requested clients exceed game capacity');
     const room=requestedRoom===undefined?'test-'+randomUUID():idPart(requestedRoom);
@@ -1042,30 +1336,63 @@ export class GameProjects {
         return {consoleErrors,failedRequests,autoJoin};
       }));
       // Wait for every multiplayer join before starting; each solo page starts independently.
-      await Promise.all((game.multiplayer ? [pages[0]] : pages).map(page => startGameBrowserPage(page, !!recording)));
+      const waitForReadyMs = expectations.waitForReadyMs ?? 10000;
+      await Promise.all((game.multiplayer ? [pages[0]] : pages).map(async page => {
+        await waitForGameReady(page, waitForReadyMs);
+        await startGameBrowserPage(page, !!recording);
+      }));
       const readHook=async(page:Page)=>{
         try{return await page.evaluate(async()=>{const hook=(window as any).__omGame;if(!hook||typeof hook.getState!=='function')return null;const value={state:await hook.getState(),stats:typeof hook.getStats==='function'?await hook.getStats():null};const json=JSON.stringify(value);if(json.length>65536)throw Error('Test hook state exceeds 64 KiB');return JSON.parse(json);});}
         catch(error){return {state:null,error:String(error)};}
       };
+      const runSelfTests = async (page: Page) => {
+        try {
+          return await Promise.race([
+            page.evaluate(async () => {
+              const hook = (window as any).__omGame;
+              const fn = typeof hook?.runSelfTests === 'function' ? hook.runSelfTests : typeof hook?.runSelfTest === 'function' ? hook.runSelfTest : null;
+              if (!fn) return null;
+              const raw = await fn();
+              const json = JSON.stringify(raw);
+              if (!json || json.length > 65536) throw Error('Self-test result exceeds 64 KiB');
+              return JSON.parse(json);
+            }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('window.__omGame.runSelfTests() timed out after 10000ms')), 10000)),
+          ]);
+        } catch (error) {
+          return { __error: String(error) };
+        }
+      };
       await Promise.all(pages.map(page=>page.waitForFunction('!window.__omGame || window.__omGame.getState()!==null',{timeout:5000}).catch(()=>{})));
       const before=await Promise.all(pages.map(readHook));
       const recordedClips:string[]=[];
+      const clientScreenshots: Array<Array<{ label: string; path: string }>> = Array.from({ length: clients }, () => []);
       const started=performance.now();
       const initial=await Promise.all(pages.map(page=>page.evaluate('window.__openmotionGameProbe.frames') as Promise<number>));
-      const execute=async(page:Page,actions:GameBrowserAction[])=>{
+      const execute=async(page:Page,actions:GameBrowserAction[],clientIndex = 0)=>{
         for(const a of actions){
           if(a.type==='wait')await new Promise(resolve=>setTimeout(resolve,a.ms));
+          else if(a.type==='screenshot'){
+            const label = a.label ?? `shot-${clientScreenshots[clientIndex].length + 1}`;
+            const relative = `assets/playtests/${room}-${clientIndex+1}-${label}-${randomUUID().slice(0,8)}.png`;
+            const shotPath = await safeFile(dir, relative, true);
+            await mkdir(path.dirname(shotPath), { recursive: true });
+            await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+            await page.screenshot({ path: shotPath as `${string}.png`, type: 'png' });
+            clientScreenshots[clientIndex].push({ label, path: shotPath });
+          }
           else if(a.type==='key'){const key=(a.key==='Space'?'Space':a.key) as KeyInput;if(a.event==='down')await page.keyboard.down(key);else if(a.event==='up')await page.keyboard.up(key);else await page.keyboard.press(key);}
           else if(a.selector)await page.click(a.selector,{button:a.button??'left'});
           else {await page.mouse.move(a.x!,a.y!);if(a.event==='click')await page.mouse.click(a.x!,a.y!,{button:a.button??'left'});else if(a.event==='down')await page.mouse.down({button:a.button??'left'});else if(a.event==='up')await page.mouse.up({button:a.button??'left'});}
         }
       };
-      await Promise.all([new Promise(resolve=>setTimeout(resolve,durationMs)),...pages.map((page,i)=>execute(page,scripts[i]).catch(error=>{reports[i].consoleErrors.push('Input script: '+String(error));}))]);
+      await Promise.all([new Promise(resolve=>setTimeout(resolve,durationMs)),...pages.map((page,i)=>execute(page,scripts[i],i).catch(error=>{reports[i].consoleErrors.push('Input script: '+String(error));}))]);
       if(recording)await this.recordGameClips(pages[0],recording,execute,recordedClips,reports[0]);
       const elapsed=performance.now()-started;
       const output=await Promise.all(pages.map(async(page,i)=>{
         const metrics=await page.evaluate('({...window.__openmotionGameProbe})') as {frames:number;roomJoined:boolean;playerCount:number};
         const authoritative=await readHook(page);
+        const selfTests = cover ? null : await runSelfTests(page);
         const target=await page.$('canvas')??await page.$('#game');
         if(!target)throw new GameError('Game has no canvas or #game root to capture');
         const originalStyle=await target.evaluate(element=>element.getAttribute('style'));
@@ -1080,10 +1407,10 @@ export class GameProjects {
           await page.setViewport({width:390,height:844,deviceScaleFactor:1});
           await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
           const mobile=await page.evaluate(()=>({width:innerWidth,height:innerHeight,scrollWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),overflowElements:[...document.querySelectorAll('body > *')].filter(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&(r.left< -1||r.right>innerWidth+1);}).map(e=>e.id||e.tagName).slice(0,10)}));
-          assertions=gamePlaytestAssertions({before:before[i],after:authoritative,clients,script:scripts[i],mobile,movementThreshold:expectations.movementThreshold,expectedPhase:expectations.expectedPhase,autoJoin:game.multiplayer?reports[i].autoJoin:undefined});
+          assertions=gamePlaytestAssertions({before:before[i],after:authoritative,clients,script:scripts[i],mobile,movementThreshold:expectations.movementThreshold,expectedPhase:expectations.expectedPhase,autoJoin:game.multiplayer?reports[i].autoJoin:undefined,selfTests});
           await page.setViewport({width:1280,height:720,deviceScaleFactor:1});
         }
-        return {...reports[i],screenshotPath,authoritative,assertions,metrics:{fpsEstimate:+((metrics.frames-initial[i])*1000/Math.max(1,elapsed)).toFixed(1),roomJoined:metrics.roomJoined,playerCount:metrics.playerCount,frames:metrics.frames-initial[i]}};
+        return {...reports[i],screenshotPath,...(clientScreenshots[i].length?{screenshots:clientScreenshots[i]}:{}),...(selfTests!==null?{selfTests}:{}),authoritative,assertions,metrics:{fpsEstimate:+((metrics.frames-initial[i])*1000/Math.max(1,elapsed)).toFixed(1),roomJoined:metrics.roomJoined,playerCount:metrics.playerCount,frames:metrics.frames-initial[i]}};
       }));
       return {recordedClips,room,durationMs:Math.round(elapsed),clients:output,scope:'Each run has its own temporary room server; the room name does not attach to live user rooms. Isolated server-owned headless Chrome; canvas/root screenshots only; offline requests; no user profile. Client visibility is forced for concurrent rendering; background suspension is not tested. FPS is requestAnimationFrame pacing, not GPU performance acceptance.'};
     } finally {

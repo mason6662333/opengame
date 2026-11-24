@@ -1,77 +1,33 @@
 import { createHash } from 'node:crypto';
-import { lstat, mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { lstat, mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { execute } from '../hyperframes.ts';
-import { verificationBinaries } from '../scripts/verify-export.ts';
 import type { WebPublishTargetKind } from '../shared/web-publish.ts';
 import { WorkspaceStore } from '../workspace.ts';
 import { AssetLibrary } from './asset-library.ts';
+import { optimizeGlbTexturesForPublish, transcodeRasterToWebp } from './glb-optimize.ts';
 
 export const MAX_PUBLISH_FILES = 500;
 export const MAX_PUBLISH_BYTES = 50 * 1024 * 1024;
+const MAX_RAW_COLLECT_BYTES = 200 * 1024 * 1024;
 const WEBP_COMPRESS_MIN_BYTES = 256 * 1024;
-
-function pngMayHaveTransparency(bytes: Buffer): boolean {
-  // PNG signature (8) + IHDR length (4) + "IHDR" (4) + width (4) + height (4) + bitDepth (1) + colorType (1)
-  if (bytes.length < 26 || bytes[0] !== 137 || bytes[1] !== 80 || bytes[2] !== 78 || bytes[3] !== 71) {
-    return true;
-  }
-  const colorType = bytes[25];
-  // Color types 4 (grayscale+alpha) and 6 (RGBA) have an alpha channel; palette (3) or others may use tRNS.
-  if (colorType === 4 || colorType === 6 || colorType === 3) return true;
-  // Scan chunk headers before IDAT for an optional tRNS chunk.
-  let offset = 8;
-  while (offset + 8 <= bytes.length) {
-    const length = bytes.readUInt32BE(offset);
-    const type = bytes.toString('ascii', offset + 4, offset + 8);
-    if (type === 'tRNS') return true;
-    if (type === 'IDAT' || type === 'IEND') return false;
-    offset += 12 + length;
-  }
-  return false;
-}
 
 async function maybeCompressRasterForPublish(
   sourcePath: string,
   originalBytes: Buffer,
   ext: string,
   mimeType?: string,
-): Promise<{ data: Buffer; ext: string }> {
+): Promise<{ data: Buffer; ext: string; optimized: boolean }> {
   const isPng = ext === '.png' || mimeType === 'image/png';
   const isJpeg = ext === '.jpg' || ext === '.jpeg' || mimeType === 'image/jpeg';
   if (originalBytes.length < WEBP_COMPRESS_MIN_BYTES || (!isPng && !isJpeg)) {
-    return { data: originalBytes, ext };
+    return { data: originalBytes, ext, optimized: false };
   }
-
-  const tempDir = await mkdtemp(path.join(tmpdir(), 'openmotion-publish-webp-'));
-  const outputPath = path.join(tempDir, 'out.webp');
-  try {
-    const cwebpBin = process.env.CWEBP_PATH || 'cwebp';
-    const cwebpArgs = isPng
-      ? ['-quiet', '-lossless', '-exact', '-z', '6', sourcePath, '-o', outputPath]
-      : ['-quiet', '-q', '82', sourcePath, '-o', outputPath];
-    const cwebpRes = await execute(cwebpBin, cwebpArgs, tempDir, 15_000).catch(() => null);
-    let encoded = cwebpRes?.code === 0;
-    // FFmpeg's libwebp encoder does not expose `-exact`, so it discards RGB beneath alpha=0 pixels.
-    // Only use FFmpeg for JPEGs or guaranteed-opaque PNGs so PNG RGBA bytes remain bit-for-bit exact.
-    if (!encoded && (!isPng || !pngMayHaveTransparency(originalBytes))) {
-      const { ffmpeg } = verificationBinaries();
-      const ffmpegArgs = isPng
-        ? ['-y', '-loglevel', 'error', '-nostdin', '-i', sourcePath, '-pix_fmt', 'bgra', '-c:v', 'libwebp', '-lossless', '1', '-compression_level', '6', outputPath]
-        : ['-y', '-loglevel', 'error', '-nostdin', '-i', sourcePath, '-c:v', 'libwebp', '-quality', '82', outputPath];
-      const ffmpegRes = await execute(ffmpeg, ffmpegArgs, tempDir, 15_000).catch(() => null);
-      encoded = ffmpegRes?.code === 0;
-    }
-    if (!encoded) return { data: originalBytes, ext };
-    const compressed = await readFile(outputPath).catch(() => null);
-    if (compressed && compressed.length > 0 && compressed.length < originalBytes.length * 0.95) {
-      return { data: compressed, ext: '.webp' };
-    }
-    return { data: originalBytes, ext };
-  } finally {
-    await rm(tempDir, { recursive: true, force: true }).catch(() => {});
-  }
+  const compressed = await transcodeRasterToWebp(sourcePath, originalBytes, isPng ? 'image/png' : 'image/jpeg', {
+    losslessPng: isPng,
+    quality: 82,
+  });
+  if (compressed) return { data: compressed, ext: '.webp', optimized: true };
+  return { data: originalBytes, ext, optimized: false };
 }
 
 const EXCLUDED_NAMES = new Set([
@@ -113,11 +69,22 @@ const MIME_EXTENSIONS: Record<string, string> = {
   'audio/wav': '.wav',
   'audio/ogg': '.ogg',
   'audio/mp4': '.m4a',
+  'model/gltf-binary': '.glb',
 };
 
 export interface StagedPublishFile {
   file: string;
   data: Buffer;
+}
+
+export interface PublishSizeBreakdown {
+  originalBytes: number;
+  totalBytes: number;
+  savedBytes: number;
+  optimizedGlbCount: number;
+  optimizedRasterCount: number;
+  topFiles: Array<{ file: string; bytes: number }>;
+  advisories: string[];
 }
 
 export interface PublishBundle {
@@ -129,6 +96,7 @@ export interface PublishBundle {
   totalBytes: number;
   bundledAssetCount: number;
   contentFingerprint: string;
+  sizeBreakdown: PublishSizeBreakdown;
 }
 
 function relativePosixPath(fromFilePath: string, targetFilePath: string): string {
@@ -178,7 +146,7 @@ async function collectSourceFiles(
         continue;
       }
       const relPosix = relDir ? `${relDir}/${entry.name}` : entry.name;
-      if (kind === 'game' && /^(?:game\.json$|(?:trailer|design|assets\/playtests)(?:\/|$))/i.test(relPosix)) {
+      if (kind === 'game' && /^(?:game\.json$|(?:trailer|design|assets\/playtests|assets-raw)(?:\/|$))/i.test(relPosix)) {
         continue;
       }
       const absPath = path.join(resolvedRoot, relPosix);
@@ -196,7 +164,8 @@ async function collectSourceFiles(
         throw new Error(`INVALID_ARGUMENT: Publication exceeds ${MAX_PUBLISH_FILES} files limit`);
       }
       totalBytes += info.size;
-      if (totalBytes > MAX_PUBLISH_BYTES) {
+      const collectLimit = /\.glb$/i.test(relPosix) ? MAX_RAW_COLLECT_BYTES : MAX_PUBLISH_BYTES;
+      if (totalBytes > Math.max(collectLimit, results.some(f => /\.glb$/i.test(f.path)) ? MAX_RAW_COLLECT_BYTES : MAX_PUBLISH_BYTES)) {
         throw new Error(`INVALID_ARGUMENT: Publication exceeds ${MAX_PUBLISH_BYTES / (1024 * 1024)} MiB limit`);
       }
       results.push({ path: relPosix, data: await readFile(absPath) });
@@ -226,6 +195,7 @@ export async function buildPublishBundle(input: {
   sourcePath: string;
   entryPath: string;
   virtualEntryHtml?: string;
+  maxBytes?: number;
 }): Promise<PublishBundle> {
   const rawFiles = input.virtualEntryHtml !== undefined
     ? [{ path: input.entryPath, data: Buffer.from(input.virtualEntryHtml, 'utf8') }]
@@ -241,7 +211,11 @@ export async function buildPublishBundle(input: {
 
   const bundledAssets = new Map<string, StagedPublishFile>();
   const knownPaths = new Set(rawFiles.map(f => f.path));
-  let totalBytes = rawFiles.reduce((sum, f) => sum + f.data.length, 0);
+  let originalBytes = rawFiles.reduce((sum, f) => sum + f.data.length, 0);
+  let totalBytes = 0;
+  let optimizedGlbCount = 0;
+  let optimizedRasterCount = 0;
+  const maxBytes = input.maxBytes ?? MAX_PUBLISH_BYTES;
 
   const resolveBundledAssetPath = async (assetId: string, versionId: string): Promise<string | null> => {
     const key = `${assetId}/${versionId}`;
@@ -256,21 +230,32 @@ export async function buildPublishBundle(input: {
     }
     const rawBytes = await readFile(resolved.filename).catch(() => null);
     if (!rawBytes) return null;
+    originalBytes += rawBytes.length;
 
     const rawExt = path.extname(resolved.version.filename || '') || MIME_EXTENSIONS[resolved.version.mimeType || ''] || '';
     const safeRawExt = /^\.[A-Za-z0-9]{1,10}$/.test(rawExt) ? rawExt.toLowerCase() : '';
-    const optimized = await maybeCompressRasterForPublish(
-      resolved.filename,
-      rawBytes,
-      safeRawExt,
-      resolved.version.mimeType,
-    );
-    const bytes = optimized.data;
-    const safeExt = optimized.ext;
+    let bytes: Buffer;
+    let safeExt: string;
+    if (safeRawExt === '.glb' || resolved.version.mimeType === 'model/gltf-binary') {
+      const optimized = await optimizeGlbTexturesForPublish(rawBytes);
+      bytes = optimized.data;
+      safeExt = '.glb';
+      if (optimized.optimized) optimizedGlbCount++;
+    } else {
+      const optimized = await maybeCompressRasterForPublish(
+        resolved.filename,
+        rawBytes,
+        safeRawExt,
+        resolved.version.mimeType,
+      );
+      bytes = optimized.data;
+      safeExt = optimized.ext;
+      if (optimized.optimized) optimizedRasterCount++;
+    }
 
     totalBytes += bytes.length;
-    if (rawFiles.length + bundledAssets.size >= MAX_PUBLISH_FILES || totalBytes > MAX_PUBLISH_BYTES) {
-      throw new Error(`INVALID_ARGUMENT: Bundled publication exceeds ${MAX_PUBLISH_BYTES / (1024 * 1024)} MiB limit`);
+    if (rawFiles.length + bundledAssets.size >= MAX_PUBLISH_FILES || totalBytes > maxBytes) {
+      throw new Error(`INVALID_ARGUMENT: Bundled publication exceeds ${maxBytes / (1024 * 1024)} MiB limit`);
     }
 
     let targetPath = `_shared-assets/${assetId}-${versionId}${safeExt}`;
@@ -286,7 +271,17 @@ export async function buildPublishBundle(input: {
   const stagedFiles: StagedPublishFile[] = [];
   for (const file of rawFiles) {
     if (!REWRITABLE_TEXT_FILE.test(file.path)) {
-      stagedFiles.push({ file: file.path, data: file.data });
+      let data = file.data;
+      if (/\.glb$/i.test(file.path)) {
+        const optimized = await optimizeGlbTexturesForPublish(file.data);
+        data = optimized.data;
+        if (optimized.optimized) optimizedGlbCount++;
+      }
+      totalBytes += data.length;
+      if (totalBytes > maxBytes) {
+        throw new Error(`INVALID_ARGUMENT: Publication exceeds ${maxBytes / (1024 * 1024)} MiB limit`);
+      }
+      stagedFiles.push({ file: file.path, data });
       continue;
     }
     let text = file.data.toString('utf8');
@@ -332,9 +327,9 @@ export async function buildPublishBundle(input: {
     }
 
     const nextBuf = Buffer.from(text, 'utf8');
-    totalBytes += nextBuf.length - file.data.length;
-    if (totalBytes > MAX_PUBLISH_BYTES) {
-      throw new Error(`INVALID_ARGUMENT: Publication exceeds ${MAX_PUBLISH_BYTES / (1024 * 1024)} MiB limit`);
+    totalBytes += nextBuf.length;
+    if (totalBytes > maxBytes) {
+      throw new Error(`INVALID_ARGUMENT: Publication exceeds ${maxBytes / (1024 * 1024)} MiB limit`);
     }
     stagedFiles.push({ file: file.path, data: nextBuf });
   }
@@ -350,6 +345,16 @@ export async function buildPublishBundle(input: {
     hash.update(`${file.file}:${digest}\n`);
   }
 
+  const topFiles = [...stagedFiles]
+    .sort((a, b) => b.data.length - a.data.length)
+    .slice(0, 5)
+    .map(item => ({ file: item.file, bytes: item.data.length }));
+  const advisories: string[] = [];
+  if (totalBytes > 15 * 1024 * 1024) {
+    advisories.push(`Bundle is ${(totalBytes / (1024 * 1024)).toFixed(2)} MiB; consider downscaling oversized textures or lazy-loading secondary assets for faster cold starts.`);
+  }
+  const savedBytes = Math.max(0, originalBytes - totalBytes);
+
   return {
     kind: input.kind,
     targetId: input.targetId,
@@ -359,6 +364,15 @@ export async function buildPublishBundle(input: {
     totalBytes,
     bundledAssetCount: bundledAssets.size,
     contentFingerprint: hash.digest('hex'),
+    sizeBreakdown: {
+      originalBytes,
+      totalBytes,
+      savedBytes,
+      optimizedGlbCount,
+      optimizedRasterCount,
+      topFiles,
+      advisories,
+    },
   };
 }
 

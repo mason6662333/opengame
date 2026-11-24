@@ -1,11 +1,12 @@
 import { spawn } from 'node:child_process';
-import { stat } from 'node:fs/promises';
+import { open, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { execute, pluginRoot } from '../hyperframes.ts';
 import { verificationBinaries } from '../scripts/verify-export.ts';
 import { requireNativeRuntime } from '../scripts/npm-runtime.mjs';
+import { inspectGlb } from '../scripts/game-glb-inspect.mjs';
 import { MAX_ASSET_BYTES } from '../shared/asset-limits.ts';
-import type { Modality } from '../shared/gateway.ts';
+import type { AssetModality } from '../shared/asset-library.ts';
 
 const WAVEFORM_BARS = 128;
 const MAX_PCM_BYTES = 8 * 1024 * 1024;
@@ -88,14 +89,55 @@ export async function requireLibraryMediaRuntime() {
   return binaries;
 }
 
+async function isGlbHeader(file: string, size: number): Promise<boolean> {
+  if (size < 20) return false;
+  const handle = await open(file, 'r');
+  try {
+    const header = Buffer.alloc(12);
+    const { bytesRead } = await handle.read(header, 0, 12, 0);
+    return bytesRead === 12
+      && header.toString('ascii', 0, 4) === 'glTF'
+      && header.readUInt32LE(4) === 2
+      && header.readUInt32LE(8) === size;
+  } finally {
+    await handle.close();
+  }
+}
+
 /** Inspect and decode local media before accepting it into the reusable library. */
-export async function probeLibraryMedia(file: string) {
+export async function probeLibraryMedia(file: string): Promise<{
+  modality: AssetModality;
+  mimeType: string;
+  extension: string;
+  bytes: number;
+  width?: number;
+  height?: number;
+  duration?: number;
+  waveform?: number[];
+  result?: Record<string, unknown>;
+}> {
   const info = await stat(file);
   if (!info.isFile() || !info.size || info.size > MAX_ASSET_BYTES) throw new Error('Asset must be a file of at most 500 MB');
+  if (await isGlbHeader(file, info.size)) {
+    const glbBytes = await readFile(file);
+    let glb: Record<string, unknown>;
+    try {
+      glb = inspectGlb(glbBytes) as Record<string, unknown>;
+    } catch (error) {
+      throw new Error(`Invalid GLB 2 model: ${(error as Error).message}`);
+    }
+    return {
+      modality: '3d',
+      mimeType: 'model/gltf-binary',
+      extension: 'glb',
+      bytes: info.size,
+      result: { glb },
+    };
+  }
   await requireNativeRuntime(pluginRoot, 'media');
   const binaries = verificationBinaries();
   const result = await execute(binaries.ffprobe, ['-v', 'error', '-show_streams', '-show_format', '-of', 'json', file], path.dirname(file), 60_000);
-  if (result.code) throw new Error('This file is not readable image, video or audio media');
+  if (result.code) throw new Error('This file is not readable image, video, audio or GLB 3D media');
   const media = JSON.parse(result.stdout);
   const stream = media.streams?.find((s: any) => s.codec_type === 'video' && !s.disposition?.attached_pic) ?? media.streams?.find((s: any) => s.codec_type === 'audio');
   if (!stream) throw new Error('Unsupported media type');
@@ -114,7 +156,7 @@ export async function probeLibraryMedia(file: string) {
   const waveform = stream.codec_type === 'audio' ? await extractAudioWaveform(binaries.ffmpeg, file, stream.index) : undefined;
   // Phone footage is stored sideways with a display matrix; players and ffmpeg turn it, so report the size it plays at.
   const turned = Math.abs(Number(stream.side_data_list?.find((data: any) => data.rotation !== undefined)?.rotation ?? 0)) % 180 === 90;
-  return { modality: kind[0].split('/')[0] as Modality, mimeType: kind[0], extension: kind[1], bytes: info.size,
+  return { modality: kind[0].split('/')[0] as AssetModality, mimeType: kind[0], extension: kind[1], bytes: info.size,
     ...(stream.width ? { width: turned ? stream.height : stream.width, height: turned ? stream.width : stream.height } : {}),
     ...(!image && Number(media.format?.duration) > 0 ? { duration: Number(media.format.duration) } : {}),
     ...(waveform ? { waveform } : {}) };

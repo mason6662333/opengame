@@ -941,19 +941,22 @@ export function WorkspaceSearch({
       .map(toResourceItem)
       .filter((item): item is SearchPaletteItem => Boolean(item));
 
-    const assetItems: SearchPaletteItem[] = (assets.result?.assets ?? []).map(asset => ({
-      key: `asset:${asset.id}:${asset.currentVersionId}`,
-      id: asset.id,
-      kind: 'asset',
-      scope: 'files',
-      group: 'Workspace assets',
-      label: asset.name,
-      detail: t(mediaLabels[asset.modality]),
-      modality: asset.modality,
-      asset,
-      icon: searchIcon(creationKinds.find(kind => kind.id === asset.modality)!.icon, asset.modality),
-      open: () => onAsset(asset.id, asset.currentVersionId),
-    }));
+    const assetItems: SearchPaletteItem[] = (assets.result?.assets ?? []).map(asset => {
+      const mediaModality = asset.modality === '3d' ? undefined : asset.modality;
+      return {
+        key: `asset:${asset.id}:${asset.currentVersionId}`,
+        id: asset.id,
+        kind: 'asset',
+        scope: 'files',
+        group: 'Workspace assets',
+        label: asset.name,
+        detail: mediaModality ? t(mediaLabels[mediaModality]) : '3D GLB',
+        modality: mediaModality,
+        asset,
+        icon: searchIcon(mediaModality ? creationKinds.find(kind => kind.id === mediaModality)!.icon : 'folder-open-line', mediaModality ?? 'agent'),
+        open: () => onAsset(asset.id, asset.currentVersionId),
+      };
+    });
 
     const studioItems: SearchPaletteItem[] = (query
       ? rankPreparedSearchResults(indexedStudios, query).map(({ item }) => item)

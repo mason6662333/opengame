@@ -25,7 +25,9 @@ export async function assetOperation(
   }
   if (args.action === 'update') return { asset: await library.update(args.assetId, args.changes) };
   if (args.action === 'import') {
-    await requireNativeRuntime(pluginRoot, 'media');
+    if (!/\.glb$/i.test(String(args.sourcePath ?? ''))) {
+      await requireNativeRuntime(pluginRoot, 'media');
+    }
     return { asset: await library.importFile(args.sourcePath, { requestId: args.requestId, name: args.name || path.basename(args.sourcePath), assetId: args.assetId, parentVersionId: args.parentVersionId }) };
   }
   if (args.action === 'generate') {

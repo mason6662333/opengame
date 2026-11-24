@@ -138,7 +138,7 @@ export const assetManageTool = {
         projectId,
         name: { type: 'string', minLength: 1, maxLength: 200 },
         sourcePath: { type: 'string', minLength: 1, maxLength: 4096 },
-        modality: { enum: ['image', 'video', 'audio'] },
+        modality: { enum: ['image', 'video', 'audio', '3d'] },
         source: { enum: ['upload', 'generated'] },
         query: { type: 'string', maxLength: 200 },
         trash: { type: 'boolean' },

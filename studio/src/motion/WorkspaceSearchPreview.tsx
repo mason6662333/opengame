@@ -352,7 +352,7 @@ export function WorkspaceSearchPreview({
 
         <div className="om-command-preview-body">
           <div className="om-command-preview-badges">
-            <span className="om-badge" data-tone={asset.modality}>{t(mediaLabels[asset.modality])}</span>
+            <span className="om-badge" data-tone={asset.modality}>{asset.modality === '3d' ? '3D GLB' : t(mediaLabels[asset.modality])}</span>
           </div>
           <h3 className="om-command-preview-title">{asset.name}</h3>
           {item.detail && <p className="om-command-preview-sub om-muted">{item.detail}</p>}

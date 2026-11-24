@@ -136,6 +136,28 @@ export async function readLibraryAsset(library: AssetLibrary, input: ReadInput):
   if (input.timestamps !== undefined && (asset.modality !== 'video' || !Array.isArray(input.timestamps) || !input.timestamps.length || input.timestamps.length > 4
     || input.timestamps.some(time => !Number.isFinite(time) || time < 0 || version.duration !== undefined && time >= version.duration))) throw new Error('INVALID_ARGUMENT: timestamps must select at most four available video frames');
   if ((input.start !== undefined || input.duration !== undefined) && asset.modality !== 'audio') throw new Error('INVALID_ARGUMENT: start and duration are audio-only');
+  if (asset.modality === '3d') {
+    const prepared = await library.prepare(filename);
+    try {
+      if (prepared.sha256 !== version.sha256 || prepared.bytes !== version.bytes || prepared.media.modality !== '3d') {
+        throw new Error('ASSET_CONTENT_CHANGED: bytes no longer match the pinned version');
+      }
+      const glb = (prepared.media.result?.glb ?? version.result?.glb) as Record<string, unknown> | undefined;
+      return {
+        assetId: asset.id,
+        versionId: version.id,
+        modality: '3d',
+        version,
+        previews: [],
+        content: [{
+          type: 'text',
+          text: `${asset.id}/${version.id}: 3D GLB model (${version.bytes} bytes)\n${JSON.stringify(glb ?? {}, null, 2)}`,
+        }],
+      };
+    } finally {
+      await rm(prepared.file, { force: true });
+    }
+  }
   const maxEdge = parseMaxEdge(input.maxEdge, asset.modality);
   const start = input.start ?? 0, duration = input.duration ?? 10;
   if (asset.modality === 'audio' && (!Number.isFinite(start) || start < 0 || version.duration !== undefined && start >= version.duration

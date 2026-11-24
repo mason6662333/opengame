@@ -1,6 +1,10 @@
 import type { AudioKind } from './audio-kind.ts';
 import type { Modality } from './gateway.ts';
 
+/** Library assets cover generative modalities plus reusable local 3D GLB models. */
+export const assetModalities = ['image', 'video', 'audio', '3d'] as const;
+export type AssetModality = typeof assetModalities[number];
+
 // Common extensions for the containers accepted by probeLibraryMedia.
 // The server still validates the file contents and codecs.
 export const assetUploadFormats = {
@@ -28,7 +32,7 @@ export type AssetVersion = {
   result?: Record<string, unknown>;
 };
 export type LibraryAsset = {
-  id: string; name: string; modality: Modality; createdAt: number; updatedAt: number;
+  id: string; name: string; modality: AssetModality; createdAt: number; updatedAt: number;
   currentVersionId: string; versions: AssetVersion[]; trashedAt?: number;
 };
 export type LibraryGeneration = {
@@ -37,7 +41,7 @@ export type LibraryGeneration = {
   references?: AssetReference[]; conversationId?: string;
 };
 export type AssetListInput = {
-  modality?: Modality; audioKind?: AudioKind; source?: 'upload' | 'generated'; query?: string; trash?: boolean;
+  modality?: AssetModality; audioKind?: AudioKind; source?: 'upload' | 'generated'; query?: string; trash?: boolean;
   sort?: 'newest' | 'oldest' | 'name'; offset?: number; limit?: number;
 };
 export const assetVersion = (asset: LibraryAsset, versionId = asset.currentVersionId) => asset.versions.find(version => version.id === versionId);
@@ -51,7 +55,7 @@ export type AssetReadBatchItem = {
   width?: number; height?: number; mimeType: string; bytes: number;
 };
 export type AssetReadResult = {
-  assetId?: string; versionId?: string; modality: Modality; version?: AssetVersion;
+  assetId?: string; versionId?: string; modality: AssetModality; version?: AssetVersion;
   items?: AssetReadBatchItem[];
   grid?: { cols: number; rows: number; cellSize: number };
   previews: { mimeType: string; bytes: number; width?: number; height?: number; timestamp?: number; start?: number; duration?: number }[];
