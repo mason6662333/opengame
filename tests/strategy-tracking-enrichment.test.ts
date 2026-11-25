@@ -393,6 +393,22 @@ test('P1-D: SuperAgentConversations emits super_agent_approval_result and super_
     }),
     true,
   );
+  // Vendor-path agent model IDs (e.g. anthropic/claude-sonnet-4.5) must pass the shared modelId rule
+  assert.equal(
+    validProperties(omEvents, 'super_agent_turn_result', {
+      runtime_kind: 'local-direct',
+      engine: 'claude',
+      model_id: 'anthropic/claude-sonnet-4.5',
+      permission_mode: 'auto',
+      intent: 'coding',
+      outcome: 'completed',
+      duration_ms: 1500,
+      tool_call_count: 2,
+      approval_count: 0,
+      artifact_count: 0,
+    }),
+    true,
+  );
   assert.equal(
     validProperties(omEvents, 'super_agent_approval_result', {
       runtime_kind: 'local-bridge',

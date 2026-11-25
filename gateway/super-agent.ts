@@ -15,10 +15,9 @@ import { webAddress } from '../shared/browser.ts';
 import { designRoutes } from '../shared/design-project.ts';
 import { localAgents, type AgentDefinition } from '../shared/local-agents.ts';
 import type { OmTracking } from '../shared/tracking.ts';
-import { slug } from '../tracking/core.ts';
+import { modelId, slug } from '../tracking/core.ts';
 import { superAgentError } from '../tracking/tool-fields.ts';
 
-const safeSuperAgentModelCode = /^[A-Za-z0-9_.-]{1,128}$/;
 const knownSuperAgentIntents = new Set(['chat', 'coding', 'design', 'research', 'visualization', 'image', 'video', 'audio', 'game', 'website', 'slides', 'brand']);
 const knownSuperAgentApprovalKinds = new Set(['generation', 'command', 'file', 'tool']);
 function superAgentRuntimeKind(runtimeId?: string): 'local-direct' | 'local-bridge' | 'remote-service' {
@@ -4355,7 +4354,7 @@ export class SuperAgentConversations {
     }
     const rawEngine = (active.chat.engine || 'unknown').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
     const safeEngine = slug.test(rawEngine) ? rawEngine : 'other';
-    const safeModelId = typeof active.chat.model === 'string' && safeSuperAgentModelCode.test(active.chat.model)
+    const safeModelId = typeof active.chat.model === 'string' && modelId.test(active.chat.model)
       ? active.chat.model : undefined;
     const turnOutcome: 'completed' | 'failed' | 'cancelled' = error
       ? 'failed'
