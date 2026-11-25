@@ -35,6 +35,8 @@ export type WorkspaceChrome = {
   openHome: () => void;
   openAssets: () => void;
   openInSuperAgent?: (payload: SuperAgentHandoffPayload) => void;
+  /** Opens one existing Super Agent conversation. */
+  openSuperAgentChat?: (chatId: string) => void;
   preloadSurface?: (surface: WorkspaceSurfaceKey) => void;
   assetsOpen: boolean;
   openSkills: (category?: SkillCategory | null, trigger?: HTMLElement) => void;

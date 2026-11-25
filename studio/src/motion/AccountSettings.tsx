@@ -129,6 +129,8 @@ export function useAccountSignIn(area: GuideArea, showToast: ShowToast, provider
     const stateOrBillingChanged = Boolean(updated && (updated.state !== account?.state || updated.plan?.trim().toLowerCase() !== account?.plan?.trim().toLowerCase()
       || Boolean(updated.billingUnavailable) !== Boolean(account?.billingUnavailable)));
     if (stateOrBillingChanged) notifyProvidersChanged();
+    // The header balance reads its own copy of the account; announce a new balance so it follows.
+    if (updated && updated.balance !== account?.balance) window.dispatchEvent(new Event('motion:account-changed'));
     if (checkout) {
       tracking.reportEntitlementRefresh('settings', checkout.hookId, checkout.entryId, billingOk ? 'success' : 'failure', planChanged);
     }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { cp, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
+import { access, cp, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
@@ -27,7 +27,7 @@ async function verifyHostedTemplates(application: string, commit: string) {
   try {
     const hook = path.join(directory, 'hosted.mjs');
     const files = built.uploads.map(file => ['https://releases.open-design.ai/' + file.key, file.body]);
-    files.push(['https://releases.open-design.ai/open-motion/templates/main/catalog.json', built.uploads.find(file => file.key.endsWith('/catalog.json'))!.body]);
+    files.push(['https://releases.open-design.ai/open-game/templates/main/catalog.json', built.uploads.find(file => file.key.endsWith('/catalog.json'))!.body]);
     await writeFile(hook, `import {readFile} from 'node:fs/promises';
 const files = new Map(${JSON.stringify(files)}), original = globalThis.fetch;
 globalThis.fetch = async (input, init) => {
@@ -164,29 +164,31 @@ test('test npm artifacts contain their application, locked manifest and no bundl
     assert.deepEqual(cards.cards.map((card: any) => card.templateId), onboardingTemplateIds.slice(-3));
     assert(cards.cards.every((card: any) => card.templateKind === 'reference' && !card.createArgs));
     const readme = await readFile(path.join(installer, 'package/README.md'), 'utf8');
-    const media = new Map<string, string>((await json('repository-media.json')).files.map((file: { path: string; url: string }) => [file.path, file.url]));
-    const hero = media.get('docs/readme/brand-hero.jpg');
-    const mobileHero = media.get('docs/readme/brand-hero.mobile.jpg');
-    const studioCapture = `https://raw.githubusercontent.com/nexu-io/openmotion/${release.commit}/docs/readme/live-product/editor.en.jpg`;
-    assert(hero && mobileHero, 'Public README covers must retain registered media identities');
-    assert(readme.includes('The open-source Claude Motion &amp; CapCut alternative'));
-    assert(readme.includes(`srcset="https://raw.githubusercontent.com/nexu-io/openmotion/${release.commit}/docs/readme/capcut-claude-motion-cover.webp"`));
-    assert(readme.includes(hero));
-    assert(readme.includes(`src="https://raw.githubusercontent.com/nexu-io/openmotion/${release.commit}/docs/readme/openmotion-logo.svg"`));
-    assert(readme.includes(`https://github.com/nexu-io/openmotion/blob/${release.commit}/docs/motion-md.md`));
+    const raw = `https://raw.githubusercontent.com/OpenDesignHQ/opengame/${release.commit}/`;
+    const browse = `https://github.com/OpenDesignHQ/opengame/blob/${release.commit}/`;
+    assert(readme.includes('The First Super Game Agent'));
+    for (const asset of ['opengame-logo.svg', 'opengame-hero.webp', 'agents/local-agents.png']) {
+      assert(readme.includes(`src="${raw}docs/readme/${asset}"`), asset);
+    }
+    assert(readme.includes(`srcset="${raw}docs/readme/agents/local-agents.mobile.png"`));
+    assert(readme.includes(`src="${raw}templates/games/tidebreaker/cover.webp"`));
+    assert(readme.includes(`](${browse}docs/opengame-setup.md)`));
+    assert(readme.includes(`](${browse}docs/opengame-architecture.md)`));
     assert(readme.includes('](#choose-agent)'));
-    assert(readme.includes('href="https://open-design.ai/motion/'));
-    assert(readme.includes(`srcset="${mobileHero}"`));
-    assert(readme.includes(`href="https://github.com/nexu-io/openmotion/blob/${release.commit}/LICENSE"`));
-    assert(readme.includes(`src="${studioCapture}"`));
-    assert(readme.includes('href="https://open-design.ai/templates/notion-custom-agents-motion-design/"'));
-    assert(!readme.includes('](docs/') && !readme.includes('](template-library/'));
-    assert(!readme.startsWith('# Motion application npm package'));
+    assert(readme.includes('https://github.com/OpenDesignHQ/opengame/issues'));
+    assert(readme.includes(`href="${browse}LICENSE"`));
+    assert(!readme.includes('](docs/') && !readme.includes('](templates/'));
+    assert(!readme.includes(`https://raw.githubusercontent.com/nexu-io/openmotion/${release.commit}/`));
     const embeddedReadme = await readFile(path.join(application, 'README.md'), 'utf8');
-    assert(embeddedReadme.includes('](docs/motion-md.md)'), 'Installed documentation keeps local links to shipped guides');
-    assert(embeddedReadme.includes(`srcset="https://raw.githubusercontent.com/nexu-io/openmotion/${release.commit}/docs/readme/capcut-claude-motion-cover.webp"`));
-    assert(embeddedReadme.includes(`srcset="${mobileHero}"`));
-    assert(embeddedReadme.includes(`src="${studioCapture}"`));
+    for (const guide of ['opengame-setup.md', 'opengame-architecture.md']) {
+      assert(embeddedReadme.includes(`](docs/${guide})`), 'Installed documentation keeps local links to shipped guides');
+      await access(path.join(application, 'docs', guide));
+    }
+    assert(embeddedReadme.includes(`src="${raw}docs/readme/opengame-logo.svg"`));
+    assert(embeddedReadme.includes(`src="${raw}docs/readme/opengame-hero.webp"`));
+    assert(embeddedReadme.includes(`srcset="${raw}docs/readme/agents/local-agents.mobile.png"`));
+    assert(embeddedReadme.includes('src="templates/games/tidebreaker/cover.webp"'));
+    await assert.rejects(readdir(path.join(application, 'docs/readme/opengame')), { code: 'ENOENT' });
     await assert.rejects(readdir(path.join(application, 'docs/readme/media')), { code: 'ENOENT' });
     await assert.rejects(readFile(path.join(application, 'scripts/install-library-skill.mjs')), { code: 'ENOENT' });
     assert.equal((await json(path.join(application, 'package.json'))).version, version);
@@ -260,7 +262,7 @@ test('test npm artifacts contain their application, locked manifest and no bundl
     }
     assert(!entryPaths.some(parts => parts.some(part => part.startsWith('.env'))), 'Environment files must not ship');
     assert(!entryPaths.some(parts => parts.includes('.motion-data')), 'Workspace data must not ship');
-    const nonRuntimePackageEntries = entryNames.filter(file => !file.startsWith('packages/multimodal-models/src/')).join('\n');
+    const nonRuntimePackageEntries = entryNames.filter(file => !file.startsWith('packages/multimodal-models/src/') && !/^templates\/games\/[^/]+\/src\//.test(file)).join('\n');
     assert(!/(^|\/)(tests|src)\//.test(nonRuntimePackageEntries), 'Development sources and fixtures must not ship');
     for (const script of ['measure_frame.mjs', 'register_motion.py', 'measure_motion.py', 'observe_marks.py', 'vision-tools.mjs']) {
       const filename = 'skills/openmotion-recreate/scripts/' + script;

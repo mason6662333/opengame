@@ -4,7 +4,7 @@ import { mkdtemp, writeFile, rm, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { checkDocument, verifyResources } from '../scripts/check-readme-resources.mjs';
-import { distributionFiles } from '../scripts/distribution.ts';
+import { distributionFiles, distributionDocuments } from '../scripts/distribution.ts';
 
 test('README viewing resources and shipped browser dependencies resolve locally with matching hashes', async () => {
   const result = await verifyResources();
@@ -12,36 +12,51 @@ test('README viewing resources and shipped browser dependencies resolve locally 
   assert(result.verifiedHashes > 100);
 });
 
-test('each README language opens the full guide and ships its localized cover', async () => {
-  const pages = [
-    ['README.md', 'English', ''],
-    ['docs/README.zh-CN.md', '简体中文', '.zh-CN'],
-    ['docs/README.ja.md', '日本語', '.ja'],
+test('each OpenGame README language links its guide and bundled game captures', async () => {
+  const rootPages = [
+    ['README.md', 'English'],
+    ['README.zh-CN.md', '简体中文'],
+    ['README.ja.md', '日本語'],
   ];
-  const shipped = new Set(await distributionFiles('phase1'));
-  const media = JSON.parse(await readFile('repository-media.json', 'utf8'));
-  assert(shipped.has('docs/readme/openmotion-logo.svg'));
-  for (const [file, language, suffix] of [...pages, ['README.zh-CN.md', '简体中文', '.zh-CN']]) {
+  const docsPages = [
+    ['README.md', 'English'],
+    ['docs/README.zh-CN.md', '简体中文'],
+    ['docs/README.ja.md', '日本語'],
+  ];
+  const shipped = new Set(distributionDocuments);
+  const requiredAssets = [
+    'docs/readme/opengame-logo.svg',
+    'docs/readme/opengame-hero.webp',
+    'docs/readme/agents/local-agents.png',
+    'docs/readme/agents/local-agents.mobile.png',
+  ];
+  for (const [file, language, expectedPages] of [
+    ...rootPages.map(([f, l]) => [f, l, rootPages] as const),
+    ...docsPages.slice(1).map(([f, l]) => [f, l, docsPages] as const),
+  ]) {
     const text = await readFile(file, 'utf8');
+    await checkDocument(file);
     const selector = text.split('\n').find(line => line.includes(`**${language}**`) && line.includes(' · '));
     assert(selector, `Missing language selector in ${file}`);
     const destinations = [...selector.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)]
       .map(([, label, target]) => [path.normalize(path.join(path.dirname(file), target)), label]);
-    assert.deepEqual(destinations, pages.filter(([, label]) => label !== language)
+    assert.deepEqual(destinations, expectedPages.filter(([, label]) => label !== language)
       .map(([target, label]) => [target, label]), file);
-    for (const section of ['agent-wall', 'showcase', 'features', 'technical-guide', 'community']) {
+    for (const section of ['quick-start', 'agent-wall', 'showcase', 'features', 'technical-guide', 'community']) {
       assert(text.includes(`id="${section}"`), `${file}: missing ${section}`);
     }
-    const cover = `docs/readme/capcut-claude-motion-cover${suffix}.webp`;
-    const relativeCover = path.relative(path.dirname(file), cover).split(path.sep).join('/');
-    assert(text.includes(`<source type="image/webp" srcset="${relativeCover}">`), file);
-    assert(shipped.has(cover), `Missing from distribution: ${cover}`);
-    for (const asset of [`brand-hero${suffix}.jpg`, `brand-hero.mobile${suffix}.jpg`]) {
-      const transferred = media.files.find((entry: { path: string }) => entry.path === `docs/readme/${asset}`);
-      assert(text.includes(transferred ? transferred.url + '"' : `readme/${asset}"`), `${file}: missing ${asset}`);
-      assert(shipped.has(`docs/readme/${asset}`), `Missing from distribution: ${asset}`);
+    assert(text.includes('https://github.com/OpenDesignHQ/opengame.git'), file);
+    assert(!text.includes('capcut-claude-motion-cover'), `${file}: stale video cover`);
+    assert(!text.includes('npx skills add nexu-io/openmotion'), `${file}: upstream installer`);
+    for (const asset of requiredAssets) {
+      const relative = path.relative(path.dirname(file), asset).split(path.sep).join('/');
+      assert(text.includes(`="${relative}"`), `${file}: missing ${asset}`);
+      assert(shipped.has(asset), `Missing from distribution: ${asset}`);
     }
+    const sampleCover = path.relative(path.dirname(file), 'templates/games/tidebreaker/cover.webp').split(path.sep).join('/');
+    assert(text.includes(`src="${sampleCover}"`), `${file}: missing bundled game cover`);
   }
+  assert(shipped.has('docs/opengame-setup.md'));
 });
 
 test('copied native templates carry every registered asset in the distributable application', async () => {

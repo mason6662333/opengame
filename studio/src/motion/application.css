@@ -79,6 +79,16 @@
 [data-motion-studio][data-theme="paper"] .om-app-header .motion-github-link:is(:hover, :focus-visible),
 [data-motion-studio][data-theme="paper"] .om-app-header .om-account-trigger:is(:hover, :focus-visible, [aria-expanded="true"]) .om-avatar { background: var(--color-hover); border-color: var(--motion-border-strong); color: var(--motion-strong); }
 .om-account-menu { width: 258px; max-width: calc(100vw - 24px); }
+/* Signed in: a round avatar framed by the remaining-credits ring, with no tile behind it in any state. */
+[data-motion-studio] .om-app-header .om-account-trigger .om-avatar[data-round],
+[data-motion-studio] .om-app-header .om-account-trigger:is(:hover, :focus-visible, [aria-expanded="true"]) .om-avatar[data-round] {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50% !important;
+  background: transparent;
+}
+[data-motion-studio] .om-app-header .om-nav-item.om-account-trigger:has(.om-avatar[data-round]) { border-radius: 50% !important; }
 .om-application .motion-workspace { min-width: 0; }
 .om-project-navigation { flex: 0 0 var(--om-project-navigation-width); min-width: 0; overflow: hidden; }
 .om-project-navigation[data-collapsed="true"] { flex-basis: 0; }

@@ -1,799 +1,485 @@
-<p align="center"><img src="docs/readme/openmotion-logo.svg" width="420" alt="OpenMotion"></p>
+<p align="center"><img src="docs/readme/opengame-logo.svg" width="400" alt="OpenGame"></p>
 
-<p align="center"><strong>The open-source Claude Motion &amp; CapCut alternative</strong></p>
+<p align="center"><strong>The First Super Game Agent — Open-Source Full-Stack AI Game Studio</strong></p>
 
 <p align="center">
-  <picture>
-    <source type="image/webp" srcset="docs/readme/capcut-claude-motion-cover.webp">
-    <source media="(max-width: 600px)" srcset="https://releases.open-design.ai/open-motion/media/sha256/730e1d6235820d39ba8adde42810d1165377992136a3b20290ad5d504abb527b.jpg">
-    <img src="https://releases.open-design.ai/open-motion/media/sha256/730e1d6235820d39ba8adde42810d1165377992136a3b20290ad5d504abb527b.jpg" width="100%" alt="OpenMotion — the open-source Claude Motion and CapCut alternative. Dan Martell’s original and an OpenMotion remake with Riya appear beside each other above the editable Studio timeline.">
-  </picture>
+  <img src="docs/readme/opengame-hero.webp" width="100%" alt="OpenGame — The First Super Game Agent. Remix, re-style, test, and publish playable 3D, anime, pixel, and 9:16 mini-games from 26 built-in playable templates across 22 local AI agents.">
 </p>
 
 <p align="center">
-  <a href="https://github.com/nexu-io/openmotion"><img src="docs/readme/badges/stars.svg" alt="GitHub Stars · 9.5k (2026-11-09)"></a>
   <a href="package.json"><img src="docs/readme/badges/node.svg" alt="Node.js 22.18+"></a>
   <a href="LICENSE"><img src="docs/readme/badges/license.svg" alt="Apache 2.0 license"></a>
   <a href="https://github.com/nexu-io/open-design"><img src="docs/readme/badges/built-by-opendesign.svg" alt="Built by OpenDesign"></a>
 </p>
 
 <p align="center">
-  <a href="https://open-design.ai/motion/"><img src="docs/readme/badges/website.svg" alt="OpenMotion website" /></a>
-  <a href="https://go.open-design.ai/?utm_source=github&amp;utm_medium=referral&amp;utm_campaign=openmotion&amp;utm_content=readme_en"><img src="docs/readme/badges/opendesign-go.svg" alt="OpenDesign Go model subscriptions" /></a>
-  <a href="https://discord.com/invite/M7NnHS9gNa"><img src="docs/readme/badges/discord.svg" alt="Join the OpenMotion Discord" /></a>
-  <a href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=b6cs46dc-acb2-48ed-941d-c45642ead841"><img src="docs/readme/badges/feishu.svg" alt="Join the OpenMotion Feishu group" /></a>
+  <a href="https://go.open-design.ai/?utm_source=github&amp;utm_medium=referral&amp;utm_campaign=opengame&amp;utm_content=readme_en"><img src="docs/readme/badges/opendesign-go.svg" alt="OpenDesign Go model subscriptions" /></a>
+  <a href="https://discord.com/invite/M7NnHS9gNa"><img src="docs/readme/badges/discord.svg" alt="Join the OpenGame Discord" /></a>
+  <a href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=b6cs46dc-acb2-48ed-941d-c45642ead841"><img src="docs/readme/badges/feishu.svg" alt="Join the OpenGame Feishu group" /></a>
   <a href="https://x.com/OpenDesignHQ"><img src="docs/readme/badges/x-opendesignhq.svg" alt="OpenDesign on X (@OpenDesignHQ)" /></a>
   <a href="https://x.com/OpenDesignDevs"><img src="docs/readme/badges/x-opendesigndevs.svg" alt="OpenDesign Developers on X (@OpenDesignDevs)" /></a>
   <a href="https://www.youtube.com/channel/UChtshixMhvtgBWzoD9R_Qfg"><img src="docs/readme/badges/youtube.svg" alt="OpenDesign on YouTube" /></a>
 </p>
 
-<p align="center"><a href="#quick-start">Install</a> · <a href="#agent-wall">Agents</a> · <a href="#showcase">Use cases &amp; remakes</a> · <a href="#features">Why OpenMotion</a> · <a href="#technical-guide">Setup & architecture</a> · <a href="#community">Community</a></p>
+<p align="center"><a href="#quick-start">Quick Start</a> · <a href="#agent-wall">Agents</a> · <a href="#showcase">Playable Templates</a> · <a href="#features">Why OpenGame</a> · <a href="#publish-monetize">Publish &amp; Monetize</a> · <a href="#technical-guide">Setup &amp; MCP</a> · <a href="#community">Community</a></p>
 
 <div align="center">
 
-**English** · [简体中文](docs/README.zh-CN.md) · [日本語](docs/README.ja.md)
+**English** · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
 
 </div>
 
-# OpenMotion
+# Introducing OpenGame
 
-OpenMotion is a **full-stack agentic video** studio and an **open-source alternative to Claude Motion and CapCut**. Upload a reference video or paste a social video link to **recreate it with your own brand kit and copy**.
+OpenGame is **the first Super Game Agent** — turning your local coding agent into an open-source AI Unreal Engine / Unity and full-stack game studio, taking you from a single prompt or viral game template all the way to automated QA, instant web sharing, and monetization-ready builds.
 
-- 🎬 **Full-stack video recreation.** Code video with HTML. Your agent breaks down the reference, rebuilds its shots and transitions, and generates missing assets. Edit the timing in Studio and render an MP4 from the same project.
-- 🔑 **BYOA — Bring Your Own Agent. BYOK — Bring Your Own Keys.** OpenMotion is free and open source. Recreate videos in [your local agent](#agent-wall) with your own API keys. Supported agents include Claude Code, Codex, and WorkBuddy.
-- 🧩 OpenMotion introduces **Motion.md**, a Markdown format for shot order, timing and transitions. Use it to share how a brand film works, shot by shot.
-- 🎛️ **Images, video, music and voice.** Create artwork with GPT Image 2.6, add a shot with Seedance 2.5, score it with Suno and narrate it with Eleven v4. [Explore the models and providers](#model-wall).
+- 🎮 **One-Click Remix Any Game.** **26 built-in playable templates** (3D, voxel, anime, pixel & 9:16 mini-games / playable ads) with full editable source and design specs.
+- 🎨 **One-Click Re-style Any Game.** Keep a proven game loop while swapping characters, art style, and audio — affordable models like **DeepSeek** ship polished reskins fast, while **Claude Fable 5.2**, **Opus**, **Codex**, and **Gemini** build original 3D worlds from scratch.
+- 💰 **End-to-End Pipeline: Build → Verify → Publish & Monetize.** Automated validation, simulation, headless playtesting, cover capture, and trailers — ship a live web link, a 9:16 Playable Ad, or mini-game platform builds.
+- 🔓 **Full-Stack Open Source (BYOA + BYOK).** Code, art, video, music, voice, SFX, and Three.js 3D are all open source. Bring [your local agent](#agent-wall) and keys, or connect [OpenDesign Go](https://go.open-design.ai/?utm_source=github&utm_medium=referral&utm_campaign=opengame&utm_content=readme_en).
 
-<a id="快速开始"></a> <a id="quick-start"></a>
+<a id="quick-start"></a> <a id="快速开始"></a>
 
-### Install from ChatGPT Marketplace
+## ⚡ Quick Start
 
-**One-click installation. No manual configuration required.** Once installed, create motion videos from scratch, recreate reference videos, or start from a template—all in your conversation.
+### 1. Give one prompt to your local Agent
 
-**[Install OpenMotion in ChatGPT →](https://chatgpt.com/plugins/plugins_6a742d13e88481919b42002864b1bb26)**
-
-<a id="start-in-codex"></a>
-
-### Install in your agent
-
-Install the main Skill with the [Skills CLI](https://github.com/vercel-labs/skills):
-
-```sh
-npx skills add nexu-io/openmotion --skill openmotion
-```
-
-Then ask your agent: **Use OpenMotion to install and connect the local Studio and MCP, then help me make a video.** The Skill completes the source setup below when needed and reuses an existing workspace. Installing the Skill alone copies instructions; it does not yet install Studio or connect MCP.
-
-Copy this instruction into your local agent to set up OpenMotion from source:
+Paste this instruction into **DeepSeek TUI / Harness**, **Claude Code**, **Codex**, **WorkBuddy**, **Cursor**, **Gemini CLI**, or any of the [22 supported local agents](#agent-wall):
 
 ```text
-Read https://github.com/nexu-io/openmotion/blob/main/docs/install.md and follow the instructions to install and connect OpenMotion in the current agent.
+Read https://github.com/OpenDesignHQ/opengame/blob/main/docs/install.md and follow the instructions to install and connect OpenGame in the current agent, open Game Studio at /studios/game, and help me remix or build a playable game with the openmotion-game skill.
 ```
 
-After setup, the agent opens the local template library and shows the welcome followed by three project-preview cards in a self-contained HTML document. Each installation samples three distinct entries from the curated pool of four. The complete silent previews and posters are bundled, so this display does not wait for native MCP reload or fetch remote reference films. Native original-reference playback remains available separately and requires internet access. The library opens once using the opening tool's result, with no extra page or playback audit. An opening failure is reported with a usable link and does not invalidate installation. Automatic current-chat MCP activation is assessed independently. Preview a card, choose **Recreate template**, then send your brief to start creating. [Source installation guide](docs/install.md) · [Onboarding selection](docs/install.md#maintained-recommendation-selection)
+### 2. Install the Game Skill with Skills CLI
 
-### Install the published npm app (optional)
-
-Source setup above remains the default for repository installation. To explicitly choose the published application with prebuilt Studio and its configured online catalog, copy this instruction into your local agent:
-
-```text
-Read https://releases.open-design.ai/motion and follow the instructions to install and connect the published npm application in the current agent.
-```
-
-[Published application installation and channel selection](docs/install.md). Published versions can lag behind this checkout.
-
-### Run the repository locally
-
-Use Git, npm and Node.js 26.11.1:
+Install the dedicated game-engineering skill (`openmotion-game` + 18 game craft, 3C, animation, playable-ad, and QA reference handbooks) with the [Skills CLI](https://github.com/vercel-labs/skills):
 
 ```sh
-git -c filter.lfs.process= -c filter.lfs.smudge= -c filter.lfs.required=false clone --depth 1 --single-branch --branch main https://github.com/nexu-io/openmotion.git
-cd openmotion
+npx skills add OpenDesignHQ/opengame --skill openmotion-game
+```
+
+> Installing the Skill copies the game engineering instructions into your agent. Complete the local Studio & MCP setup below so your agent can call the 12 `openmotion_game_*` tools and open Game Studio.
+
+### 3. Run OpenGame Studio locally from source
+
+Requires **Git**, **npm**, and **Node.js 22.18+** (CI pins Node.js 26.11.1).
+
+```sh
+git -c filter.lfs.process= -c filter.lfs.smudge= -c filter.lfs.required=false clone --depth 1 --single-branch --branch main https://github.com/OpenDesignHQ/opengame.git
+cd opengame
 npm ci
 npm run build:studio
 npm start
 ```
-
-Open the actual `studioUrl` or `previewUrl` printed at startup, then choose **Template library**. Studio and MCP read the templates in this checkout. To connect your agent to this same copy, follow [source setup and MCP configuration](#agent-setup). [Clone size and optional media](docs/repository-storage.md)
-
-
-### Start from an existing project
-
-Import a **HyperFrames project ZIP** into OpenMotion to continue editing its composition and local assets. Compress the project folder, open **All projects → Import projects**, then select the imported copy to edit in Studio or with your Agent. Import creates an independent copy and requires a supported native project structure.
-
-[Step-by-step import guide, required files and compatibility](docs/project-archives.md#import-from-hyperframes)
 
 <a id="agent-wall"></a>
 
-**22 local agents** · [Choose your agent](#choose-agent)
+**Works with 22 local agents (BYOA)** · [Choose your agent](#choose-agent)
 
 <p align="center"><a href="#choose-agent"><picture><source media="(max-width: 600px)" srcset="docs/readme/agents/local-agents.mobile.png"><img src="docs/readme/agents/local-agents.png" width="100%" alt="WorkBuddy, Codex CLI, Claude Code, OpenCode, Hermes, Antigravity, Gemini CLI, Grok Build, Kimi CLI, Cursor Agent, Qwen Code, Qoder CLI, GitHub Copilot, Pi, Kiro CLI, Kilo, Mistral Vibe, DeepSeek TUI, Reasonix, Aider, Devin, Trae CLI"></picture></a></p>
 
-<a id="showcase"></a> <a id="brand-before-after"></a> <a id="what-can-you-make"></a>
-<a id="use-cases-and-remake-examples"></a>
+<a id="showcase"></a>
 
-## 🎞️ Use cases and remake examples
+## 🕹️ Playable Game Templates & Showcase
 
-Explore product demos, brand films, talking-head videos and more. The previews below show reference videos.
+OpenGame ships with **26 ready-to-play games** right inside [`templates/games/`](templates/games/) — complete with playable HTML5 / Three.js source, artwork, controls, and localization. Play them locally in Game Studio, **Remix** any title with one click, or **Re-style** it into your own IP, theme, or brand.
 
-**[Browse the full template library →](https://open-design.ai/templates/)** — Find more templates, full videos, Motion.md and recreation instructions.
-
-### AI recuts & revisions
+### 3D, Voxel & Action Games (16:9)
 
 <table width="100%">
 <tr>
 <td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/many-possible-futures.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/f4a30a4a3b2dbc5c43df68837bebb284d204a1408394e248d7df339154914917.gif" width="480" alt="Build a story from multiple scenes"></picture><br>
-<strong>OpenAI · Build a story from multiple scenes</strong><br>
-Connect different scenes around one narrative idea, then expand into a broader montage.<br>
-<a href="https://open-design.ai/templates/many-possible-futures-motion-design/">View template</a>
+<img src="templates/games/tidebreaker/cover.webp" width="100%" alt="Tidebreaker — 3D storm archipelago speedboat racing"><br>
+<strong>Tidebreaker</strong> · <code>3D · Racing · Three.js</code><br>
+Race a speedboat through a storm-lashed archipelago, jump wave crests, dodge reefs, and beat the tide across eight checkpoints.<br>
+<a href="templates/games/tidebreaker/">Inspect source &amp; DESIGN.md →</a>
 </td>
 <td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/making-of-window-collage.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/dae76ee380e75eb257be035bda3697981c5cce42b53a0f61da34c46687b52e1d.gif" width="480" alt="Recut a making-of collage"></picture><br>
-<strong>Anthropic · Recut a making-of collage</strong><br>
-Layer clips and screenshots in sequence, keeping the main title readable above them.<br>
-<a href="https://open-design.ai/templates/making-of-window-collage-motion-design/">View template</a>
+<img src="templates/games/starlight-bastion/cover.webp" width="100%" alt="Starlight Bastion — Voxel space crystal wave shooter"><br>
+<strong>Starlight Bastion</strong> · <code>Voxel · Shooter · Upgrades</code><br>
+Defend a luminous crystal against five escalating waves of voxel invaders, choosing roguelite upgrades between waves.<br>
+<a href="templates/games/starlight-bastion/">Inspect source &amp; DESIGN.md →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/skyline-courier/cover.webp" width="100%" alt="Skyline Courier — 3D cyberpunk rooftop parkour platformer"><br>
+<strong>Skyline Courier</strong> · <code>3D · Platformer · Cyberpunk</code><br>
+Run, leap, and wall-kick across rain-soaked cyberpunk skyscrapers to deliver three final parcels in 90 seconds.<br>
+<a href="templates/games/skyline-courier/">Inspect source &amp; DESIGN.md →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/neon-drift/cover.webp" width="100%" alt="Neon Drift — 3D synthwave night highway racer"><br>
+<strong>Neon Drift</strong> · <code>3D · Racing · Cyberpunk</code><br>
+Weave through rain-slick neon highway traffic, chain near-misses to recharge boost, and chase a new distance record.<br>
+<a href="templates/games/neon-drift/">Inspect source →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/comet-guard/cover.webp" width="100%" alt="Comet Guard — Orbital defense space shooter"><br>
+<strong>Comet Guard</strong> · <code>Shooter · Space</code><br>
+Pilot an orbital interceptor in a painted starfield, shatter molten comets, and defend the station through escalating waves.<br>
+<a href="templates/games/comet-guard/">Inspect source →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/harbor-skirmish/cover.webp" width="100%" alt="Harbor Skirmish — 3D first-person island shooter"><br>
+<strong>Harbor Skirmish</strong> · <code>3D FPS · Grapple &amp; Slide</code><br>
+A stylized 3D first-person shooter on a curved island with double-jump, slide, dash, and grappling-hook mobility.<br>
+<a href="templates/games/harbor-skirmish/">Inspect source →</a>
 </td>
 </tr>
 </table>
 
-### Product launches & demos
+### Stylized, Narrative & Atmospheric Games (16:9)
 
 <table width="100%">
 <tr>
 <td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/notion-custom-agents.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/b62ffb99195f35396b6ec0b5f8f0abb8552ffd2493a5e982e5e10fd640c44a0f.gif" width="480" alt="Show a problem, then the solution"></picture><br>
-<strong>Notion · Show a problem, then the solution</strong><br>
-Move from crowded tasks to coordinated agents; adapt the sequence to your own product.<br>
-<a href="https://open-design.ai/templates/notion-custom-agents-motion-design/">View template</a>
+<img src="templates/games/glyph-garden/cover.webp" width="100%" alt="Glyph Garden — Anime fantasy match-3 puzzle"><br>
+<strong>Glyph Garden</strong> · <code>Anime · Puzzle · Fantasy</code><br>
+Trade moonlit petals and trigger cascading combo blooms to reach 2,200 points in 24 moves.<br>
+<a href="templates/games/glyph-garden/">Inspect source →</a>
 </td>
 <td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="https://releases.open-design.ai/open-motion/media/sha256/66bc3f14f916a58800562af5b2c8412b2f554f36a435da950faa39ef4b82da96.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/ecbb5b36bf9997451a02fbf6db8ef9083b93326eb81b5bd1c29b7ca988d008cd.gif" width="480" alt="Turn demand into a product reveal"></picture><br>
-<strong>OpenAI · Turn demand into a product reveal</strong><br>
-Build momentum with overlapping requests, then reveal the app in one clear beat.<br>
-<a href="https://open-design.ai/templates/demand-becomes-a-desktop-release-motion-design/">View template</a>
+<img src="templates/games/lantern-hop/cover.webp" width="100%" alt="Lantern Hop — Pixel fantasy rooftop platformer"><br>
+<strong>Lantern Hop</strong> · <code>Pixel · Platformer · Fantasy</code><br>
+Guide a scarf-wearing pixel fox across layered moonlit rooftops, double-jumping gaps and collecting glowing paper lanterns.<br>
+<a href="templates/games/lantern-hop/">Inspect source →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/lighthouse-log/cover.webp" width="100%" alt="Lighthouse Log — Anime stormy-night narrative survival"><br>
+<strong>Lighthouse Log</strong> · <code>Anime · Story · Survival</code><br>
+Keep a coastal lighthouse burning through seven stormy nights, rationing fuel and making impossible radio choices.<br>
+<a href="templates/games/lighthouse-log/">Inspect source →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/last-light/cover.webp" width="100%" alt="Last Light — Torch-beam horror escape"><br>
+<strong>Last Light</strong> · <code>Horror · Atmospheric</code><br>
+Search an abandoned school for three keys before your torch dies while keeping the pursuing shade pinned in your beam.<br>
+<a href="templates/games/last-light/">Inspect source →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/night-train/cover.webp" width="100%" alt="Night Train Letters — Interactive branching story"><br>
+<strong>Night Train Letters</strong> · <code>Story · Branching Narrative</code><br>
+Three unsent letters on a rain-soaked night train to the sea — an intimate branching narrative built in pure HTML.<br>
+<a href="templates/games/night-train/">Inspect source →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/stack-the-moon/cover.webp" width="100%" alt="Stack the Moon — One-tap moonlit tower stacker"><br>
+<strong>Stack the Moon</strong> · <code>Casual · One-Tap Arcade</code><br>
+Build a moonlit observatory above the clouds one timed stone at a time; chain perfect landings to widen your tower.<br>
+<a href="templates/games/stack-the-moon/">Inspect source →</a>
 </td>
 </tr>
 </table>
 
-### Brand films & motion
+### Viral Portrait Mini-Games & Playable Ads (9:16)
+
+Built for mobile thumbs, instant first-frame engagement, short high-retention loops, and **mini-game / playable-ad monetization**:
 
 <table width="100%">
 <tr>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/a-world-connected-by-computational-fragments.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/d94806d916b9b7d9325db6901cc36b890ee0e4ff7503bfbd888b2d258b985925.gif" width="480" alt="Connect worlds through motion"></picture><br>
-<strong>Kimi · Connect worlds through motion</strong><br>
-Use code strips, offset slices and transitions to connect a series of brand scenes.<br>
-<a href="https://open-design.ai/templates/a-world-connected-by-computational-fragments-motion-design/">View template</a>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/gate-legion/cover.webp" width="220" alt="Gate Legion — 9:16 arithmetic gate army runner"><br>
+<strong>Gate Legion</strong><br>
+<code>9:16 · Gate Runner</code><br>
+Lead your squad through <code>+10</code> / <code>×2</code> arithmetic gates and clash with the final boss army.<br>
+<a href="templates/games/gate-legion/">Source →</a>
 </td>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/slack-slack.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/e5f730483a177dad8cebd3f19728d04a590a075691ca2c48544c05c73490a505.gif" width="480" alt="Rebuild a brand mark"></picture><br>
-<strong>Slack · Rebuild a brand mark</strong><br>
-Break a mark into simple shapes and reassemble it with your own colors and name.<br>
-<a href="https://open-design.ai/templates/slack-slack-motion-design/">View template</a>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/pin-rescue/cover.webp" width="220" alt="Pin Rescue — 9:16 pull-the-pin puzzle"><br>
+<strong>Pin Rescue</strong><br>
+<code>9:16 · Pull-the-Pin Puzzle</code><br>
+Pull pins to mix water and lava into stone, clear hazards, and deliver gold across five stages.<br>
+<a href="templates/games/pin-rescue/">Source →</a>
+</td>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/sky-runner/cover.webp" width="220" alt="Sky Runner — 9:16 3D neon hoverboard runner"><br>
+<strong>Sky Runner</strong><br>
+<code>9:16 · 3D Lane Runner</code><br>
+Swipe lanes, collect coins, dodge drones, and boost through an accelerating neon skyway.<br>
+<a href="templates/games/sky-runner/">Source →</a>
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/slime-swell/cover.webp" width="220" alt="Slime Swell — 9:16 city-eating arcade arena"><br>
+<strong>Slime Swell</strong><br>
+<code>9:16 · Grow &amp; Devour .io</code><br>
+Swallow street objects, grow bigger than buildings, and outrank three rival slimes in 60 seconds.<br>
+<a href="templates/games/slime-swell/">Source →</a>
+</td>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/lane-turret/cover.webp" width="220" alt="Lane Turret — 9:16 space turret upgrade shooter"><br>
+<strong>Lane Turret</strong><br>
+<code>9:16 · Upgrade Shooter</code><br>
+Aim a triple-barrel turret, draft upgrade cards, and hold the line across ten waves.<br>
+<a href="templates/games/lane-turret/">Source →</a>
+</td>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/merge-bakery/cover.webp" width="220" alt="Merge Bakery — 9:16 pastry merge game"><br>
+<strong>Merge Bakery</strong><br>
+<code>9:16 · Merge &amp; Serve</code><br>
+Bake dough, merge matching pastries, and serve timed customer orders to hit \$250 in 90 seconds.<br>
+<a href="templates/games/merge-bakery/">Source →</a>
 </td>
 </tr>
 </table>
 
-### Explainers & tutorials
+<details>
+<summary><strong>Browse all 26 built-in playable game templates</strong></summary>
 
-<table width="100%">
-<tr>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="https://releases.open-design.ai/open-motion/media/sha256/79e74122a92470f1cfe4ce39552b1eacad81bf316514605fef8d64f0c62eea4b.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/f6372a94259356a96f71ab0be2414f2c793d4fc823a45bfba70ca53dba595f04.gif" width="480" alt="Explain a connected workflow"></picture><br>
-<strong>Anthropic · Explain a connected workflow</strong><br>
-Follow one question through data, actions and slides, keeping the context visible.<br>
-<a href="https://open-design.ai/templates/connected-tools-evidence-chain-motion-design/">View template</a>
-</td>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/an-agent-payment-with-human-approval.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/caf3c5ba8c42668634ed37bfb7bf70b08aff3897eef89cc5b62980c1402532e4.gif" width="480" alt="Show an approval step by step"></picture><br>
-<strong>Stripe · Show an approval step by step</strong><br>
-Carry the same request from a conversation to phone confirmation with clear visual continuity.<br>
-<a href="https://open-design.ai/templates/an-agent-payment-with-human-approval-motion-design/">View template</a>
-</td>
-</tr>
-</table>
+| Game | Genre | Style | Format | Summary | Source |
+| --- | --- | --- | --- | --- | --- |
+| **Castle Crush** | Casual | Anime | 9:16 Portrait | Slingshot physics siege across four timber-and-stone stages | [castle-crush](templates/games/castle-crush/) |
+| **Comet Guard** | Shooter | Minimal | 16:9 Landscape | Orbital interceptor defending a starfield station from molten comets | [comet-guard](templates/games/comet-guard/) |
+| **Drift Dash** | Racing | Voxel | 9:16 Portrait | One-thumb retro circuit drifting against three AI rivals | [drift-dash](templates/games/drift-dash/) |
+| **Gate Legion** | Casual | Pixel | 9:16 Portrait | Viral arithmetic-gate squad multiplier & boss clash | [gate-legion](templates/games/gate-legion/) |
+| **Glyph Garden** | Casual | Anime | 16:9 Landscape | Cascading fantasy match-3 bloom puzzle | [glyph-garden](templates/games/glyph-garden/) |
+| **Harbor Skirmish** | Shooter | 3D | 16:9 Landscape | Stylized 3D FPS with double-jump, slide, dash, and grapple | [harbor-skirmish](templates/games/harbor-skirmish/) |
+| **Hollow Signal** | Horror | Minimal | 16:9 Landscape | Static-tuning radio horror before sanity fades | [hollow-signal](templates/games/hollow-signal/) |
+| **Jingyang Ridge** | Casual | Anime | 16:9 Landscape | Ink-wash martial arts boss duel — read tells, dodge lanes, punish | [jingyang-ridge](templates/games/jingyang-ridge/) |
+| **Lane Turret** | Shooter | Pixel | 9:16 Portrait | Auto-turret wave defense with upgrade cards | [lane-turret](templates/games/lane-turret/) |
+| **Lantern Hop** | Platformer | Pixel | 16:9 Landscape | Moonlit rooftop fox endless double-jump runner | [lantern-hop](templates/games/lantern-hop/) |
+| **Last Light** | Horror | Minimal | 16:9 Landscape | Flashlight survival escape through an abandoned school | [last-light](templates/games/last-light/) |
+| **Lighthouse Log** | Story | Anime | 16:9 Landscape | Seven stormy nights of fuel rationing & branching radio choices | [lighthouse-log](templates/games/lighthouse-log/) |
+| **Merge Bakery** | Casual | Anime | 9:16 Portrait | Bake, merge pastries, and clear timed customer orders | [merge-bakery](templates/games/merge-bakery/) |
+| **Neon Drift** | Racing | 3D | 16:9 Landscape | Rain-slick synthwave highway traffic weaving & boost | [neon-drift](templates/games/neon-drift/) |
+| **Night Train Letters** | Story | Minimal | 16:9 Landscape | Intimate branching story of three unsent letters on a night train | [night-train](templates/games/night-train/) |
+| **Periscope Depth** | Shooter | Minimal | 16:9 Landscape | Submarine patrol: torpedo carriers on periscope, dodge sonar depth charges | [periscope-depth](templates/games/periscope-depth/) |
+| **Pin Rescue** | Casual | Minimal | 9:16 Portrait | Pull-the-pin lava, water, and gold physics puzzles | [pin-rescue](templates/games/pin-rescue/) |
+| **Rooftop Roast** | Casual | Minimal | 16:9 Landscape | Brandable café promo drone game — edit one `SHOP` object to rebrand | [rooftop-roast](templates/games/rooftop-roast/) |
+| **Sky Runner** | Racing | 3D | 9:16 Portrait | Cyberpunk 3D hoverboard lane runner with coins & boost | [sky-runner](templates/games/sky-runner/) |
+| **Skyline Courier** | Platformer | 3D | 16:9 Landscape | 3D rooftop parkour & wall-kicks against a 90-second timer | [skyline-courier](templates/games/skyline-courier/) |
+| **Slime Swell** | Casual | Minimal | 9:16 Portrait | City-devouring growth arena against three rival slimes | [slime-swell](templates/games/slime-swell/) |
+| **Sort Stack** | Casual | Minimal | 9:16 Portrait | Five-stage ring-sorting logic puzzle with undo | [sort-stack](templates/games/sort-stack/) |
+| **Stack the Moon** | Casual | Minimal | 16:9 Landscape | One-tap moonlit observatory tower stacker | [stack-the-moon](templates/games/stack-the-moon/) |
+| **Starlight Bastion** | Shooter | Voxel | 16:9 Landscape | Five-wave crystal defense with roguelite upgrades | [starlight-bastion](templates/games/starlight-bastion/) |
+| **Tidebreaker** | Racing | 3D | 16:9 Landscape | Storm archipelago 3D speedboat racing & wave jumps | [tidebreaker](templates/games/tidebreaker/) |
+| **Tilt Temple** | Casual | 3D | 9:16 Portrait | 3D floating labyrinth — tilt, collect the key, reach the portal | [tilt-temple](templates/games/tilt-temple/) |
 
-### Data stories & charts
-
-<table width="100%">
-<tr>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/mathematics-as-evolving-geometry.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/a1044ff2c0fadb69adc1eb9274e40665d7b4f87cd95e951d5dcb0e0d1cbedf1b.gif" width="480" alt="Turn complex ideas into diagrams"></picture><br>
-<strong>OpenAI · Turn complex ideas into diagrams</strong><br>
-Transform one geometric diagram into the next using shared points and connecting lines.<br>
-<a href="https://open-design.ai/templates/mathematics-as-evolving-geometry-motion-design/">View template</a>
-</td>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="https://releases.open-design.ai/open-motion/media/sha256/be5fc241ac81b90d7e7ded0bf1c90040d2823e6c659420d636722b5935c6e452.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/86184ef3b1da142db2dde7cfda80b69635e5adb9c2f6d0c0b87dc9c3e0bc7cb5.gif" width="480" alt="Make results progressively visible"></picture><br>
-<strong>Anthropic · Make results progressively visible</strong><br>
-Move from an overview to individual findings, then show the action taken for each result.<br>
-<a href="https://open-design.ai/templates/scan-to-suggested-fix-motion-design/">View template</a>
-</td>
-</tr>
-</table>
-
-### Music & art visuals
-
-<table width="100%">
-<tr>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/controllable-song-composition.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/5e5f90231e7f456d70f002694eae9f3b1605bc06240e98224f719c8e1dcbbfa0.gif" width="480" alt="Visualize a song taking shape"></picture><br>
-<strong>ElevenLabs · Visualize a song taking shape</strong><br>
-Connect the prompt, sections and tempo to a waveform and the finished piece.<br>
-<a href="https://open-design.ai/templates/controllable-song-composition-motion-design/">View template</a>
-</td>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/living-waveform-poster.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/1c892636aac9911c05b6aa44667d1e18c7b8813a47d55d408ba21595020cb121.gif" width="480" alt="Animate a music poster"></picture><br>
-<strong>Deezer · Animate a music poster</strong><br>
-Keep the headline steady while flowing waves add rhythm around it.<br>
-<a href="https://open-design.ai/templates/living-waveform-poster-motion-design/">View template</a>
-</td>
-</tr>
-</table>
-
-<a id="creator-video-gallery"></a> <a id="presenter-motion"></a>
-
-### AI talking-head edits
-
-Build a clear story around a speaker, with readable captions, screen inserts and animated keywords. Use these references to find a style for your own recording.
-
-<table width="100%">
-<tr><th colspan="3" align="left">🎓 Teach & explain</th></tr>
-<tr>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/careerwithriya.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/7716c7166bf9f098f67845d55872e08f5765eaeb1439eb5760db785fa6d2d41e.gif" width="216" alt="Presenter video reference: 6 essential skills to transform your career"></picture><br>
-<strong>6 essential skills to transform your career</strong><br>
-Numbered points + kinetic keywords<br>
-<sub>Reference · @careerwithriya</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/dan-martell-tools.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/0d7e7316322a28b6ce9013beaee4208c84b12bbb5565f04fcbc175c72e6aeadc.gif" width="216" alt="Presenter video reference: What's the best AI tool right now?"></picture><br>
-<strong>What's the best AI tool right now?</strong><br>
-Presenter + floating tool cards<br>
-<sub>Reference · Dan Martell</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/harpercarrollai.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/9b4a957dc004efc4f1ddfdfed546ca3ccc6b1a1978c15d0887d0175b84caa39f.gif" width="216" alt="Presenter video reference: 10 Days of AI Basics, Day 1"></picture><br>
-<strong>10 Days of AI Basics, Day 1</strong><br>
-A personal lesson + readable captions<br>
-<sub>Reference · @harpercarrollai</sub>
-</td>
-</tr>
-<tr><th colspan="3" align="left">🖥️ Show the workflow</th></tr>
-<tr>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/ali-abdaal-workflow.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/03b9096a894f0572289ec31f9476854e660113852a97b4898c5b88158030b9a8.gif" width="216" alt="Presenter video reference: 5 tools I use every day"></picture><br>
-<strong>5 tools I use every day</strong><br>
-Desk-side story + workflow inserts<br>
-<sub>Reference · Ali Abdaal</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/john-tagudin-capso.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/a8a09b0b4837125c948bcdeff964ae7a9ff971ea0275927d045bc72f81141d72.gif" width="216" alt="Presenter video reference: Tool demo with callouts"></picture><br>
-<strong>Tool demo with callouts</strong><br>
-Presenter + screens + callouts<br>
-<sub>Reference · @john.tagudin</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/aiwithsachi.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/e04f9c2fdfb1bce2a2f83bbf28bde8765af58c589bb52b904694ff8113d61a7e.gif" width="216" alt="Presenter video reference: Top 5 plugins to install in Claude"></picture><br>
-<strong>Top 5 plugins to install in Claude</strong><br>
-A spoken list + supporting screenshots<br>
-<sub>Reference · @aiwithsachi</sub>
-</td>
-</tr>
-<tr><th colspan="3" align="left">🎬 Tell a story, show a product</th></tr>
-<tr>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/khris-sheer-founder.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/0359b48294cb978df976f9ae2ab6ca4644854bee438dca09accc1144c30259bc.gif" width="216" alt="Presenter video reference: The Founder Experiments, Ep. 1"></picture><br>
-<strong>The Founder Experiments, Ep. 1</strong><br>
-Founder diary + everyday B-roll<br>
-<sub>Reference · @khris.sheer</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/ugc-rachelll.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/0b779052281e89a3efc44e5a4b4492e245a12a14c0c5118813e59876419ad5c5.gif" width="216" alt="Presenter video reference: AI creator with product"></picture><br>
-<strong>AI creator with product</strong><br>
-Product story + proof + picture-in-picture<br>
-<sub>Reference · @ugc.rachelll</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/kevinstratvert.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/31655004df5561a835eacd093fdd7e2a247b3c5fec0a9074ce59c6d9c9c56291.gif" width="216" alt="Presenter video reference: Stop Paying for 5 AI Tools"></picture><br>
-<strong>Stop Paying for 5 AI Tools</strong><br>
-Product tutorial + live demonstration<br>
-<sub>Reference · Kevin Stratvert</sub>
-</td>
-</tr>
-</table>
+</details>
 
 <a id="features"></a>
-<a id="why-openmotion"></a>
 
-## ✨ Why OpenMotion
+## ✨ Why OpenGame
 
-<a id="what-is-openmotion"></a> <a id="openmotion-是什么"></a> <a id="video-is-code"></a>
+### 1. One-Click Remix & Re-style — Powered by Game-as-Code
 
-### 1. A full-stack agentic video studio
+Building a polished game from a blank prompt is hard for any model. OpenGame solves this by separating **verified game engineering** from **theme, art direction, and content**:
 
-**Code video with HTML.** OpenMotion uses HTML, CSS and JavaScript to describe scenes, typography, layout, transitions and timing. Recorded footage, generated clips, images, music and voice-over become media inside the composition. The same project opens in Studio and renders to MP4.
+- **Every game is clean, inspectable source**: `index.html`, deterministic `logic.js`, vendored Three.js for 3D titles, plus structured design docs (`design/plan.md`, `design/style.md`, `design/assets.csv`, `design/verification.md`).
+- **Remix in one click**: Click **Remix** on any of the 26 templates in Game Studio (or ask your agent to remix it) to fork an owned, editable draft with full controls, tuning knobs, and automated test hooks already wired up.
+- **Re-style into any universe**: Swap genre dressing, characters, palette, sprites, textures, and music without breaking physics or win/loss rules — ideal for fast iteration with affordable models like **DeepSeek**, or pushing AAA-grade 3D & shader ambition with **Claude Fable 5.2**, **Opus**, **Codex**, and **Gemini**.
 
-![Your local agent, optional media-model accounts and creative resources feed a workflow of understanding the reference, coding scenes, generating missing media, editing and rendering MP4 with reusable source.](docs/readme/diagrams/creation-stack.svg)
+**Try these prompts in your connected Agent:**
 
-**Write it. Watch it. Change it. Render it.** Ask your agent to replace the product, tighten the hook, add a presenter, change the captions or try another ending. It edits the project source; you review the result in the visual editor. Local MCP clients use the project tools, while agents with shell access can follow the Skills and pinned CLI workflow. [Agent setup](#agent-setup) · [Native composition guide](skills/openmotion-production/references/native.md) · [Example HTML project](template-library/product-promo/index.html)
+```text
+# 1. One-click Remix & Re-style (great for DeepSeek / fast models)
+Use openmotion-game to remix the "Lantern Hop" template into a cyberpunk rain-city cat runner. Keep the double-jump physics and endless scoring loop, replace the fox and lanterns with a neon cyber-cat and holo-batteries, generate new key art and synthwave BGM, then validate, playtest, and capture a fresh cover.
+```
 
-If historical media are unavailable, an Agent restore is refused before changing the project. The editor shows a dismissible error with the affected file paths and confirms that the current project is unchanged.
+```text
+# 2. Build a 9:16 Playable Ad ready for mobile campaigns
+Use openmotion-game to create a portrait 9:16 playable ad (playableAd: true) for a medieval tower-defense mobile game: instant first-frame interaction with a hand tutorial, a 25-second escalating wave battle, and an end card with an App Store / Google Play CTA. Validate, simulate, playtest at 390x844, and bundle as a single-file HTML.
+```
 
-<a id="studio-in-use"></a>
-
-<img src="docs/readme/live-product/editor.en.jpg" width="100%" alt="The sample project in Studio with its compositions, video preview, scene timeline and audio waveform.">
-
-Review your video, arrange clips and export from the same Studio workspace.
-
-#### What you can change in Studio
-
-| In the Studio | What you can do today |
-| --- | --- |
-| **Story and timeline** | Import and arrange media; have the agent trim, reorder and revise against a script or confirmed timecodes |
-| **Motion and captions** | Author animated type, transitions, callouts, charts and captions around your content |
-| **Media and sound** | Import your material and generate images, video, music and TTS voice-over through the built-in model integrations |
-| **Image revision** | Generate candidates with a reference-capable image model and adopt a replacement while preserving timing and animation |
-| **Preview and versions** | Review in Studio, edit by hand or with your agent, and return to the project for the next revision |
-| **Export and source** | Render a fixed version to MP4 and retain the HTML, CSS, JavaScript and media |
-
-> “Keep the reveal we approved. Replace the middle scene with this screen recording, tighten the opening using these timecodes, and hold our final CTA for two more seconds.”
-
-[Projects and versions](docs/project-workspace.md)
-
-<a id="share-an-editable-remake"></a>
-
-#### From a reference clip to an editable remake
-
-1. **Break down the reference.** Pick a sequence. Record its shot order, transitions and sound cues in Motion.md, and mark what you want to replace.
-2. **Rebuild the shots.** Your agent rebuilds the HTML scenes using your brand kit, copy and visuals, then arranges them on an editable timeline in Studio.
-3. **Compare the cuts.** Watch the same moment in the original and the remake. Adjust the timing, movement and sound, then play the sequence through.
-4. **Export and share.** Render the MP4 and keep the HTML source and media. To share a project others can adapt, include its Motion.md, a preview and assets you can redistribute. [Project contribution checklist](library/ENTRY_TEMPLATE.md)
-
-<a id="bring-your-agent-and-keys"></a>
-
-### 2. Free and open source. Use your local agent and bring your own keys.
-
-<a id="choose-agent"></a>
-
-**Choose your agent.** WorkBuddy, Codex, Claude Code and DeepSeek Harness have installation instructions. Other buttons open the shared MCP and CLI setup.
-
-<p>
-  <a href="#workbuddy-setup"><img src="docs/readme/agents/workbuddy-badge.svg" width="144" height="34" alt="WorkBuddy" /></a>
-  <a href="#agent-setup"><img src="docs/readme/agents/codex-badge.svg" width="144" height="34" alt="Codex CLI" /></a>
-  <a href="#claude-setup"><img src="docs/readme/agents/claude-code-badge.svg" width="144" height="34" alt="Claude Code" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/opencode-badge.svg" width="144" height="34" alt="OpenCode" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/hermes-badge.svg" width="144" height="34" alt="Hermes" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/antigravity-badge.svg" width="144" height="34" alt="Antigravity" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/gemini-badge.svg" width="144" height="34" alt="Gemini CLI" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/grok-build-badge.svg" width="144" height="34" alt="Grok Build" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/kimi-badge.svg" width="144" height="34" alt="Kimi CLI" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/cursor-badge.svg" width="144" height="34" alt="Cursor Agent" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/qwen-badge.svg" width="144" height="34" alt="Qwen Code" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/qoder-badge.svg" width="144" height="34" alt="Qoder CLI" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/copilot-badge.svg" width="144" height="34" alt="GitHub Copilot" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/pi-badge.svg" width="144" height="34" alt="Pi" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/kiro-badge.svg" width="144" height="34" alt="Kiro CLI" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/kilo-badge.svg" width="144" height="34" alt="Kilo" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/vibe-badge.svg" width="144" height="34" alt="Mistral Vibe" /></a>
-  <a href="#deepseek-setup"><img src="docs/readme/agents/deepseek-badge.svg" width="144" height="34" alt="DeepSeek TUI / Harness" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/reasonix-badge.svg" width="144" height="34" alt="Reasonix" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/aider-badge.svg" width="144" height="34" alt="Aider" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/devin-badge.svg" width="144" height="34" alt="Devin" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/trae-badge.svg" width="144" height="34" alt="Trae CLI" /></a>
-</p>
-
-| Bring your own… | Make it work for your video |
-| --- | --- |
-| **🤖 Agent — BYOA** | Connect your existing local agent through Skills and MCP, with CLI access where supported. Keep your preferred client, account and working context. |
-| **🔑 Keys — BYOK** | Connect supported media-provider API keys in Model Settings. Choose models for images, video, music and TTS; supported local media integrations can use your existing agent login. |
-| **🎨 Brand and material** | Add your logo, fonts, screenshots, camera footage, script and music. Keep identity and approved assets in the Brand Kit section of Motion.md. |
-| **🧩 Starting resources** | Browse references, motion components, templates and community Skills. Pick a direction, give the source or reference to your agent, and make it yours. |
-
-**The OpenMotion creation pipeline is open source: Skills, project tools, model integrations, Studio and rendering.** Run it locally, inspect the implementation and extend the parts you need. OpenMotion charges no software subscription or per-render fee for this local workflow. You can also work with your own footage, images and audio without invoking media-generation APIs.
-
-Provider credentials stay in your workspace, separate from the video project. Your agent and media providers bill any subscriptions or usage to your own accounts. [Agent setup and compatibility](docs/agent-adapters.md)
-
-<a id="make-your-motion-language-reusable"></a> <a id="motion-design-community"></a>
-
-### 3. 300+ Motion.md guides for video recreation
-
-OpenMotion introduces **Motion.md**: a Markdown format for shot order, timing, transitions and the assets you can replace. The online library brings reference videos and their motion guides into the same detail page.
-
-The Brand Kit section records your identity, voice and approved product facts; the Design section can reference an independent `DESIGN.md` for visual rules. Keep the reference’s motion and pacing while making the result recognizably yours.
-
-To share an industry or brand system, use the [Motion Package v0.2 draft](docs/motion-package-spec.md) and [authoring toolkit](packages/motion-package/README.md). A package combines the design and motion documents with materials, declared dependencies and optional `SKILL.md`. The included recipe demonstrates two content presets; automatic Studio import and rendered fidelity remain separate from package validation.
-
-![Motion.md and brand context](docs/readme/diagrams/creative-context.svg)
-
-<a id="resources-to-start-from"></a> <a id="motion-gallery"></a>
-
-#### Find a template, then make it yours
-
-Browse by **reference brand, use case and video type**, or search for a specific idea. A template detail page brings together the preview, visual style, production notes and Motion.md download. Choose **Recreate template** in Studio to copy a prompt for your agent.
-
-Reference-only entries start a reconstruction workflow. When editable source is available, your agent can adapt the project directly.
-
-![Find a template, then make it yours](docs/readme/live-product/library.en.jpg)
-
-[Browse the template library](https://open-design.ai/templates/)
-
-<a id="all-in-one-studio"></a> <a id="full-video-creation-stack"></a>
+```text
+# 3. Original 3D Game from Scratch (great for Claude Fable 5.2 / Opus / Codex / Gemini)
+Use openmotion-game to create a 3D wuxia boss-duel game (style: "3d") set on a misty bamboo cliff at dusk. Include parry timing, dodge i-frames, stamina management, and two boss phases. Run 3-tier simulation, headless Chromium playtest, capture a 1280x720 cover, and record a gameplay trailer.
+```
 
 <a id="model-wall"></a>
 
-### 4. Multimodal generation: images, video, music and speech
+### 2. Full-Stack Multimodal Game Creation (BYOK)
 
-**BYOK makes your multimodal accounts part of the video workflow.** Add your supported provider keys in **Model Settings**, choose your models, and generate images, video, music and speech through the Studio's **Model Gateway**. Preview candidates and adopt the results into the same project your agent and Studio edit. The supported local image path can reuse your existing agent login.
+A real game needs more than code — it needs key art, character sprites, seamless 3D textures, music loops, voice lines, and crisp sound effects. OpenGame's **Model Gateway** wires multimodal generation directly into the game project while keeping your API keys local and separate from game source.
 
-Connect fal.ai in **Model Settings** and refresh its catalog to find GPT Image 2.6, Nano Banana 2.1, FLUX.3, Seedance 2.5, Kling 4.0, Wan 3.0 and Eleven v4. The presets below also appear before you refresh.
+<p>
+  <img src="docs/readme/opengame/models/gpt-image.svg" width="148" alt="GPT Image">
+  <img src="docs/readme/opengame/models/seedream.svg" width="148" alt="Seedream">
+  <img src="docs/readme/models/nano-banana.svg" width="148" alt="Nano Banana 2">
+  <img src="docs/readme/models/flux.svg" width="148" alt="FLUX">
+  <img src="docs/readme/models/codex.svg" width="148" alt="Codex Image"><br>
+  <img src="docs/readme/models/seedance.svg" width="148" alt="Seedance">
+  <img src="docs/readme/models/wan.svg" width="148" alt="Wan">
+  <img src="docs/readme/models/suno.svg" width="148" alt="Suno">
+  <img src="docs/readme/models/elevenlabs.svg" width="148" alt="ElevenLabs">
+  <img src="docs/readme/opengame/models/byteplus.svg" width="148" alt="BytePlus Voice">
+</p>
 
-<p><img src="docs/readme/models/codex.svg" width="133" alt="Codex Image">
-<img src="docs/readme/models/nano-banana.svg" width="133" alt="Nano Banana 2">
-<img src="docs/readme/models/flux.svg" width="133" alt="FLUX Schnell">
-<img src="docs/readme/models/seedance.svg" width="133" alt="Seedance 2.0">
-<img src="docs/readme/models/wan.svg" width="133" alt="Wan 2.2">
-<img src="docs/readme/models/suno.svg" width="133" alt="Suno v4">
-<img src="docs/readme/models/kokoro.svg" width="133" alt="Kokoro"></p>
-
-| Make what the video needs | Built-in model catalog examples | Bring it into your film |
+| Game Asset Layer | Recommended Models (when configured in Model Gateway) | Zero-Key / Built-in Fallback |
 | --- | --- | --- |
-| **🖼️ Images** | Codex Image; Nano Banana 2 via Atlas Cloud; FLUX Schnell via fal.ai | Brand visuals, scene artwork and supporting images; reference-based editing with Codex Image or an OpenDesign account image model that supports edits |
-| **🎬 Video** | Seedance 2.0 via Atlas Cloud; Wan 2.2 via fal.ai | Generated shots and B-roll to combine with your footage and motion |
-| **🎵 Music** | Suno v4 via Atlas Cloud | A soundtrack built around your mood and creative brief |
-| **🎙️ TTS / voice-over** | Kokoro via fal.ai | Narration from your approved script, placed alongside the visuals and music |
+| **🖼️ Key art, portraits, sprites & textures** | `GPT Image 2.6` (edits & transparent PNGs), `Seedream 5.5` / `5.0 Flash`, `Nano Banana 2`, `FLUX`, `Codex Image` | Crisp procedural Canvas/SVG sprites & procedural textures |
+| **🎵 Background music (menu, stage, boss)** | `ElevenLabs Music v2` (`no vocals` loops), `Suno v4` | Procedural Web Audio synthesized soundtrack |
+| **🎙️ Character voice & announcer lines** | `ElevenLabs v3` (English & multilingual), `BytePlus TTS 2` (Chinese), `Kokoro` | Styled dialogue captions & subtitle UI |
+| **🎬 Intro cutscenes & motion clips** | `Wan 2.7`, `Seedance 2.5` (short I2V clips) | In-engine animated intro camera & title sequence |
+| **🔊 Impact SFX (hits, jumps, coins, UI)** | Synthesized directly in game code via the Web Audio API | Same (zero latency, zero external files) |
+| **🧊 3D scenes & models** | Vendored **Three.js** + bundled CC0 kits + reserved 3D gateway slot (auto-discovered when connected) | Procedural Three.js geometry, lighting & shaders |
 
-> “Use the Brand Kit section of our Motion.md and our approved script. Generate artwork for the opening, a video insert, background music and TTS narration. Add the selected results to the recreated project, align the sound and visuals, then show me the full cut.”
+> OpenGame charges no software subscription for the local open-source stack. Use your own provider keys in **Model Settings**, connect [OpenDesign Go](https://go.open-design.ai/?utm_source=github&utm_medium=referral&utm_campaign=opengame&utm_content=readme_en) for unified multi-model access, or build 100% code-generated zero-API-cost games. [Model catalog](gateway/catalog.ts) · [Provider setup](docs/model-gateway.md)
 
-[Model catalog](gateway/catalog.ts) · [Provider setup and endpoints](docs/model-gateway.md)
+### 3. Automated Game QA, Balance Simulation & Auto-Trailers
+
+Agents shouldn't just output code and hope it runs. OpenGame enforces an automated engineering verification loop before marking any game **ready**:
+
+1. **Static & 50-Tick Logic Validation (`openmotion_game_validate`)** — Verifies `index.html`, allowed asset/CDN policies, required deterministic exports, and runs a 50-tick smoke test (`< 5 ms` per tick).
+2. **3-Tier Deterministic Balance Simulation (`openmotion_game_simulate`)** — Executes bounded headless routes without a browser to verify that a skilled `reference` route reaches a real win milestone, a degraded weak route struggles, and an `idle` player loses cleanly (`< 2500` ticks).
+3. **Headless Chromium Playtesting (`openmotion_game_playtest`)** — Drives real keyboard/mouse/touch controls across 1–4 clients, checking 3C responsiveness, `390×844` mobile layout integrity, media URL loads, and zero console/network errors.
+4. **Game-Only Cover Capture (`openmotion_game_capture_cover`)** — Captures a clean `1280×720` PNG directly from the game canvas in isolated headless Chrome.
+5. **Automated Gameplay Trailer (`openmotion_game_trailer`)** — Records three real 5-second headless gameplay clips at `1280×720`, composes an editable ~19-second title + highlights + Play Now trailer, and renders an MP4 ready for social launch.
+
+<a id="publish-monetize"></a>
+
+## 🚀 End-to-End Distribution & Monetization
+
+Turn playable prototypes into real games people can play, share, and pay for.
+
+| Stage | Available Today | Roadmap (In Progress) |
+| --- | --- | --- |
+| **Play & Local Catalog** | Publish straight to your local OpenGame Studio market (`openmotion_game_publish`) with play tracking, favorites, and 1-click Remix | **Top 100 Profitable Mini-Game Templates** curated by genre & revenue mechanics for instant remixing |
+| **Instant Web Share** | One-click static bundle & live web share link via OpenDesign Cloud (`openmotion_assets_use action="web_publish"`), rewriting local media URLs and compressing assets automatically | Custom domain & embeddable game widget cards |
+| **Mobile Playable Ads** | Built-in **9:16 Playable Ad mode** (`playableAd: true`): first-frame instant play, hand tutorial, short levels, single-file inline HTML, and App Store / Google Play end-card CTA | Direct ad-network packaging presets (AppLovin, Unity Ads, Meta, TikTok) |
+| **Mini-Game Platforms & Monetization** | Clean self-contained HTML5/JS project exports ready for manual platform wrapping, plus auto-recorded gameplay trailers for launch marketing | **L1–L4 Guided Platform Publishing** (packaging scripts, checklists & Skills) for **WeChat Mini Games (微信小游戏)**, **Douyin Mini Games (抖音小游戏)**, **TikTok**, **Xiaohongshu Mini-Tools**, and **itch.io / Poki / CrazyGames** |
+| **AI Game Playground** | Local single-player & existing room-based playtesting | **Multi-Model Live Game Arena** — pit multiple frontier LLMs against each other inside live games in real time |
 
 <a id="technical-guide"></a>
-<a id="setup-and-technical-documentation"></a>
 
-## 🛠️ Setup and technical documentation
+## 🛠️ Setup & MCP Tools
 
-When choosing or replacing media, creation workflows share a [material sourcing policy](skills/openmotion-production/references/materials.md): reuse suitable supplied assets, prefer original sources for established subjects, and create original/supporting visuals as needed. Explicit user constraints and each workflow’s supported scope still apply.
+<a id="agent-setup"></a> <a id="choose-agent"></a>
 
-### Install from source
+### Connect Your Local Agent
 
-For agent-led installation, use the [installation instruction above](#quick-start). To run from source, follow the steps below.
+Choose your agent to connect the local OpenGame MCP server and Skills:
 
-After a successful Agent-led installation, open the editor's template library in the current conversation, without creating a project. Browse and preview first; choose **Open and edit** to create an independent editable copy. Setup provides a direct library link even before the chat reloads MCP. See the [installation reply rules](docs/install.md#installation-success-reply).
+<p>
+  <a href="#deepseek-setup"><img src="docs/readme/agents/deepseek-badge.svg" width="144" height="34" alt="DeepSeek TUI / Harness" /></a>
+  <a href="#claude-setup"><img src="docs/readme/agents/claude-code-badge.svg" width="144" height="34" alt="Claude Code" /></a>
+  <a href="#codex-setup"><img src="docs/readme/agents/codex-badge.svg" width="144" height="34" alt="Codex CLI" /></a>
+  <a href="#workbuddy-setup"><img src="docs/readme/agents/workbuddy-badge.svg" width="144" height="34" alt="WorkBuddy" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/opencode-badge.svg" width="144" height="34" alt="OpenCode" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/hermes-badge.svg" width="144" height="34" alt="Hermes" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/antigravity-badge.svg" width="144" height="34" alt="Antigravity" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/gemini-badge.svg" width="144" height="34" alt="Gemini CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/grok-build-badge.svg" width="144" height="34" alt="Grok Build" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/kimi-badge.svg" width="144" height="34" alt="Kimi CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/cursor-badge.svg" width="144" height="34" alt="Cursor Agent" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/qwen-badge.svg" width="144" height="34" alt="Qwen Code" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/qoder-badge.svg" width="144" height="34" alt="Qoder CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/copilot-badge.svg" width="144" height="34" alt="GitHub Copilot" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/pi-badge.svg" width="144" height="34" alt="Pi" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/kiro-badge.svg" width="144" height="34" alt="Kiro CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/kilo-badge.svg" width="144" height="34" alt="Kilo" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/vibe-badge.svg" width="144" height="34" alt="Mistral Vibe" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/reasonix-badge.svg" width="144" height="34" alt="Reasonix" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/aider-badge.svg" width="144" height="34" alt="Aider" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/devin-badge.svg" width="144" height="34" alt="Devin" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/trae-badge.svg" width="144" height="34" alt="Trae CLI" /></a>
+</p>
 
-During video creation and editing, the chat stays free of preview areas. OpenMotion presents the editable Studio when the final video is ready to preview, then shows [one final-video preview](docs/inline-video.md) after MP4 export and verification. Host-native playback takes priority; Codex embeds the video in the final reply. The optional MCP App player is used only when the host cannot preview the video, never alongside another preview of the same export. Native-host acceptance of an installed build remains separate.
-
-If MCP tools are missing or fail to connect, use the installed [connection diagnosis and recovery guide](docs/npm-installation.md#missing-mcp-tools-or-a-failed-connection) to inspect the actual host configuration and verify the original workspace before continuing.
-
-Use Git, npm and **Node.js 26.11.1**. Source-based preview and export also need Chrome/Chromium and FFmpeg/FFprobe. [Runtime setup](docs/usage.md)
-
-```sh
-git -c filter.lfs.process= -c filter.lfs.smudge= -c filter.lfs.required=false clone --depth 1 --single-branch --branch main https://github.com/nexu-io/openmotion.git
-cd openmotion
-npm ci
-npm run build:studio
-npm start
-```
-
-Full reference videos and optional template archives download through Git LFS only when requested. README images/GIFs and built-in templates remain available directly. See [clone size and optional media downloads](docs/repository-storage.md).
-
-Open the `studioUrl` or `previewUrl` printed by `npm start`, then open **Template library**. Startup reuses a compatible service for the same workspace or selects an available local port. The service keeps running in the background after the launcher exits.
-
-Select a template and choose **Recreate template** to copy the instruction for your agent. Keep projects and credentials outside the checkout; `MOTION_DATA_DIR` selects the workspace.
-
-Source checkouts load templates from `library/templates/catalog/`. The local Studio and MCP use the same files; `openmotion_list_templates` returns a searchable local index, and `openmotion_get_template` returns local guide content and absolute source paths. Imported large images and videos retain existing CMS links; new contribution media can use Git LFS. Local edits appear on the next catalog read.
-
-The plugin root is this checkout: `.codex-plugin/plugin.json` loads its `skills/` and `.mcp.json`, which launches the root `mcp.ts`. Start stdio with `npm run mcp` or use an absolute path in [manual MCP configuration](#manual-mcp). [Local template workflow](docs/template-repository.md#run-from-a-local-clone).
-
-<a id="agent-setup"></a>
-
-#### Bring it into your agent
-
-For Codex with plugin support, run from the checkout:
-
-```sh
-bash scripts/install-motion.command
-```
-
-<a id="workbuddy-setup"></a>
-
-**WorkBuddy** · Import the OpenMotion connector in WorkBuddy or add its `mcp.json` as a custom MCP server. Ask WorkBuddy to list the available video templates. [WorkBuddy setup](docs/agent-adapters.md#workbuddy)
-
-<a id="claude-setup"></a>
-
-**Claude Code** · Connect this source checkout through the [manual MCP configuration](#manual-mcp), then run `/mcp` to check the connection.
-
-<a id="deepseek-setup"></a>
-
-**DeepSeek** · Work with the editable HTML project from the terminal in DeepSeek TUI. For DeepSeek Harness, connect the OpenMotion MCP tools with the Cordis configuration. [DeepSeek Harness setup](docs/agent-adapters.md#deepseek-harness)
-
-The installer uses locally built packages. [Windows test packages](docs/test-packages.md)
-
-Try an online template:
-
-> Use OpenMotion to recreate the template at this detail-page URL with my brand kit and copy. Keep the motion and pacing, then open the editable result in Studio for review.
-
-To start from a video instead, supply your reference and use the [recreation brief](#reverse-engineer-a-video). If your host cannot open Studio beside the conversation, use the returned local project link.
-
-##### Skills, MCP and CLI
-
-The main Skill, plugin and MCP server are named `openmotion`; Tools, specialist Skills and resources use `openmotion_*`, `openmotion-*` and `openmotion://`. Old Tool/resource names remain compatibility aliases; retired Skill entries are removed. Use `openmotion` or `openmotion-*` Skill names and refresh host discovery after upgrading. See [naming and installation compatibility](docs/npm-installation.md#public-names-and-compatibility).
-
-Discover the main Skill and optional specialist workflows from GitHub with the [Skills CLI](https://github.com/vercel-labs/skills):
-
-```sh
-npx skills add nexu-io/openmotion --list
-npx skills add nexu-io/openmotion --skill openmotion-director openmotion-production openmotion-template-to-video openmotion-recreate openmotion-video-to-template
-```
-
-This copies instructions; it does not install the runtime or register MCP. Keep the shared documentation available and connect the app separately, or use the integrated local installer above.
-
-| Skill | Use it for |
-| --- | --- |
-| [openmotion](https://github.com/nexu-io/openmotion/blob/main/skills/openmotion/SKILL.md) | Setup, first use and selecting the right video workflow |
-| [openmotion-recreate](skills/openmotion-recreate/SKILL.md) | Reconstructing a reference video and comparing the result |
-| [openmotion-template-to-video](skills/openmotion-template-to-video/SKILL.md) | Adapting an existing editable template |
-| [openmotion-director](skills/openmotion-director/SKILL.md) | Original films, narrative, movement, sound and creative review |
-| [openmotion-video-to-template](skills/openmotion-video-to-template/SKILL.md) | Producing a portable reusable template |
-| [openmotion-production](skills/openmotion-production/SKILL.md) | Scoped edits, preview, checks, troubleshooting and export |
-
-<a id="local-agent-connection"></a>
-
-**Connect a local agent** · Follow the installation guide for your client. Use the configuration below in clients with local stdio MCP support. In a shell-based agent, open the project directory and use the [local engine CLI](skills/openmotion-production/references/native.md) to preview and render the HTML scenes. For the published npm application, run `openmotion setup --host <agent-name>` (for example `opencode`); setup installs the app and Skills and returns the exact launcher entry to add. [Other local Agents](docs/npm-installation.md#other-local-agents)
+- <a id="deepseek-setup"></a>**DeepSeek TUI / Harness** · Install the `openmotion-game` skill and connect the local MCP tools via Cordis configuration, or run `node integrations/dsh/install.ts` from the checkout. [DeepSeek Harness guide](docs/agent-adapters.md#deepseek-harness)
+- <a id="claude-setup"></a>**Claude Code** · Add the stdio MCP entry below, install the `openmotion-game` skill, and run `/mcp` to verify the tools are active.
+- <a id="codex-setup"></a>**Codex CLI** · Run `bash scripts/install-motion.command` from the checkout to register the local plugin and MCP server automatically.
+- <a id="workbuddy-setup"></a>**WorkBuddy** · Import the connector or paste the `mcp.json` configuration below. [WorkBuddy guide](docs/agent-adapters.md#workbuddy)
 
 <a id="manual-mcp"></a>
+
+#### Manual stdio MCP configuration (works in any MCP client)
 
 ```json
 {
   "mcpServers": {
     "openmotion": {
       "command": "/absolute/path/to/node",
-      "args": ["--experimental-strip-types", "/absolute/openmotion/mcp.ts"],
-      "env": { "MOTION_DATA_DIR": "/absolute/openmotion-data" }
+      "args": ["--experimental-strip-types", "/absolute/path/to/opengame/mcp.ts"],
+      "env": {
+        "MOTION_DATA_DIR": "/absolute/path/to/opengame-data"
+      }
     }
   }
 }
 ```
 
-The **twenty-two public MCP names (including one asset compatibility alias and four Design Studio HTML tools)** cover template discovery and details, Skill discovery and reading, project creation and reading, editing, preview, media import and BYOK generation, reusable asset versions, project management and ZIP sharing, export, version restoration, cancellation, and Design Studio HTML projects, annotations and Open Design round-trip. Shared workflow and engine guides are available through MCP resources. [Tool contract](docs/mcp-phase1-tools.md)
+> Keep `MOTION_DATA_DIR` outside the git checkout so your games, generated assets, and provider keys stay cleanly separated from repository updates. See the [full setup guide](docs/opengame-setup.md) and [architecture reference](docs/opengame-architecture.md).
 
-Find a template with `openmotion_list_templates`, inspect it with `openmotion_get_template`, then create an editable copy with `openmotion_create_project`. [Template catalog](docs/template-catalog.md)
+### 12 Dedicated Game MCP Tools
 
-Use `npm start` for the app and `npm run mcp` for stdio. Shell-capable agents can inspect and render with the pinned engine CLI returned by the runtime; managed edits retain project revision checks. [Native authoring](skills/openmotion-production/references/native.md)
+OpenGame exposes a complete game-engineering tool surface over local stdio MCP (using the shared `openmotion_game_*` namespace so existing hosts and adapters stay 100% compatible):
 
-<a id="product-tour"></a> <a id="产品界面"></a> <a id="connect-your-agent"></a> <a id="use-from-your-agent"></a> <a id="从-agent-接入"></a> <a id="your-agent-your-studio"></a>
-
-<a id="reverse-engineer-a-video"></a>
-
-### From a reference to an editable project
-
-| Study the reference | Rebuild for your story |
+| MCP Tool | Purpose |
 | --- | --- |
-| **Hook and narrative** — what appears first, what follows, what earns the reveal | Your promise, product facts and call to action |
-| **Shot structure** — framing, camera movement, layers and visual hierarchy | Your UI, footage, logo and supporting images |
-| **Motion and pacing** — entrances, transitions, easing and reading holds | The same motion intent, adjusted to your content |
-| **Typography and identity** — type hierarchy, color and composition | Your fonts, palette and words, recorded in Motion.md’s Brand Kit section |
-| **Sound and rhythm** — speech timing, music cues and emphasis | Your voice, supplied music and sound direction |
+| `openmotion_game_create` | Create a new game draft (2D, 3D with vendored Three.js, or 9:16 `playableAd`) and return the complete agent brief |
+| `openmotion_game_get` | Read a game card, lifecycle status, and full file inventory |
+| `openmotion_game_read_file` | Read any source or design file inside a game project |
+| `openmotion_game_write_files` | Batch-write cohesive game source and design files (up to 100 text files / 8 MiB per owned game) |
+| `openmotion_game_update_meta` | Merge title, description, controls, cover path, and localized metadata (`zh-CN`, etc.) |
+| `openmotion_game_validate` | Check `index.html`, CDN policy, deterministic logic exports, and run a 50-tick smoke test |
+| `openmotion_game_simulate` | Run bounded 3-tier deterministic headless simulations (`reference` win / weak / `idle` loss) |
+| `openmotion_game_playtest` | Launch isolated headless Chrome (1–4 clients) to test real input controls, `390×844` layout, and console cleanliness |
+| `openmotion_game_capture_cover` | Capture a clean `1280×720` PNG directly from the game canvas into `assets/cover.png` |
+| `openmotion_game_trailer` | Record real headless gameplay clips and render an editable ~19-second MP4 trailer |
+| `openmotion_game_set_status` | Transition lifecycle status (`building`, `ready`, `failed`) |
+| `openmotion_game_publish` | Revalidate and publish the game into the local Game Studio catalog |
 
-Supply the clip and timecodes if your agent cannot open the social link. Start from the reference with the [recreation workflow](skills/openmotion-recreate/SKILL.md), or use the [template workflow](skills/openmotion-template-to-video/SKILL.md) when you already have editable source.
+Plus **`openmotion_media_use`** (discover & inspect configured BYOK multimodal models) and **`openmotion_assets_use`** (generate images/music/voice/video and run `action: "web_publish"` for one-click cloud share links). [Full MCP contract](docs/mcp-phase1-tools.md)
 
-```text
-Use OpenMotion to reverse-engineer the attached reference for our brand.
+### Game Engineering Skill & 18 Reference Handbooks
 
-Study: the opening hook, shot order, typography, transitions and sound cues.
-Keep: the product reveal and camera rhythm in the selected segment.
-Replace: the logo, UI, claims, copy and end card with our supplied materials.
-Generate: missing images, video, background music and TTS narration using
-our configured models, following our brand and approved script.
+Every connected agent can read [`skills/openmotion-game/SKILL.md`](skills/openmotion-game/SKILL.md) (or `openmotion://workflow/game/start` via MCP resources) along with 18 specialized engineering handbooks:
 
-Build an editable project. Open it in Studio and compare matching moments
-with the reference. Explain any remaining differences. After review,
-export an MP4 and retain the source for the next edit.
-```
-
-<a id="ai-video-editing"></a> <a id="keep-editing-after-the-remake"></a>
-
-<a id="review-the-template-and-its-motionmd"></a>
-
-#### Send the template to your agent
-
-1. Watch the reference video. Expand **Visual style** or **Production notes** for details, or choose **Download motion.md** to save the guide.
-2. Choose **Show instruction** to read the prompt, then **Recreate template** to copy it. Paste it into your agent with your brand kit and creative brief.
-3. Open the project your agent creates in Studio to edit and export.
-
-![Template preview beside the expanded instruction and Recreate template button, with a confirmation that the instruction was copied.](docs/readme/live-product/remix.en.jpg)
-
-<a id="open-projects-reusable-knowledge"></a> <a id="developer-architecture"></a>
-
-### System architecture
-
-Editing the timeline in Studio and asking your agent to change a shot both update the same HTML project. The local TypeScript service manages media and revisions. A browser-based rendering engine exports the selected version to MP4.
-
-#### How the modules work together
-
-![The local agent connects through nine MCP project tools and Studio through local HTTP. The application manages revisions, assets and export jobs; the Model Gateway supplies media to the editable project, and the renderer exports and checks the selected project version.](https://releases.open-design.ai/open-motion/media/sha256/3e93e9896c3dbb930ab5492c12fdca48db226eddf881601b75400ca4011e01f0.png)
-
-Edits made through the project tools include a revision check so an outdated request cannot overwrite newer work. Generated media enters the project when you select it. Each export uses the version saved when the job starts. The exporter checks the file specifications, and you can play the cut to review the picture, sound and timing.
-
-<details>
-<summary>Read the full architecture and roadmap as text</summary>
-
-```text
-CREATIVE INPUT
-Reference video + brand kit + script + media
-                            |
-                            v
-COMMUNITY KNOWLEDGE
-Motion.md + BRANDKIT.md + Skills + templates + components
-                            |
-              +-------------+------------------+
-              v                                v
-BYOA: YOUR LOCAL AGENT                OPENMOTION STUDIO
-DeepSeek Harness / Codex /            React 19 + TypeScript + Vite
-Claude Code / other local hosts       Tailwind CSS + Zustand
-Skills + host analysis tools         CodeMirror + Dockview
-              |                      media / preview / timeline
-              | stdio MCP                      | local HTTP
-              | 9 public project tools         |
-              +------------------+-------------+
-                                 v
-LOCAL APPLICATION                 Node.js + TypeScript + node:http
-Sessions / project files / assets / revisions / export jobs
-              |                                  |
-              v                                  v
-BYOK: MODEL GATEWAY                   VIDEO AS CODE
-Your keys / accounts / model routing  HTML scenes + media + Studio data
-Discovery / generation jobs           HTML + CSS + JavaScript + GSAP
-              |                                  ^
-              v                                  |
-MODEL ADAPTERS                                   |
-Codex Image / Atlas Cloud / fal.ai               |
-Images / Video / Music / TTS                     |
-              |                                  |
-              v                                  |
-Generated candidates -> preview / select -> adopt into the project
-                                                 |
-                                                 v
-RENDER AND VERIFY
-Selected project version -> HTML render engine + Chromium -> FFmpeg / FFprobe
-                                                 |
-                                                 v
-DELIVERY TODAY
-MP4 + editable source + media + version and export evidence
-                                                 |
-                          .----------------------'
-                          v
-COMING: PUBLISH TO EVERY PLATFORM
-Platform connectors -> release review -> scheduling -> performance feedback
-                          |
-                          v
-COMING: KNOWLEDGE FEEDBACK
-Version-linked outcomes -> team memory / RAG -> evaluated Skill improvements
-```
-
-</details>
-
-BYOA connects your existing Agent client; the Assets workspace supports direct model generation and reusable media. BYOK connects your supported model accounts. Studio and the local service manage the editable work, while provider credentials remain outside project files. The public phase-one MCP surface contains **eighteen names: nine project tools, two template catalog tools, two Skill library tools, a project archive tool, a project management tool, one BYOK media-use tool and two names for the same workspace asset capability**. Configure provider keys in Studio, then use `openmotion_media_use` for model discovery and media generation through the local Gateway service. Use `openmotion_assets_use` (`openmotion_assets` remains compatible) to upload, inspect or generate reusable assets, retain versions and import a chosen version into a film. [Asset library guide](docs/assets.md). Keys remain in the service; the public MCP contract does not include publishing.
-
-#### Stack and source map
-
-| Layer | Technology | Start reading |
-| --- | --- | --- |
-| **Studio and editor UI** | React 19, TypeScript 5.9, Vite 6, Tailwind CSS 4, Zustand, CodeMirror and Dockview | [Studio source](studio/src/) · [Motion app](studio/src/motion/MotionApp.tsx) · [Editor development](docs/editor-fork.md) |
-| **Application runtime** | Node.js 26.11.1 in CI, native HTTP, TypeScript execution and local files/JSON | [server.ts](server.ts) · [workspace.ts](workspace.ts) · [Session architecture](docs/session-architecture.md) |
-| **Agent integration** | Local stdio MCP, five core Skills and generated host adapters | [mcp.ts](mcp.ts) · [phase1.ts](phase1.ts) · [Adapter generation](scripts/export-adapters.ts) |
-| **Multimodal generation** | Codex media adapter, Atlas Cloud predictions, fal.ai queue integration and persisted generation jobs | [Gateway service](gateway/service.ts) · [Provider adapters](gateway/providers.ts) · [Model catalog](gateway/catalog.ts) |
-| **Composition and motion** | HTML/CSS/JS, GSAP, a pinned composition engine and native timeline/history | [Engine integration](hyperframes.ts) · [Template source](template-library/) · [Version adapter](phase1-versions.ts) |
-| **Rendering and media** | Chromium, Puppeteer Core, FFmpeg and FFprobe | [Render service](server.ts) · [Export verifier](scripts/verify-export.ts) · [Native runtime lock](scripts/runtime-lock.json) |
-| **Creative knowledge** | Markdown, source packages, presets and comparison evidence | [Motion.md](docs/motion-md.md) · [Core Skills](skills/) · [Community Library](library/README.md) |
-| **Release history** | Stable version descriptions and published release records | [Changelog](https://github.com/nexu-io/openmotion/blob/main/CHANGELOG.md) · [GitHub Releases](https://github.com/nexu-io/openmotion/releases) |
-| **Validation and packaging** | Node test runner, Vitest, Studio checks, npm lockfiles and explicit distribution lists | [Tests](tests/) · [Studio tests](studio/tests/) · [CI](.github/workflows/ci.yml) · [Distribution](scripts/distribution.ts) |
-| **Publishing and learning — Coming** | Platform adapters, scheduling, version-linked feedback and retrieval; implementation still to be designed | [Studio vision](docs/product/studio-vision.md) |
-
-Dependency pins live in [package.json](package.json), [package-lock.json](package-lock.json) and the [runtime lock](scripts/runtime-lock.json). Models and third-party libraries retain their own terms; the application is Apache-2.0.
-
-#### Choose a layer and build with us
-
-| If you work on… | A useful contribution | Entry point |
-| --- | --- | --- |
-| **Frontend and interaction** | Improve timeline editing, media generation controls, accessibility or preview behavior | [Studio](studio/src/) · [Media generator](studio/src/motion/MediaGenerator.tsx) |
-| **AI and model infrastructure** | Add a provider adapter or model preset using the shared job and media flow | [Gateway design](docs/product/media-generation-design.md) · [Provider adapters](gateway/providers.ts) |
-| **Agents and developer tools** | Improve a host adapter, Skill, resource guide or project-tool workflow | [Agent adapters](docs/agent-adapters.md) · [MCP contract](docs/mcp-phase1-tools.md) |
-| **Motion and creative coding** | Share a component, native template or Motion.md package with an actual remix | [Components](library/components/README.md) · [Entry checklist](library/ENTRY_TEMPLATE.md) |
-| **Video and rendering** | Improve export reliability, media handling or reproducible validation | [Engine notes](docs/hyperframes.md) · [Export verifier](scripts/verify-export.ts) |
-| **Social publishing** | Help design the Coming connector layer: account access, release review, scheduling and version mapping | [Publishing direction](docs/product/studio-vision.md) · [Discuss a proposal](https://github.com/nexu-io/openmotion/issues) |
-
-Start with the [local setup](#quick-start), choose one layer, and follow [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md). Keep user projects and credentials outside the checkout and preserve dependency pins and upstream licenses.
-
-[Product architecture](docs/product/architecture.md) · [Studio development](studio/README.md) · [Model Gateway](docs/model-gateway.md) · [Contribution guide](CONTRIBUTING.md)
-
-<a id="one-video-more-places-to-share"></a> <a id="publish-to-every-platform"></a>
-
-<a id="super-motion-video-agent"></a> <a id="status--roadmap"></a> <a id="当前状态与路线图"></a> <a id="roadmap"></a>
-
-### Platform versions and publishing
-
-Make a separate composition for each aspect ratio, review the cut in Studio and export an MP4 for manual upload.
-
-| Version to request | What to adapt |
+| Domain | Reference Guides |
 | --- | --- |
-| **Portrait short** — for destinations such as Reels, Shorts, TikTok or Xiaohongshu | Hook, large readable type, framing and the placement of captions |
-| **Landscape film** — for a product page, launch or YouTube video | UI detail, wider compositions and time to explain |
-| **Square feed cut** — for a social campaign | A compact composition, headline and clear closing message |
+| **Game Design & Structure** | [Brief Standard](skills/openmotion-game/references/game-brief.md) · [Genres & Core Loops](skills/openmotion-game/references/game-genres.md) · [Design System](skills/openmotion-game/references/game-design-system.md) · [Reference Lookup](skills/openmotion-game/references/game-lookup.md) |
+| **3C, Controls & Game Feel** | [3C Modules](skills/openmotion-game/references/game-3c-modules.md) · [Game Feel & Craft](skills/openmotion-game/references/game-feel-craft.md) · [Production Flow](skills/openmotion-game/references/game-flow.md) |
+| **Visuals, 2D/3D & Audio** | [Stylization](skills/openmotion-game/references/game-stylization.md) · [Textures](skills/openmotion-game/references/game-textures.md) · [2D Animation](skills/openmotion-game/references/game-2d-animation.md) · [3D Animation](skills/openmotion-game/references/game-3d-animation.md) · [Procedural Motion](skills/openmotion-game/references/game-procedural-animation.md) · [Audio & Web Audio](skills/openmotion-game/references/game-audio.md) |
+| **Playable Ads & Quality Gates** | [Playable Ad Spec](skills/openmotion-game/references/game-playable-ad.md) · [Quality Gates](skills/openmotion-game/references/game-gates.md) · [Review Rubric](skills/openmotion-game/references/review-rubric.md) |
 
-Channel connections, scheduled publishing and performance feedback are planned.
+### Tech Stack & Source Map
 
-#### Studio roadmap and collaboration concept
-
-| Area | Available today | Direction |
+| Layer | Technology | Entry Points |
 | --- | --- | --- |
-| **Recreate and edit** | Agent-led reference reconstruction, template adaptation, editable projects and MP4 export | More evaluated recreation cases and repeatable comparisons |
-| **Brand and knowledge** | Motion.md with its Brand Kit section, Skills and source packages | Personal/team memory, RAG and evaluated Skill improvements |
-| **People and agents** | Handoffs on the same local project | Timeline comments, shared review and collaborative editing |
-| **Multimodal creation** | Built-in image, video, music and TTS integrations; generation, candidate selection and timeline adoption | Integrated search across footage, images, voices, music and Avatar services |
-| **Publish to every platform — Coming** | Authored aspect-ratio variants and MP4 handoff | Platform connectors, release review, scheduling, automatic reframing and social presets |
-| **Feedback** | Human review and saved project versions | Version-linked performance data and recurring production tasks |
+| **OpenGame Studio UI** | React 19, TypeScript 5.9, Vite 6, Tailwind CSS 4, Zustand | [GameStudio.tsx](studio/src/motion/game/GameStudio.tsx) · [gameCatalog.ts](studio/src/motion/game/gameCatalog.ts) |
+| **Game Runtime & QA** | Node.js, native HTTP, Puppeteer Core / Chrome, deterministic simulator | [game-projects.ts](game-projects.ts) · [shared/game-contract.ts](shared/game-contract.ts) · [server.ts](server.ts) |
+| **MCP & Agent Skills** | Local stdio MCP server, `openmotion-game` Skill & 18 handbooks | [mcp.ts](mcp.ts) · [skills/openmotion-game/](skills/openmotion-game/) |
+| **Multimodal Gateway** | BYOK model discovery, job polling, asset library & web publish | [gateway/service.ts](gateway/service.ts) · [gateway/catalog.ts](gateway/catalog.ts) · [docs/assets.md](docs/assets.md) |
+| **Playable Templates** | 26 standalone HTML5 / Canvas / Three.js games with covers & metadata | [templates/games/](templates/games/) |
+| **Trailer Pipeline** | Headless gameplay capture + HTML composition + FFmpeg MP4 export | [docs/usage.md](docs/usage.md) · [scripts/verify-export.ts](scripts/verify-export.ts) |
 
-![Generated concept for people and agents reviewing a shared timeline; the collaboration experience is planned.](https://releases.open-design.ai/open-motion/media/sha256/a5efa5be51936f33ecc7ef4241ce2602ebf4e7efcc8ce30e0dac5a8bd2b34957.png)
+<a id="community"></a>
 
-*Concept preview of planned collaboration. No release date announced.* [Studio vision](docs/product/studio-vision.md) · [Knowledge and feedback](docs/product/studio-vision.md#knowledge-and-feedback)
+## 🤝 Build Games Together
 
-<a id="社区共建"></a> <a id="community"></a>
-
-## 🤝 Share the video. Share how you made it.
-
-Share a remake, a reusable template or a Motion.md that captures the rhythm of a film. Include the reference and your editable project so another creator can try the same cut with their own footage.
+Share a playable game template, a remixable mini-game genre kit, an art-style guide, a platform publishing script (WeChat / Douyin / TikTok / itch.io), or a Game Studio improvement.
 
 | Contribution | What to include |
 | --- | --- |
-| **A recreation** | Reference and creator, your brief, editable project, preview, comparison and remaining differences |
-| **A template or component** | Working source, editable choices, assets, preview and attribution |
-| **A Skill or design system** | The method, keep/change rules and an example of what you actually ran |
-| **Brand Kit content for Motion.md** | Identity, accurate product facts and approved assets within the creative specification |
-| **Agent support or editor improvements** | A focused change with reproducible validation |
+| **A playable game template** | Self-contained folder under `templates/games/<id>/` with `index.html`, `game.json`, `cover.webp`, and optional `DESIGN.md` |
+| **A genre or playable-ad recipe** | Clear 3C rules, balance invariants, and reference verification notes |
+| **Platform publishing adapters** | Packaging scripts, manifest generators, or submission checklists for mini-game & web portals |
+| **Agent & model integrations** | Host setup adapters or BYOK multimodal provider support |
 
-[Library entry checklist](library/ENTRY_TEMPLATE.md) · [Contribute](CONTRIBUTING.md) · [Report an issue](https://github.com/nexu-io/openmotion/issues) · [Contributors](https://github.com/nexu-io/openmotion/graphs/contributors) · [Media kit](docs/media-kit.md)
+[Contribute](CONTRIBUTING.md) · [Repository Guidelines](AGENTS.md) · [Report an Issue](https://github.com/OpenDesignHQ/opengame/issues)
 
-This repository was renamed from `nexu-io/html-anything` to [`nexu-io/openmotion`](https://github.com/nexu-io/openmotion).
+## Contributors
 
-[OpenMotion website](https://open-design.ai/motion/) · [OpenDesign Go](https://go.open-design.ai/?utm_source=github&utm_medium=referral&utm_campaign=openmotion&utm_content=readme_en) · [Discord](https://discord.com/invite/M7NnHS9gNa) · [Feishu](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=b6cs46dc-acb2-48ed-941d-c45642ead841) · [X @OpenDesignDevs](https://x.com/OpenDesignDevs) · [X @OpenDesignHQ](https://x.com/OpenDesignHQ) · [YouTube](https://www.youtube.com/channel/UChtshixMhvtgBWzoD9R_Qfg)
+Thanks to everyone who has taken part — code, game templates, skills, docs, feedback, and issues.
 
-[**Star OpenMotion on GitHub**](https://github.com/nexu-io/openmotion)
-
-[![Stay tuned with us · Star OpenMotion](https://releases.open-design.ai/open-motion/media/sha256/eb32b6cd4736cbbf42a537af24ed1ab8745192efcd7f3f69ffd5f2d569fe1607.gif)](https://github.com/nexu-io/openmotion)
-
-<a id="acknowledgements"></a>
-
-### Acknowledgements
-
-The template previews come from the current online catalog. Detail pages identify the reference brand; [preview sources and hashes](docs/readme/live-templates/manifest.json) record the assets used here. [Agent and model marks](docs/readme/models/README.md)
-
-OpenMotion is licensed under [Apache-2.0](LICENSE). Third-party code, templates, media and fonts retain their own licenses and attribution.
-
-| Source | Connection |
-| --- | --- |
-| [OpenDesign](https://github.com/nexu-io/open-design) | Develops OpenMotion and provides its UI foundations, resource structure, brand direction and Apache-2.0 HTML design templates, design systems, Skills, craft guides and scenario task profiles; [design system](docs/design-system.md), [design library notices](library/design/NOTICE.md) and [Motion showcase](https://open-design.ai/motion/) |
-| [Hyperframes](https://github.com/heygen-com/hyperframes) | HTML-to-video composition, Studio and rendering foundations, pinned to 0.9.7; creator references, external adaptation demonstrations and component source; [engine notes](docs/hyperframes.md), [template notices](template-library/NOTICE.md) and [catalog provenance](docs/template-catalog.md) |
-| [MotionGit](https://motiongit.com/) / adunext | Kinetic Tech source packaged as Presenter Tech; [license and attribution](library/templates/presenter-tech/NOTICE.md) |
-| [Hypit](https://github.com/hypit-ai/hypit) | Inspiration for agent-led viral-video cloning and editable variants; no runtime imported here |
-| [rea-video](https://github.com/JuneYaooo/rea-video) | Reference analysis and case studies for [live-action unboxing](https://github.com/JuneYaooo/rea-video/blob/main/docs/cases/unboxing/report_en.md) and [characters, code and screen footage](https://github.com/JuneYaooo/rea-video/blob/main/docs/cases/dual_role/report_en.md); [showcase attribution](docs/readme/brand-showcase/README.md), no runtime imported here |
-| [OpenAI · Codex Originals](https://openai.com/codex-originals/) | External brand-film inspiration; official campaign still and outbound viewing link |
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) / [Super-agent prototype](https://github.com/deepseek-ai/dsh-superagent-prototype) | Agent extensibility and continuing-task inspiration; the prototype is separate from OpenMotion's current runtime |
-| Claude Motion / CapCut / [ChatCut](https://chatcut.io/docs/what-is-chatcut) / [OpenChatCut](https://github.com/0xsline/OpenChatCut) | Product references for agent-led creation, approachable AI editing and continued revision |
-| [OpusClip](https://www.opus.pro/calendar) | Product reference for distribution and [external scheduling](https://www.opus.pro/tools/instagram-reels-scheduler); no built-in connector |
-| [GSAP](https://github.com/greensock/GSAP) / [FFmpeg](https://ffmpeg.org/) | Animation and media dependencies with versions retained in [package.json](package.json) and the [runtime lock](scripts/runtime-lock.json) |
-
-[Asset sources](docs/readme/ASSETS.md) · [Skills page covers](docs/readme/ASSETS.md#skills-page-covers) · [Additional showcase sources](docs/readme/brand-showcase/README.md) · [Font notices](web/design-system/fonts/NOTICES.txt) · [Studio license](studio/LICENSE)
-
-The former HTML Anything application is preserved on the [`legacy` branch](https://github.com/nexu-io/openmotion/tree/legacy). See the [repository migration guide](docs/repository-migration.md) for the active branch and distribution boundaries.
+<a href="https://github.com/OpenDesignHQ/opengame/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=OpenDesignHQ/opengame&amp;max=500&amp;columns=20&amp;anon=1" alt="OpenGame contributors" />
+</a>
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=nexu-io%2Fopenmotion&amp;type=date">
+<a href="https://www.star-history.com/#OpenDesignHQ/opengame&amp;Date">
   <picture>
-    <source media="screen" srcset="https://raw.githubusercontent.com/nexu-io/openmotion/readme-charts/star-history.svg">
-    <img alt="OpenMotion’s GitHub star history, updated daily" src="docs/readme/star-history.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date&amp;theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date" />
+    <img alt="OpenGame Star History" src="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date" />
   </picture>
 </a>
-
-[Offline snapshot](docs/readme/star-history.svg)

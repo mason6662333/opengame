@@ -109,7 +109,7 @@ export function trackPhase1Result(tracking: OmTracking | undefined, name: string
       ...(template_id ? { template_id } : {}),
       ...(reference_video_id ? { reference_video_id } : {}) }, undefined, undefined, host);
   }
-  if (name === 'motion_open_preview' && args?.target !== 'templates' && args?.target !== 'providers') tracking.track('project_open_result', { ...fields, opened_by_host_status: 'unknown' }, undefined, undefined, host);
+  if (name === 'motion_open_preview' && args?.target !== 'explore' && args?.target !== 'templates' && args?.target !== 'providers') tracking.track('project_open_result', { ...fields, opened_by_host_status: 'unknown' }, undefined, undefined, host);
   if (name === 'motion_edit_project') tracking.track('project_edit_result', { ...fields,
     ...(!error && Array.isArray(result?.changedFiles) ? { changed_file_count: result.changedFiles.length } : {}) }, undefined, undefined, host);
   if (name === 'motion_restore_version') tracking.track('version_restore_result', fields, undefined, undefined, host);

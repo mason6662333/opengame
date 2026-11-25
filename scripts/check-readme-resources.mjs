@@ -5,13 +5,20 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const resourceDocuments = [
-  'README.md', 'README.zh-CN.md', 'README.REVERSE-ENGINEERING.md', 'docs/README.zh-CN.md', 'docs/README.ja.md',
+  'README.md', 'README.zh-CN.md', 'README.ja.md', 'README.REVERSE-ENGINEERING.md', 'docs/README.zh-CN.md', 'docs/README.ja.md',
+  'docs/opengame-setup.md', 'docs/opengame-architecture.md', 'docs/readme/opengame/ASSETS.md',
   'docs/examples.md', 'docs/examples.zh-CN.md',
   'docs/motion-design-examples.md', 'docs/motion-design-examples.zh-CN.md',
   'docs/collections/README.md', 'docs/collections/README.zh-CN.md',
 ];
-// This repository-owned chart is refreshed daily, so it has no fixed content hash.
-const dailyChartSource = 'srcset="https://raw.githubusercontent.com/nexu-io/openmotion/readme-charts/star-history.svg"';
+// These repository-owned / official live community charts refresh automatically and have no fixed local hash.
+const allowedLiveWidgetSources = new Set([
+  'srcset="https://raw.githubusercontent.com/nexu-io/openmotion/readme-charts/star-history.svg"',
+  'src="https://contrib.rocks/image?repo=OpenDesignHQ/opengame&amp;max=500&amp;columns=20&amp;anon=1"',
+  'srcset="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date&amp;theme=dark"',
+  'srcset="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date"',
+  'src="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date"',
+]);
 const remote = /^(?:https?:)?\/\//i;
 
 export async function checkDocument(file, mediaURLs = new Set(), mediaSizes = new Map()) {
@@ -22,7 +29,7 @@ export async function checkDocument(file, mediaURLs = new Set(), mediaSizes = ne
     const url = match.slice(1).find(Boolean);
     const embedded = Boolean(match[1] || match[2]);
     const media = /\.(?:mp4|webm|mov|gif|png|jpe?g|svg|woff2?|ttf|mp3|wav)(?:[?#]|$)/i.test(url);
-    assert(!(remote.test(url) && (embedded || media) && !mediaURLs.has(url) && match[0] !== dailyChartSource), `${file}: external display/media dependency: ${url}`);
+    assert(!(remote.test(url) && (embedded || media) && !mediaURLs.has(url) && !allowedLiveWidgetSources.has(match[0])), `${file}: external display/media dependency: ${url}`);
     if (embedded && remote.test(url)) {
       assert(!(mediaSizes.get(url) > 5_000_000), `${file}: embedded image exceeds GitHub's 5 MB proxy limit; use a smaller display version and retain the original download: ${url}`);
     }
@@ -43,6 +50,7 @@ export async function verifyResources(root = fileURLToPath(new URL('../', import
   const mediaSizes = new Map(optional.files.map(file => [file.url, file.bytes]));
   for (const doc of resourceDocuments) links += await checkDocument(path.join(root, doc), mediaURLs, mediaSizes);
   const manifests = [
+    ['docs/readme/opengame/manifest.json', '', 'files'],
     ['docs/readme/live-product/manifest.json', '', 'files'],
     ['docs/readme/live-templates/manifest.json', '', 'files'],
     ['docs/readme/media/manifest.json', '', 'entries'],

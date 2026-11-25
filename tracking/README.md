@@ -377,6 +377,10 @@ backend/data directory. Deterministic coverage lives in
   `open` for preview and `request` for export; invalid values are omitted.
   A failed call can carry `error_code` and schema-declared `invalid_field` and
   `validation_rule`, with array indices collapsed and unknown keys bucketed.
+  Game tools (`motion_game_*`) also carry `game_id` (the same catalogue id or UUID Game Studio reports, taken from
+  the `id` argument or, for create, from the created card) and, on finished successful calls that return a game card
+  (create, get, set_status, update_meta, publish), `game_status` after the call. A game card's `status=failed` is the
+  game's lifecycle, so it never turns the tool call into `outcome=failure`. Titles, briefs, files and URLs stay out.
   Both stdio asset names still use `tool_name=motion_assets`; WebMCP uses the
   original public name. Older events may omit these dimensions.
   To measure `read`, filter `product=openmotion`, exclude `env=test`, select the

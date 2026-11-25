@@ -1,766 +1,485 @@
-<p align="center"><img src="docs/readme/openmotion-logo.svg" width="420" alt="OpenMotion"></p>
+<p align="center"><img src="docs/readme/opengame-logo.svg" width="400" alt="OpenGame"></p>
 
-<p align="center"><strong>Claude Motion 与 CapCut 的开源替代方案</strong></p>
+<p align="center"><strong>首个 Super Game Agent —— 开源全栈 AI 游戏创作工作台</strong></p>
 
 <p align="center">
-  <picture>
-    <source type="image/webp" srcset="docs/readme/capcut-claude-motion-cover.zh-CN.webp">
-    <source media="(max-width: 600px)" srcset="https://releases.open-design.ai/open-motion/media/sha256/45ee17734fb1315decef29c116fdd6794ee275fe83239328526b982a8ebe17ac.jpg">
-    <img src="https://releases.open-design.ai/open-motion/media/sha256/45ee17734fb1315decef29c116fdd6794ee275fe83239328526b982a8ebe17ac.jpg" width="100%" alt="Dan Martell 原片与 OpenMotion 复刻并排展示：Riya 出镜，荧光黄手写关键词叠在两行白色粗体字幕之间。下方是 Studio 字幕时间轴。">
-  </picture>
+  <img src="docs/readme/opengame-hero.webp" width="100%" alt="OpenGame —— 首个 Super Game Agent。用你的 AI Agent 制作、一键复刻并发布 3D 与 9:16 可玩游戏。">
 </p>
 
 <p align="center">
-  <a href="https://github.com/nexu-io/openmotion"><img src="docs/readme/badges/stars.zh-CN.svg" alt="GitHub 星标 · 9.5k（2026-11-09）"></a>
   <a href="package.json"><img src="docs/readme/badges/node.svg" alt="Node.js 22.18+"></a>
   <a href="LICENSE"><img src="docs/readme/badges/license.zh-CN.svg" alt="Apache 2.0 许可证"></a>
   <a href="https://github.com/nexu-io/open-design"><img src="docs/readme/badges/built-by-opendesign.zh-CN.svg" alt="OpenDesign 出品"></a>
 </p>
 
 <p align="center">
-  <a href="https://open-design.ai/zh/motion/"><img src="docs/readme/badges/website.zh-CN.svg" alt="OpenMotion 官网" /></a>
-  <a href="https://go.open-design.ai/?utm_source=github&amp;utm_medium=referral&amp;utm_campaign=openmotion&amp;utm_content=readme_zh"><img src="docs/readme/badges/opendesign-go.svg" alt="OpenDesign Go 模型订阅" /></a>
-  <a href="https://discord.com/invite/M7NnHS9gNa"><img src="docs/readme/badges/discord.svg" alt="加入 OpenMotion Discord 社区" /></a>
-  <a href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=b6cs46dc-acb2-48ed-941d-c45642ead841"><img src="docs/readme/badges/feishu.zh-CN.svg" alt="加入 OpenMotion 飞书群" /></a>
+  <a href="https://go.open-design.ai/?utm_source=github&amp;utm_medium=referral&amp;utm_campaign=opengame&amp;utm_content=readme_zh"><img src="docs/readme/badges/opendesign-go.svg" alt="OpenDesign Go 模型订阅" /></a>
+  <a href="https://discord.com/invite/M7NnHS9gNa"><img src="docs/readme/badges/discord.svg" alt="加入 OpenGame Discord 社区" /></a>
+  <a href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=b6cs46dc-acb2-48ed-941d-c45642ead841"><img src="docs/readme/badges/feishu.zh-CN.svg" alt="加入 OpenGame 飞书群" /></a>
   <a href="https://x.com/OpenDesignHQ"><img src="docs/readme/badges/x-opendesignhq.svg" alt="OpenDesign 官方 X 账号 @OpenDesignHQ" /></a>
   <a href="https://x.com/OpenDesignDevs"><img src="docs/readme/badges/x-opendesigndevs.svg" alt="OpenDesign 开发者 X 账号 @OpenDesignDevs" /></a>
   <a href="https://www.youtube.com/channel/UChtshixMhvtgBWzoD9R_Qfg"><img src="docs/readme/badges/youtube.svg" alt="OpenDesign 的 YouTube 频道" /></a>
 </p>
 
-<p align="center"><a href="#quick-start">立即安装</a> · <a href="#agent-wall">支持的 Agent</a> · <a href="#showcase">使用场景与复刻效果示例</a> · <a href="#features">为什么选择 OpenMotion</a> · <a href="#technical-guide">安装与技术文档</a> · <a href="#community">社区与贡献</a></p>
+<p align="center"><a href="#quick-start">快速开始</a> · <a href="#agent-wall">支持的 Agent</a> · <a href="#showcase">可玩游戏模板</a> · <a href="#features">核心能力</a> · <a href="#publish-monetize">发布与变现</a> · <a href="#technical-guide">接入与 MCP</a> · <a href="#community">社区共建</a></p>
 
 <div align="center">
 
-[English](README.md) · **简体中文** · [日本語](docs/README.ja.md)
+[English](README.md) · **简体中文** · [日本語](README.ja.md)
 
 </div>
 
-# OpenMotion
+# 认识 OpenGame
 
-OpenMotion 是一个**由 AI Agent 驱动的全栈视频创作工作台**，也是 **Claude Motion 与 CapCut 的开源替代方案**。上传参考视频或粘贴社交平台上的视频链接，就能**用自己的品牌视觉规范和文案复刻原片**。
+OpenGame 是**首个开源全栈 Super Game Agent**——把你本地的编程 Agent 变成一座开源 AI 版虚幻引擎 / Unity 与完整游戏工作室，从一句话创意或爆款游戏模板出发，走完**制作 → 自动化试玩验证 → 一键在线分享 → 上架变现**的端到端全链路。
 
-- 🎬 **全栈视频复刻。** Agent 拆解参考片，用 HTML 重建镜头和转场，并生成缺少的素材。你可以在同一工程里用 Studio 调整剪辑节奏，再渲染导出 MP4。
-- 🔑 **BYOA（自带 Agent）与 BYOK（自带 API 密钥）。** OpenMotion 开源免费。直接在[常用的本地 Agent](#agent-wall) 里复刻视频，每一层都能用自己的 API 密钥。
-- 🧩 OpenMotion 首次定义了 **Motion.md**，用 Markdown 记录镜头顺序、时长和转场。品牌宣传片的拆解可以随工程一起分享。
-- 🎛️ **图片、视频、音乐和语音。** 用 GPT Image 2.6 生成画面、Seedance 2.5 补镜头、Suno 配乐，再用 Eleven v4 生成旁白。[查看模型与接入方式](#model-wall)
+- 🎮 **一键复刻任何游戏。** 内置 **26 款可玩游戏模板**（3D、体素、像素、动漫及 9:16 爆款小游戏 / 试玩广告），源码与设计文档全部可编辑。
+- 🎨 **一键风格化任何游戏。** 保留成熟玩法骨架，快速替换角色、画风与配乐——**DeepSeek** 可低成本稳定换皮，**Claude Fable 5.2 / Opus / Codex / Gemini** 可从零打造 3D 大作。
+- 💰 **全链路闭环：制作 → 验证 → 发布变现。** 自动完成逻辑校验、仿真试玩、封面截图与实机预告片，一键生成在线链接或 9:16 试玩广告，并衔接小游戏上架路径。
+- 🔓 **全栈开源（BYOA + BYOK）。** 代码、美术、视频、音乐、配音与 Three.js 3D 全部开源；自带 [本地 Agent](#agent-wall) 与 API Key，或接入 [OpenDesign Go](https://go.open-design.ai/?utm_source=github&utm_medium=referral&utm_campaign=opengame&utm_content=readme_zh)。
 
-<a id="快速开始"></a> <a id="quick-start"></a>
+<a id="quick-start"></a> <a id="快速开始"></a>
 
-### 从 ChatGPT 插件市场安装
+## ⚡ 快速开始
 
-**一键安装，无需手动配置。** 安装后，在对话中即可从零创作动效视频、复刻参考视频，或使用模板开始创作。
+### 1. 一句话交给你的本地 Agent
 
-**[在 ChatGPT 中安装 OpenMotion →](https://chatgpt.com/plugins/plugins_6a742d13e88481919b42002864b1bb26)**
-
-<a id="start-in-codex"></a>
-
-### 在 Agent 中安装
-
-复制下面的指令，发给你的本地 Agent，即可从源码安装 OpenMotion：
+把下面这段指令发给 **DeepSeek TUI / Harness**、**Claude Code**、**Codex**、**WorkBuddy**、**Cursor**、**Gemini CLI** 或任意 [22 个本地 Agent](#agent-wall)：
 
 ```text
-阅读 https://github.com/nexu-io/openmotion/blob/main/docs/install.md，按照指南在当前 Agent 中安装并连接 OpenMotion。
+阅读 https://github.com/OpenDesignHQ/opengame/blob/main/docs/install.md，按照指南在当前 Agent 中安装并连接 OpenGame，打开 /studios/game 进入 Game Studio，然后使用 openmotion-game Skill 帮我复刻或制作一款可玩的游戏。
 ```
 
-安装完成后，Agent 会打开本地模板库并推荐一个模板，确认选择后再创建工程。[源码安装指南](docs/install.md)
+### 2. 通过 Skills CLI 安装游戏工程 Skill
 
-### 安装已发布的 npm 应用（可选）
-
-上方源码安装仍是仓库安装的默认方式。如需明确选择包含预构建 Studio 及已配置在线模板库的已发布应用，请复制下面的指令，发给你的本地 Agent：
-
-```text
-阅读 https://releases.open-design.ai/motion，按照指南在当前的 Agent 中安装并连接已发布的 npm 应用。
-```
-
-[已发布应用的安装与版本通道选择](docs/install.md)。已发布的版本可能落后于当前检出的源码。
-
-### 克隆仓库并在本地启动
-
-需要 Git、npm 和 Node.js 26.11.1：
+使用 [Skills CLI](https://github.com/vercel-labs/skills) 安装游戏专用 Skill（`openmotion-game` 及 18 份涵盖 3C 手感、2D/3D 动画、试玩广告规范与质量门禁的工程手册）：
 
 ```sh
-git -c filter.lfs.process= -c filter.lfs.smudge= -c filter.lfs.required=false clone --depth 1 --single-branch --branch main https://github.com/nexu-io/openmotion.git
-cd openmotion
+npx skills add OpenDesignHQ/opengame --skill openmotion-game
+```
+
+> Skills CLI 只安装工作流指引；请结合下方本地运行与 MCP 配置，让 Agent 能够直接调用 12 个 `openmotion_game_*` 工具并打开 Game Studio。
+
+### 3. 从源码在本地启动 OpenGame Studio
+
+环境要求：**Git**、**npm**、**Node.js 22.18+**（CI 锁定 Node.js 26.11.1）。
+
+```sh
+git -c filter.lfs.process= -c filter.lfs.smudge= -c filter.lfs.required=false clone --depth 1 --single-branch --branch main https://github.com/OpenDesignHQ/opengame.git
+cd opengame
 npm ci
 npm run build:studio
 npm start
 ```
-
-打开启动时打印的实际 `studioUrl` 或 `previewUrl`，进入 **模板库**。Studio 和 MCP 读取此仓库中的模板。要让 Agent 连接同一份源码，请参阅 [源码接入与 MCP 配置](#agent-setup)。[仓库大小与可选素材](docs/repository-storage.md)
-
-
-### 从已有项目快速开始
-
-可以将 **HyperFrames 项目 ZIP 直接导入 OpenMotion**，继续编辑已有动效和本地素材。将项目文件夹压缩为 ZIP，在 **全部项目 → 导入项目** 中选择文件，再打开导入的副本，即可通过 Studio 或 Agent 继续修改。导入会创建独立副本，项目需符合支持的原生工程结构。
-
-[查看导入步骤、文件要求与兼容范围](docs/project-archives.md#import-from-hyperframes)
 
 <a id="agent-wall"></a>
 
-**22 个本地 Agent** · [选择你的 Agent](#choose-agent)
+**支持 22 个本地 Agent（BYOA）** · [选择你的 Agent](#choose-agent)
 
 <p align="center"><a href="#choose-agent"><picture><source media="(max-width: 600px)" srcset="docs/readme/agents/local-agents.mobile.png"><img src="docs/readme/agents/local-agents.png" width="100%" alt="WorkBuddy, Codex CLI, Claude Code, OpenCode, Hermes, Antigravity, Gemini CLI, Grok Build, Kimi CLI, Cursor Agent, Qwen Code, Qoder CLI, GitHub Copilot, Pi, Kiro CLI, Kilo, Mistral Vibe, DeepSeek TUI, Reasonix, Aider, Devin, Trae CLI"></picture></a></p>
 
-<a id="showcase"></a> <a id="brand-before-after"></a> <a id="用-openmotion-可以做什么"></a>
-<a id="使用场景与复刻效果示例"></a>
+<a id="showcase"></a>
 
-## 🎞️ 使用场景与复刻效果示例
+## 🕹️ 内置可玩游戏模板与示例
 
-从产品演示、品牌宣传片、真人口播等场景寻找创作参考。下方预览展示参考视频。
+OpenGame 在 [`templates/games/`](templates/games/) 中内置了 **26 款开箱即玩的完整游戏工程**，全部包含 HTML5 / Three.js 源码、封面、操控说明与中英双语元数据。在 Game Studio 里可直接试玩，一键 **Remix 复刻**，或**一键换画风 / 换题材 / 换角色**做成属于你的游戏。
 
-**[浏览完整模板库 →](https://open-design.ai/templates/)** — 查找更多模板，获取完整视频、Motion.md 和复刻指令。
-
-### AI 重剪与改稿
+### 3D、体素与动作游戏（16:9 横屏）
 
 <table width="100%">
 <tr>
 <td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/many-possible-futures.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/f4a30a4a3b2dbc5c43df68837bebb284d204a1408394e248d7df339154914917.gif" width="480" alt="把多段画面串成故事"></picture><br>
-<strong>OpenAI · 把多段画面串成故事</strong><br>
-围绕同一条叙事主线连接不同画面，再展开为多场景蒙太奇。<br>
-<a href="https://open-design.ai/templates/many-possible-futures-motion-design/">查看模板</a>
+<img src="templates/games/tidebreaker/cover.webp" width="100%" alt="破潮者 Tidebreaker — 3D 风暴群岛快艇竞速"><br>
+<strong>破潮者 · Tidebreaker</strong> · <code>3D · 竞速 · Three.js</code><br>
+驾驶快艇穿越风暴群岛，跃过浪尖、避开暗礁，在倒计时结束前冲过八个检查点。<br>
+<a href="templates/games/tidebreaker/">查看源码与 DESIGN.md →</a>
 </td>
 <td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/making-of-window-collage.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/dae76ee380e75eb257be035bda3697981c5cce42b53a0f61da34c46687b52e1d.gif" width="480" alt="重剪创作过程拼贴"></picture><br>
-<strong>Anthropic · 重剪创作过程拼贴</strong><br>
-按顺序叠放片段与截图，让主标题始终清楚可读。<br>
-<a href="https://open-design.ai/templates/making-of-window-collage-motion-design/">查看模板</a>
+<img src="templates/games/starlight-bastion/cover.webp" width="100%" alt="星辉堡垒 Starlight Bastion — 体素太空晶核防御射击"><br>
+<strong>星辉堡垒 · Starlight Bastion</strong> · <code>体素 · 射击 · 肉鸽升级</code><br>
+守护发光的星核，击退五波体素入侵者，每波结束后三选一强化技能。<br>
+<a href="templates/games/starlight-bastion/">查看源码与 DESIGN.md →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/skyline-courier/cover.webp" width="100%" alt="天际快递员 Skyline Courier — 3D 赛博高楼跑酷"><br>
+<strong>天际快递员 · Skyline Courier</strong> · <code>3D · 平台跑酷 · 赛博朋克</code><br>
+在雨夜霓虹摩天楼顶奔跑、二段跳与蹬墙飞跃，90 秒内送达最后三件包裹。<br>
+<a href="templates/games/skyline-courier/">查看源码与 DESIGN.md →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/neon-drift/cover.webp" width="100%" alt="霓虹漂移 Neon Drift — 3D 赛博夜路高架飙车"><br>
+<strong>霓虹漂移 · Neon Drift</strong> · <code>3D · 竞速 · 赛博霓虹</code><br>
+在雨后霓虹高架高速穿梭车流，极限擦车积攒氮气加速，刷新行驶距离纪录。<br>
+<a href="templates/games/neon-drift/">查看源码 →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/comet-guard/cover.webp" width="100%" alt="彗星守卫 Comet Guard — 轨道空间站太空射击"><br>
+<strong>彗星守卫 · Comet Guard</strong> · <code>射击 · 太空防御</code><br>
+驾驶轨道拦截机在手绘星空中击碎熔岩彗星，守护发光空间站撑过递增波次。<br>
+<a href="templates/games/comet-guard/">查看源码 →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/harbor-skirmish/cover.webp" width="100%" alt="海港突击 Harbor Skirmish — 3D 第一人称海岛射击"><br>
+<strong>海港突击 · Harbor Skirmish</strong> · <code>3D FPS · 抓钩与滑铲</code><br>
+风格化 3D 第一人称海岛射击，支持二段跳、滑铲、冲刺与抓钩机动。<br>
+<a href="templates/games/harbor-skirmish/">查看源码 →</a>
 </td>
 </tr>
 </table>
 
-### 产品发布与演示
+### 风格化、叙事与氛围游戏（16:9 横屏）
 
 <table width="100%">
 <tr>
 <td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/notion-custom-agents.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/b62ffb99195f35396b6ec0b5f8f0abb8552ffd2493a5e982e5e10fd640c44a0f.gif" width="480" alt="先展示问题，再呈现解决方案"></picture><br>
-<strong>Notion · 先展示问题，再呈现解决方案</strong><br>
-从任务堆积过渡到有序协作，把前后变化换成自己的产品能力。<br>
-<a href="https://open-design.ai/templates/notion-custom-agents-motion-design/">查看模板</a>
+<img src="templates/games/glyph-garden/cover.webp" width="100%" alt="符花庭园 Glyph Garden — 二次元奇幻三消"><br>
+<strong>符花庭园 · Glyph Garden</strong> · <code>二次元 · 消除 · 奇幻</code><br>
+交换月光花瓣触发连锁绽放，在 24 步内冲刺 2,200 分唤醒失落的庭园。<br>
+<a href="templates/games/glyph-garden/">查看源码 →</a>
 </td>
 <td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="https://releases.open-design.ai/open-motion/media/sha256/66bc3f14f916a58800562af5b2c8412b2f554f36a435da950faa39ef4b82da96.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/ecbb5b36bf9997451a02fbf6db8ef9083b93326eb81b5bd1c29b7ca988d008cd.gif" width="480" alt="从用户需求引出产品发布"></picture><br>
-<strong>OpenAI · 从用户需求引出产品发布</strong><br>
-用层叠的需求积累节奏，再用一次清晰的揭示呈现产品。<br>
-<a href="https://open-design.ai/templates/demand-becomes-a-desktop-release-motion-design/">查看模板</a>
+<img src="templates/games/lantern-hop/cover.webp" width="100%" alt="灯笼跳跃 Lantern Hop — 像素奇幻屋檐跑酷"><br>
+<strong>灯笼跳跃 · Lantern Hop</strong> · <code>像素 · 平台跑酷 · 东方奇幻</code><br>
+操控围着围巾的像素小狐狸跃过月夜飞檐，二段跳收集发光纸灯笼。<br>
+<a href="templates/games/lantern-hop/">查看源码 →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/lighthouse-log/cover.webp" width="100%" alt="灯塔手记 Lighthouse Log — 动漫风风暴生存叙事"><br>
+<strong>灯塔手记 · Lighthouse Log</strong> · <code>动漫 · 叙事生存</code><br>
+在连续七个暴风雨夜守护海崖灯塔，分配最后燃料，在电台求救间做出抉择。<br>
+<a href="templates/games/lighthouse-log/">查看源码 →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/last-light/cover.webp" width="100%" alt="最后的光 Last Light — 手电筒潜行恐怖逃生"><br>
+<strong>最后的光 · Last Light</strong> · <code>恐怖 · 氛围逃生</code><br>
+在手电熄灭前于废弃校园找齐三把钥匙，同时用光束压制紧追不舍的暗影。<br>
+<a href="templates/games/last-light/">查看源码 →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/night-train/cover.webp" width="100%" alt="夜行列车的信 Night Train Letters — 互动分支叙事"><br>
+<strong>夜行列车的信 · Night Train Letters</strong> · <code>叙事 · 分支剧情</code><br>
+三封未寄出的信、一列驶向大海的雨夜列车，用纯 HTML 讲述细腻分支故事。<br>
+<a href="templates/games/night-train/">查看源码 →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/stack-the-moon/cover.webp" width="100%" alt="叠叠月 Stack the Moon — 一键月光叠塔"><br>
+<strong>叠叠月 · Stack the Moon</strong> · <code>休闲 · 单指街机</code><br>
+在云海之上精准叠起月光天文台，连续完美落位修复塔身并冲入星空。<br>
+<a href="templates/games/stack-the-moon/">查看源码 →</a>
 </td>
 </tr>
 </table>
 
-### 品牌宣传片与动效
+### 9:16 竖屏爆款小游戏与试玩广告模板
+
+专为单手触屏、首帧即玩、高留存短局与**小游戏 / 试玩广告商业变现**打造：
 
 <table width="100%">
 <tr>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/a-world-connected-by-computational-fragments.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/d94806d916b9b7d9325db6901cc36b890ee0e4ff7503bfbd888b2d258b985925.gif" width="480" alt="用动效连接不同世界"></picture><br>
-<strong>Kimi · 用动效连接不同世界</strong><br>
-用代码条带、错位切片和转场串起一组品牌画面。<br>
-<a href="https://open-design.ai/templates/a-world-connected-by-computational-fragments-motion-design/">查看模板</a>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/gate-legion/cover.webp" width="220" alt="草原军团 Gate Legion — 9:16 算术门跑酷"><br>
+<strong>草原军团 · Gate Legion</strong><br>
+<code>9:16 · 算术门军团跑酷</code><br>
+左右拖动选择 <code>+10</code> / <code>×2</code> 算术门壮大军团，在终点迎战敌军。<br>
+<a href="templates/games/gate-legion/">查看源码 →</a>
 </td>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/slack-slack.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/e5f730483a177dad8cebd3f19728d04a590a075691ca2c48544c05c73490a505.gif" width="480" alt="拆解并重组品牌标识"></picture><br>
-<strong>Slack · 拆解并重组品牌标识</strong><br>
-将标识拆成基础形状，用自己的配色与名称重新组合。<br>
-<a href="https://open-design.ai/templates/slack-slack-motion-design/">查看模板</a>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/pin-rescue/cover.webp" width="220" alt="熔金拔针 Pin Rescue — 9:16 拔针解谜"><br>
+<strong>熔金拔针 · Pin Rescue</strong><br>
+<code>9:16 · 拔针物理解谜</code><br>
+拔出机关针混合水流与熔岩，化解陷阱并在五道关卡中顺利夺金。<br>
+<a href="templates/games/pin-rescue/">查看源码 →</a>
+</td>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/sky-runner/cover.webp" width="220" alt="霓虹天际跑者 Sky Runner — 9:16 3D 滑板跑酷"><br>
+<strong>霓虹天际跑者 · Sky Runner</strong><br>
+<code>9:16 · 3D 三道跑酷</code><br>
+切换赛道、拾取金币、躲避无人机，在不断加速的霓虹高空疾驰。<br>
+<a href="templates/games/sky-runner/">查看源码 →</a>
+</td>
+</tr>
+<tr>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/slime-swell/cover.webp" width="220" alt="史莱姆膨胀城 Slime Swell — 9:16 城市吞噬大作战"><br>
+<strong>史莱姆膨胀城 · Slime Swell</strong><br>
+<code>9:16 · 吞噬成长 .io</code><br>
+吞噬比自己小的车辆与建筑，60 秒内体积超越三名竞争对手。<br>
+<a href="templates/games/slime-swell/">查看源码 →</a>
+</td>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/lane-turret/cover.webp" width="220" alt="星港三线炮台 Lane Turret — 9:16 炮台割草射击"><br>
+<strong>星港三线炮台 · Lane Turret</strong><br>
+<code>9:16 · 三线升级射击</code><br>
+操控三联装自动炮台、拾取升级卡牌，坚守十波太空舰队攻势。<br>
+<a href="templates/games/lane-turret/">查看源码 →</a>
+</td>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/merge-bakery/cover.webp" width="220" alt="合成小烘焙 Merge Bakery — 9:16 合成经营小游戏"><br>
+<strong>合成小烘焙 · Merge Bakery</strong><br>
+<code>9:16 · 合成经营</code><br>
+烤制面团、拖拽合成升级点心，在 90 秒内满足顾客订单赚满 \$250。<br>
+<a href="templates/games/merge-bakery/">查看源码 →</a>
 </td>
 </tr>
 </table>
 
-### 讲解与教程
+<details>
+<summary><strong>展开查看全部 26 款内置可玩游戏模板</strong></summary>
 
-<table width="100%">
-<tr>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="https://releases.open-design.ai/open-motion/media/sha256/79e74122a92470f1cfe4ce39552b1eacad81bf316514605fef8d64f0c62eea4b.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/f6372a94259356a96f71ab0be2414f2c793d4fc823a45bfba70ca53dba595f04.gif" width="480" alt="讲清跨工具工作流"></picture><br>
-<strong>Anthropic · 讲清跨工具工作流</strong><br>
-沿着一个问题展示数据、操作与结果，让上下文始终连贯。<br>
-<a href="https://open-design.ai/templates/connected-tools-evidence-chain-motion-design/">查看模板</a>
-</td>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/an-agent-payment-with-human-approval.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/caf3c5ba8c42668634ed37bfb7bf70b08aff3897eef89cc5b62980c1402532e4.gif" width="480" alt="逐步展示审批过程"></picture><br>
-<strong>Stripe · 逐步展示审批过程</strong><br>
-把同一个请求从对话延续到手机确认，保持视觉线索一致。<br>
-<a href="https://open-design.ai/templates/an-agent-payment-with-human-approval-motion-design/">查看模板</a>
-</td>
-</tr>
-</table>
+| 游戏名称 | 类型 | 画风 | 屏幕方向 | 简介 | 源码目录 |
+| --- | --- | --- | --- | --- | --- |
+| **弹弓攻城 (Castle Crush)** | 休闲 | 动漫 | 9:16 竖屏 | 弹弓拉弓投石击倒木石城塔，每关三发共四关 | [castle-crush](templates/games/castle-crush/) |
+| **彗星守卫 (Comet Guard)** | 射击 | 极简 | 16:9 横屏 | 驾驶拦截机击碎熔岩彗星，守护轨道空间站 | [comet-guard](templates/games/comet-guard/) |
+| **像素漂移冲刺 (Drift Dash)** | 竞速 | 体素 | 9:16 竖屏 | 单手按住左右漂移，三圈击败三辆 AI 赛车 | [drift-dash](templates/games/drift-dash/) |
+| **草原军团 (Gate Legion)** | 休闲 | 像素 | 9:16 竖屏 | 爆款算术门军团倍增与终点决战 | [gate-legion](templates/games/gate-legion/) |
+| **符花庭园 (Glyph Garden)** | 休闲 | 动漫 | 16:9 横屏 | 奇幻月光花园三消连击解谜 | [glyph-garden](templates/games/glyph-garden/) |
+| **海港突击 (Harbor Skirmish)** | 射击 | 3D | 16:9 横屏 | 手绘风格 3D 第一人称海岛射击，带滑铲与抓钩 | [harbor-skirmish](templates/games/harbor-skirmish/) |
+| **空镇回声 (Hollow Signal)** | 恐怖 | 极简 | 16:9 横屏 | 在理智耗尽前穿越静电噪音锁定四段信号 | [hollow-signal](templates/games/hollow-signal/) |
+| **景阳冈 (Jingyang Ridge)** | 休闲 | 动漫 | 16:9 横屏 | 水墨武松打虎 Boss 战：识破招式前摇、闪避反击 | [jingyang-ridge](templates/games/jingyang-ridge/) |
+| **星港三线炮台 (Lane Turret)** | 射击 | 像素 | 9:16 竖屏 | 三线炮台瞄准射击、收集卡牌坚守十波 | [lane-turret](templates/games/lane-turret/) |
+| **灯笼跳跃 (Lantern Hop)** | 平台 | 像素 | 16:9 横屏 | 像素狐狸月夜屋檐无尽二段跳跑酷 | [lantern-hop](templates/games/lantern-hop/) |
+| **最后的光 (Last Light)** | 恐怖 | 极简 | 16:9 横屏 | 废弃校园手电筒寻钥逃生 | [last-light](templates/games/last-light/) |
+| **灯塔手记 (Lighthouse Log)** | 叙事 | 动漫 | 16:9 横屏 | 七个暴风雨夜的燃料分配与电台道德抉择 | [lighthouse-log](templates/games/lighthouse-log/) |
+| **合成小烘焙 (Merge Bakery)** | 休闲 | 动漫 | 9:16 竖屏 | 烘焙面团、拖拽合成点心并在 90 秒内完成订单 | [merge-bakery](templates/games/merge-bakery/) |
+| **霓虹漂移 (Neon Drift)** | 竞速 | 3D | 16:9 横屏 | 赛博霓虹雨夜高架车流穿梭与氮气加速 | [neon-drift](templates/games/neon-drift/) |
+| **夜行列车的信 (Night Train Letters)** | 叙事 | 极简 | 16:9 横屏 | 雨夜海滨列车的温情分支文字冒险 | [night-train](templates/games/night-train/) |
+| **潜望深渊 (Periscope Depth)** | 射击 | 极简 | 16:9 横屏 | 潜艇巡航：潜望镜发射鱼雷，下潜躲避声呐深水炸弹 | [periscope-depth](templates/games/periscope-depth/) |
+| **熔金拔针 (Pin Rescue)** | 休闲 | 极简 | 9:16 竖屏 | 拔针混合水火、避开岩浆赢取金币的五关解谜 | [pin-rescue](templates/games/pin-rescue/) |
+| **屋顶咖啡 (Rooftop Roast)** | 休闲 | 极简 | 16:9 横屏 | 可一键换品牌的门店营销小游戏（修改一个 `SHOP` 对象即可换皮） | [rooftop-roast](templates/games/rooftop-roast/) |
+| **霓虹天际跑者 (Sky Runner)** | 竞速 | 3D | 9:16 竖屏 | 赛博 3D 悬浮滑板变道跑酷与吃币加速 | [sky-runner](templates/games/sky-runner/) |
+| **天际快递员 (Skyline Courier)** | 平台 | 3D | 16:9 横屏 | 3D 赛博楼顶蹬墙跳与 90 秒限时派送 | [skyline-courier](templates/games/skyline-courier/) |
+| **史莱姆膨胀城 (Slime Swell)** | 休闲 | 极简 | 9:16 竖屏 | 60 秒吞噬城市物品、击败三名对手史莱姆 | [slime-swell](templates/games/slime-swell/) |
+| **色环归位 (Sort Stack)** | 休闲 | 极简 | 9:16 竖屏 | 同色圆环归柱解谜，支持撤销，挑战五关计时 | [sort-stack](templates/games/sort-stack/) |
+| **叠叠月 (Stack the Moon)** | 休闲 | 极简 | 16:9 横屏 | 单指精准叠起月光天文台，连击完美落位 | [stack-the-moon](templates/games/stack-the-moon/) |
+| **星辉堡垒 (Starlight Bastion)** | 射击 | 体素 | 16:9 横屏 | 五波体素敌人晶核防卫战 + 局间升级 | [starlight-bastion](templates/games/starlight-bastion/) |
+| **破潮者 (Tidebreaker)** | 竞速 | 3D | 16:9 横屏 | 风暴群岛 3D 快艇跳浪与限时过关竞速 | [tidebreaker](templates/games/tidebreaker/) |
+| **倾斜神庙 (Tilt Temple)** | 休闲 | 3D | 9:16 竖屏 | 3D 悬浮迷宫拖动倾斜滚球，拿钥匙闯三关 | [tilt-temple](templates/games/tilt-temple/) |
 
-### 数据故事与图表
-
-<table width="100%">
-<tr>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/mathematics-as-evolving-geometry.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/a1044ff2c0fadb69adc1eb9274e40665d7b4f87cd95e951d5dcb0e0d1cbedf1b.gif" width="480" alt="用图形讲解复杂概念"></picture><br>
-<strong>OpenAI · 用图形讲解复杂概念</strong><br>
-通过共用的点与连线，让一个几何图形自然变成下一个。<br>
-<a href="https://open-design.ai/templates/mathematics-as-evolving-geometry-motion-design/">查看模板</a>
-</td>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="https://releases.open-design.ai/open-motion/media/sha256/be5fc241ac81b90d7e7ded0bf1c90040d2823e6c659420d636722b5935c6e452.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/86184ef3b1da142db2dde7cfda80b69635e5adb9c2f6d0c0b87dc9c3e0bc7cb5.gif" width="480" alt="逐层呈现结果"></picture><br>
-<strong>Anthropic · 逐层呈现结果</strong><br>
-先给出总览，再展开单项发现，最后呈现每项结果对应的操作。<br>
-<a href="https://open-design.ai/templates/scan-to-suggested-fix-motion-design/">查看模板</a>
-</td>
-</tr>
-</table>
-
-### 音乐与艺术视觉
-
-<table width="100%">
-<tr>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/controllable-song-composition.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/5e5f90231e7f456d70f002694eae9f3b1605bc06240e98224f719c8e1dcbbfa0.gif" width="480" alt="展示音乐逐步成形"></picture><br>
-<strong>ElevenLabs · 展示音乐逐步成形</strong><br>
-把提示词、段落与节奏连接到波形和最终音乐。<br>
-<a href="https://open-design.ai/templates/controllable-song-composition-motion-design/">查看模板</a>
-</td>
-<td width="50%" valign="top">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/live-templates/living-waveform-poster.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/1c892636aac9911c05b6aa44667d1e18c7b8813a47d55d408ba21595020cb121.gif" width="480" alt="让音乐海报动起来"></picture><br>
-<strong>Deezer · 让音乐海报动起来</strong><br>
-让标题保持稳定，用周围流动的波形表达节奏。<br>
-<a href="https://open-design.ai/templates/living-waveform-poster-motion-design/">查看模板</a>
-</td>
-</tr>
-</table>
-
-<a id="creator-video-gallery"></a> <a id="presenter-motion"></a>
-
-### AI 口播剪辑
-
-以真人讲述为主线，用字幕、画面插入和关键词动画突出重点，为自己的录制内容找到合适的表达方式。
-
-<table width="100%">
-<tr><th colspan="3" align="left">🎓 教学与讲解</th></tr>
-<tr>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/careerwithriya.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/7716c7166bf9f098f67845d55872e08f5765eaeb1439eb5760db785fa6d2d41e.gif" width="216" alt="真人视频参考：改变职业生涯的 6 项关键技能"></picture><br>
-<strong>改变职业生涯的 6 项关键技能</strong><br>
-编号要点 + 动态关键词<br>
-<sub>参考 · @careerwithriya</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/dan-martell-tools.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/0d7e7316322a28b6ce9013beaee4208c84b12bbb5565f04fcbc175c72e6aeadc.gif" width="216" alt="真人视频参考：现在最好的 AI 工具是什么？"></picture><br>
-<strong>现在最好的 AI 工具是什么？</strong><br>
-出镜讲解 + 悬浮工具卡片<br>
-<sub>参考 · Dan Martell</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/harpercarrollai.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/9b4a957dc004efc4f1ddfdfed546ca3ccc6b1a1978c15d0887d0175b84caa39f.gif" width="216" alt="真人视频参考：10 天 AI 基础，第 1 天"></picture><br>
-<strong>10 天 AI 基础，第 1 天</strong><br>
-个人讲解 + 清晰字幕<br>
-<sub>参考 · @harpercarrollai</sub>
-</td>
-</tr>
-<tr><th colspan="3" align="left">🖥️ 展示工作流</th></tr>
-<tr>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/ali-abdaal-workflow.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/03b9096a894f0572289ec31f9476854e660113852a97b4898c5b88158030b9a8.gif" width="216" alt="真人视频参考：我每天使用的 5 个工具"></picture><br>
-<strong>我每天使用的 5 个工具</strong><br>
-桌边讲述 + 工作流插画面<br>
-<sub>参考 · Ali Abdaal</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/john-tagudin-capso.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/a8a09b0b4837125c948bcdeff964ae7a9ff971ea0275927d045bc72f81141d72.gif" width="216" alt="真人视频参考：带重点标注的工具演示"></picture><br>
-<strong>带重点标注的工具演示</strong><br>
-真人 + 屏幕 + 标注<br>
-<sub>参考 · @john.tagudin</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/aiwithsachi.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/e04f9c2fdfb1bce2a2f83bbf28bde8765af58c589bb52b904694ff8113d61a7e.gif" width="216" alt="真人视频参考：值得安装的 5 个 Claude 插件"></picture><br>
-<strong>值得安装的 5 个 Claude 插件</strong><br>
-口述清单 + 说明截图<br>
-<sub>参考 · @aiwithsachi</sub>
-</td>
-</tr>
-<tr><th colspan="3" align="left">🎬 讲故事，展示产品</th></tr>
-<tr>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/khris-sheer-founder.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/0359b48294cb978df976f9ae2ab6ca4644854bee438dca09accc1144c30259bc.gif" width="216" alt="真人视频参考：创始人实验，第 1 集"></picture><br>
-<strong>创始人实验，第 1 集</strong><br>
-创始人日记 + 日常补充镜头<br>
-<sub>参考 · @khris.sheer</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/ugc-rachelll.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/0b779052281e89a3efc44e5a4b4492e245a12a14c0c5118813e59876419ad5c5.gif" width="216" alt="真人视频参考：AI 创作者与产品"></picture><br>
-<strong>AI 创作者与产品</strong><br>
-产品故事 + 证据 + 画中画<br>
-<sub>参考 · @ugc.rachelll</sub>
-</td>
-<td width="33%" valign="top" align="center">
-<picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/readme/people/kevinstratvert.jpg"><img src="https://releases.open-design.ai/open-motion/media/sha256/31655004df5561a835eacd093fdd7e2a247b3c5fec0a9074ce59c6d9c9c56291.gif" width="216" alt="真人视频参考：别再为 5 个 AI 工具付费"></picture><br>
-<strong>别再为 5 个 AI 工具付费</strong><br>
-产品教程 + 实际演示<br>
-<sub>参考 · Kevin Stratvert</sub>
-</td>
-</tr>
-</table>
+</details>
 
 <a id="features"></a>
-<a id="为什么选择-openmotion"></a>
 
-## ✨ 为什么选择 OpenMotion
+## ✨ 核心能力
 
-<a id="what-is-openmotion"></a> <a id="openmotion-是什么"></a> <a id="video-is-code"></a>
+### 1. 一键复刻与一键风格化 —— 游戏即开源工程代码
 
-### 1. 全栈 Agentic 视频创作工作室
+从空白提示词让大模型直接写出好玩、不崩的游戏门槛极高。OpenGame 把**可验证的游戏工程骨架**与**题材、画风、角色和素材**解耦：
 
-**用 HTML 写视频。** OpenMotion 用 HTML、CSS、JavaScript 描述场景、字体、布局、转场和时间。实拍、生成片段、图片、音乐和旁白作为合成素材，同一工程可在 Studio 打开并渲染为 MP4。
+- **每一款游戏都是清晰可编辑的源码**：`index.html`、确定性核心逻辑 `logic.js`、3D 场景内置 Three.js，以及结构化设计文档（`design/plan.md`、`design/style.md`、`design/assets.csv`、`design/verification.md`）。
+- **一键 Remix 复刻**：在 Game Studio 点击任意模板的 **Remix**（或在 Agent 对话中指定模板），即可派生独立可编辑草稿，完整继承操控、数值配置表与自动化测试钩子。
+- **一键 Re-style 风格化**：保留已经验证过的物理手感与胜负循环，自由替换世界观、角色、美术风格与配乐——**DeepSeek** 等低成本模型也能稳定改出高质量成品；**Claude Fable 5.2**、**Opus**、**Codex**、**Gemini** 等顶级模型更可直接从零创作复杂 3D 游戏。
 
-![本地 Agent、可选媒体模型账号和创作资源共同支持参考理解、场景编码、素材生成、剪辑及 MP4 渲染，并保留可复用源码。](docs/readme/diagrams/creation-stack.zh-CN.svg)
+**直接在 Agent 中试试这些提示词：**
 
-**编写、观看、修改、渲染。** 让 Agent 替换产品、精简开头、加入真人、修改字幕或尝试新结尾。它修改工程源码，你在可视化编辑器中审阅。本地 MCP 客户端使用工程工具，具备 shell 的 Agent 还可遵循 Skills 和固定版本 CLI 工作流。[Agent 配置](#agent-setup) · [原生合成指南](skills/openmotion-production/references/native.md) · [HTML 示例工程](template-library/product-promo/index.html)
+```text
+# 1. 一键复刻 + 换画风（极适合 DeepSeek 等高性价比模型快速出活）
+使用 openmotion-game 复刻「灯笼跳跃 (Lantern Hop)」模板，把它风格化为赛博雨夜猫咪跑酷：保留原有二段跳手感与计分循环，把狐狸和灯笼换成霓虹机械猫与全息电池，生成新的角色立绘和合成波 BGM，最后完成校验、无头试玩并截取新封面。
+```
 
-<a id="studio-in-use"></a>
+```text
+# 2. 制作可直接投放的 9:16 竖屏试玩广告 (Playable Ad)
+使用 openmotion-game 创建一个 9:16 竖屏试玩广告（playableAd: true），题材为中世纪塔防手游：首帧即玩并带手势引导、25 秒爽快波次战斗、结尾展示带 App Store / Google Play 转化按钮的结束页。完成 390x844 试玩验证并打包为单文件 HTML。
+```
 
-<img src="docs/readme/live-product/editor.zh-CN.jpg" width="100%" alt="Studio 示例工程：左侧是片段列表，中间是视频预览，下方是场景时间线和音频波形。">
-
-在同一个 Studio 工作区中预览视频、排列片段并导出成片。
-
-#### 在 Studio 里可以改什么
-
-| Studio 中 | 当前可以做什么 |
-| --- | --- |
-| **故事与时间轴** | 导入、排列素材，让 Agent 按脚本或确认的时间码精简、重排和改稿 |
-| **动效与字幕** | 围绕内容编写动态文字、转场、标注、图表和字幕 |
-| **素材与声音** | 导入素材，通过内置模型集成生成图片、视频、音乐和 TTS 旁白 |
-| **图片修改** | 用支持参考图的模型生成候选，采用替换时保留时间和动画 |
-| **预览与版本** | 在 Studio 审阅，手动或让 Agent 修改，保留工程供后续迭代 |
-| **导出与源码** | 将固定版本渲染为 MP4，保留 HTML、CSS、JavaScript 和素材 |
-
-> “保留已确认的揭示效果。中间场景换成这段屏幕录制，按这些时间码精简开头，最后的 CTA 多停留两秒。”
-
-[工程与版本](docs/project-workspace.md)
-
-<a id="分享可编辑的复刻工程"></a>
-
-#### 从参考片到可编辑的复刻工程
-
-1. **拆解参考片。** 选一段想复刻的镜头，用 Motion.md 记下镜头顺序、转场和声音落点，标出要换成自己品牌的部分。
-2. **重建镜头。** Agent 按你的品牌视觉规范，结合文案和产品画面重建 HTML 场景，在 Studio 里排成一条可编辑的时间轴。
-3. **对照审片。** 在同一时间点比较原片与复刻结果，微调镜头时长、动作和声音，再播放整段确认节奏。
-4. **导出和分享。** 渲染 MP4，保留 HTML 源码和素材。要让其他人改编，可以把 Motion.md、预览和可分享的素材随工程一起提交。[工程提交清单](library/ENTRY_TEMPLATE.md)
-
-<a id="bring-your-agent-and-keys"></a>
-
-### 2. 完全开源免费，在本地 Agent 直接用，每一层都支持 BYOK
-
-<a id="choose-agent"></a>
-
-**选择你的 Agent。** WorkBuddy、Codex、Claude Code 和 DeepSeek Harness 可直接查看安装步骤。其他按钮打开通用的 MCP 和 CLI 接入说明。
-
-<p>
-  <a href="#workbuddy-setup"><img src="docs/readme/agents/workbuddy-badge.svg" width="144" height="34" alt="WorkBuddy" /></a>
-  <a href="#agent-setup"><img src="docs/readme/agents/codex-badge.svg" width="144" height="34" alt="Codex CLI" /></a>
-  <a href="#claude-setup"><img src="docs/readme/agents/claude-code-badge.svg" width="144" height="34" alt="Claude Code" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/opencode-badge.svg" width="144" height="34" alt="OpenCode" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/hermes-badge.svg" width="144" height="34" alt="Hermes" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/antigravity-badge.svg" width="144" height="34" alt="Antigravity" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/gemini-badge.svg" width="144" height="34" alt="Gemini CLI" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/grok-build-badge.svg" width="144" height="34" alt="Grok Build" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/kimi-badge.svg" width="144" height="34" alt="Kimi CLI" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/cursor-badge.svg" width="144" height="34" alt="Cursor Agent" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/qwen-badge.svg" width="144" height="34" alt="Qwen Code" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/qoder-badge.svg" width="144" height="34" alt="Qoder CLI" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/copilot-badge.svg" width="144" height="34" alt="GitHub Copilot" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/pi-badge.svg" width="144" height="34" alt="Pi" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/kiro-badge.svg" width="144" height="34" alt="Kiro CLI" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/kilo-badge.svg" width="144" height="34" alt="Kilo" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/vibe-badge.svg" width="144" height="34" alt="Mistral Vibe" /></a>
-  <a href="#deepseek-setup"><img src="docs/readme/agents/deepseek-badge.svg" width="144" height="34" alt="DeepSeek TUI / Harness" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/reasonix-badge.svg" width="144" height="34" alt="Reasonix" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/aider-badge.svg" width="144" height="34" alt="Aider" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/devin-badge.svg" width="144" height="34" alt="Devin" /></a>
-  <a href="#local-agent-connection"><img src="docs/readme/agents/trae-badge.svg" width="144" height="34" alt="Trae CLI" /></a>
-</p>
-
-| 自带什么 | 如何用于视频 |
-| --- | --- |
-| **🤖 Agent — BYOA** | 通过 Skills 和 MCP 连接现有本地 Agent，受支持时也可使用 CLI。保留惯用客户端、账号和工作上下文。 |
-| **🔑 Key — BYOK** | 在 Model Settings 配置受支持的媒体 API 密钥，选择图片、视频、音乐和 TTS 模型；受支持的本地媒体集成可使用已有 Agent 登录。 |
-| **🎨 品牌与素材** | 加入标志、字体、截图、实拍、脚本和音乐，在 Motion.md 的 Brand Kit 章节记录品牌信息和获准使用的素材。 |
-| **🧩 起步资源** | 浏览参考、动效组件、模板和社区 Skills，选择方向，把源码或参考交给 Agent，做成自己的作品。 |
-
-**OpenMotion 创作流程全部开源：Skills、工程工具、模型集成、Studio 和渲染。** 本地运行、检查实现、按需扩展。这条本地工作流不收软件订阅或单次渲染费，也可以只用自己的视频、图片和声音，不调用生成 API。
-
-供应商凭据保存在工作区配置中。Agent 订阅和第三方模型调用按各自的规则计费。 [各 Agent 接入方式与验证状态](docs/agent-adapters.md)
-
-<a id="make-your-motion-language-reusable"></a> <a id="motion-design-community"></a>
-
-### 3. 300 多份 Motion.md，让视频复刻有据可循
-
-OpenMotion 首次定义了 **Motion.md**：用 Markdown 记录镜头顺序、时长、转场和可替换素材。线上模板库将参考视频与动效说明集中在同一个详情页。
-
-Brand Kit 章节记录品牌身份、语气和已确认的产品信息；Design 章节可引用独立的 `DESIGN.md` 复用视觉规则。保留参考片的运动方式与节奏，同时让成片呈现自己的品牌。
-
-分享行业或品牌体系时，可使用 [Motion Package v0.2 草案](docs/motion-package-spec.md)和[编写工具](packages/motion-package/README.md)，把设计与动效文档、素材、依赖声明和可选的 `SKILL.md` 打包。随附配方演示两个主题输入；包校验不等于 Studio 自动导入或成片还原度验收。
-
-![Motion.md and brand context](docs/readme/diagrams/creative-context.svg)
-
-<a id="resources-to-start-from"></a> <a id="motion-gallery"></a>
-
-#### 选好模板，再换成自己的内容
-
-按**参考品牌、使用场景和视频类型**筛选，也可以直接搜索。模板详情页集中提供预览、风格描述、制作要点和 Motion.md 下载。在 Studio 点击**复刻模板**，即可复制指令交给 Agent。
-
-仅有参考视频的条目会进入复刻流程；提供可编辑源码的条目可以直接交给 Agent 改编。
-
-![选好模板，再换成自己的内容](docs/readme/live-product/library.zh-CN.jpg)
-
-[浏览全部线上模板](https://open-design.ai/templates/)
-
-<a id="all-in-one-studio"></a> <a id="full-video-creation-stack"></a>
+```text
+# 3. 从零制作 3D 原创游戏（适合 Claude Fable 5.2 / Opus / Codex / Gemini）
+使用 openmotion-game 从零制作一款 3D 国风武侠 Boss 决斗游戏（style: "3d"），场景设在黄昏迷雾竹崖，包含弹反判定、闪避无敌帧、体力管理与两阶段 Boss 战。运行三档仿真与无头浏览器试玩，截取 1280x720 封面并自动录制 19 秒实机预告片。
+```
 
 <a id="model-wall"></a>
 
-### 4. 多模态生成：图片、视频、音乐与语音
+### 2. 全栈多模态素材生成（BYOK）
 
-**BYOK 将你的多模态账号接入视频工作流。** 在 **Model Settings** 添加受支持的 Key、选择模型，通过 Studio 的 **Model Gateway** 生成图片、视频、音乐和语音。预览候选并采用到同一工程。受支持的本地图片路径可复用已有 Agent 登录。
+一款完整的游戏离不开主视觉、角色立绘、3D 无缝贴图、背景音乐、角色配音和清脆音效。OpenGame 通过内置 **Model Gateway** 将多模态生成直接接入游戏工程，同时让 API Key 留在本地工作区，不写入游戏源码。
 
-在**模型设置**中连接 fal.ai 并刷新目录，即可查找 GPT Image 2.6、Nano Banana 2.1、FLUX.3、Seedance 2.5、Kling 4.0、Wan 3.0 和 Eleven v4。下方列出的预设在刷新前也可查看。
+<p>
+  <img src="docs/readme/opengame/models/gpt-image.svg" width="148" alt="GPT Image">
+  <img src="docs/readme/opengame/models/seedream.svg" width="148" alt="Seedream">
+  <img src="docs/readme/models/nano-banana.svg" width="148" alt="Nano Banana 2">
+  <img src="docs/readme/models/flux.svg" width="148" alt="FLUX">
+  <img src="docs/readme/models/codex.svg" width="148" alt="Codex Image"><br>
+  <img src="docs/readme/models/seedance.svg" width="148" alt="Seedance">
+  <img src="docs/readme/models/wan.svg" width="148" alt="Wan">
+  <img src="docs/readme/models/suno.svg" width="148" alt="Suno">
+  <img src="docs/readme/models/elevenlabs.svg" width="148" alt="ElevenLabs">
+  <img src="docs/readme/opengame/models/byteplus.svg" width="148" alt="BytePlus Voice">
+</p>
 
-<p><img src="docs/readme/models/codex.svg" width="133" alt="Codex Image">
-<img src="docs/readme/models/nano-banana.svg" width="133" alt="Nano Banana 2">
-<img src="docs/readme/models/flux.svg" width="133" alt="FLUX Schnell">
-<img src="docs/readme/models/seedance.svg" width="133" alt="Seedance 2.0">
-<img src="docs/readme/models/wan.svg" width="133" alt="Wan 2.2">
-<img src="docs/readme/models/suno.svg" width="133" alt="Suno v4">
-<img src="docs/readme/models/kokoro.svg" width="133" alt="Kokoro"></p>
-
-| 视频所需素材 | 内置模型目录示例 | 如何用于影片 |
+| 游戏素材层 | 推荐模型（在 Model Settings 配置后自动发现） | 零 Key / 代码内建降级方案 |
 | --- | --- | --- |
-| **🖼️ 图片** | Codex Image；Atlas Cloud 的 Nano Banana 2；fal.ai 的 FLUX Schnell | 品牌视觉、场景美术、辅助图片；Codex Image 或支持编辑的 OpenDesign 账号图片模型可基于参考图编辑 |
-| **🎬 视频** | Atlas Cloud 的 Seedance 2.0；fal.ai 的 Wan 2.2 | 生成镜头和 B-roll，与实拍及动效组合 |
-| **🎵 音乐** | Atlas Cloud 的 Suno v4 | 根据情绪和创作简报生成配乐 |
-| **🎙️ TTS / 旁白** | fal.ai 的 Kokoro | 根据已确认脚本生成旁白，编排到画面和音乐中 |
+| **🖼️ 主视觉、角色立绘、精灵与贴图** | `GPT Image 2.6`（支持参考改图与透明底）、`Seedream 5.5` / `5.0 Flash`、`Nano Banana 2`、`FLUX`、`Codex Image` | 高质量 Canvas / SVG 程序化绘制与程序纹理 |
+| **🎵 背景音乐（菜单 / 关卡 / Boss 战）** | `ElevenLabs Music v2`（`no vocals` 纯音乐循环）、`Suno v4` | Web Audio API 实时合成配乐循环 |
+| **🎙️ 角色语音与旁白播报** | `ElevenLabs v3`（多语种）、`BytePlus TTS 2`（中文语音）、`Kokoro` | 风格化剧情字幕与对话框 |
+| **🎬 开场过场与动效片段** | `Wan 2.7`、`Seedance 2.5`（短时 I2V 动画片段） | 引擎内实时运镜与开场动画 |
+| **🔊 打击、跳跃、金币与 UI 音效** | 直接在游戏代码中通过 Web Audio API 实时合成 | 同左（零延迟、零外链资源） |
+| **🧊 3D 场景与模型** | 内置 **Three.js** + CC0 套件 + 3D 网关预留槽位（接入即自动发现） | Three.js 程序化建模、光照与着色器 |
 
-> “使用 Motion.md 中的 Brand Kit 和已确认脚本，生成开场美术、插入视频、背景音乐和 TTS。把选中的结果加入重建工程，对齐声画，再展示完整剪辑。”
+> 本地开源创作栈本身完全免费，不收软件订阅费。你可以在 **Model Settings** 填入自有供应商 Key、接入 [OpenDesign Go](https://go.open-design.ai/?utm_source=github&utm_medium=referral&utm_campaign=opengame&utm_content=readme_zh) 统一订阅，或完全使用纯代码零成本方案生成游戏。[模型目录](gateway/catalog.ts) · [供应商配置指南](docs/model-gateway.md)
 
-[内置模型目录](gateway/catalog.ts) · [供应商配置与端点注册](docs/model-gateway.md)
+### 3. 自动化游戏 QA、三档数值仿真与自动预告片
+
+不靠盲猜「代码大概能跑」——OpenGame 在交付可玩成品前内建完整自动化验证闭环：
+
+1. **静态规范与 50-Tick 逻辑冒烟 (`openmotion_game_validate`)** —— 校验 `index.html`、资源策略与确定性核心导出，确保单帧逻辑 `< 5 ms`。
+2. **三档无头数值仿真 (`openmotion_game_simulate`)** —— 无需拉起浏览器即可自动验证：标准操作路线能达成真正胜利里程碑、弱操作路线会吃力受挫、挂机路线会在 `< 2500` tick 内正常失败。
+3. **无头 Chrome 真操作试玩 (`openmotion_game_playtest`)** —— 启动 1–4 个独立浏览器客户端执行真实键鼠/触屏脚本，核验 3C 操控手感、`390×844` 移动端适配、生成素材加载状态，以及控制台/网络零报错。
+4. **纯画布高清封面截取 (`openmotion_game_capture_cover`)** —— 在隔离的无头 Chrome 中自动截取 `1280×720` 游戏画布 PNG 到 `assets/cover.png`。
+5. **自动实机预告片 (`openmotion_game_trailer`)** —— 自动录制 3 段 5 秒 `1280×720` 实机片段，合成约 19 秒带封面与「立即游玩」尾板的可编辑视频工程并渲染为 MP4，直接用于社媒宣发。
+
+<a id="publish-monetize"></a>
+
+## 🚀 端到端分发与变现路径
+
+让做出来的游戏不止停留在本地——能玩、能分享、能上架、能赚钱。
+
+| 环节 | 当前已支持 | 路线图（推进中） |
+| --- | --- | --- |
+| **本地游玩与模板库** | 一键发布到本地 OpenGame Studio 游戏市场（`openmotion_game_publish`），支持游玩计数、收藏与一键 Remix | **TOP 100 赚钱小游戏模板专栏**，覆盖高变现玩法壳子，拿来即可复刻换皮 |
+| **一键公网分享链接** | 登录后通过 OpenDesign Cloud（`openmotion_assets_use action="web_publish"`）自动重写本地素材路径、压缩资源并生成可分享的在线游玩 URL | 自定义域名与可嵌入试玩卡片 |
+| **移动端试玩广告** | 内置 **9:16 Playable Ad 模式**（`playableAd: true`）：首帧即玩、手势引导、短关卡、单文件内联 HTML 与 App Store / Google Play 转化卡片 | 主流广告平台一键打包预设（AppLovin / Unity Ads / Meta / TikTok） |
+| **小游戏平台上架与变现** | 干净自包含的 HTML5 / JS 工程源码 + 自动录制的实机宣传预告片，方便直接封装投稿与买量宣发 | **L1–L4 分级平台上架引导页面与打包 Skill**：覆盖**微信小游戏**、**抖音小游戏**、**TikTok**、**小红书小工具市场**以及 **itch.io / CrazyGames / Poki** |
+| **AI 模型游乐场** | 本地单人试玩与已有联机房间的自动入房测试 | **多模型实时游戏对战（AI Arena）**——让多个大模型在游戏里同场实时博弈 |
 
 <a id="technical-guide"></a>
-<a id="安装与技术文档"></a>
 
-## 🛠️ 安装与技术文档
+## 🛠️ 接入配置与 12 个游戏 MCP 工具
 
-### 从源码安装
+<a id="agent-setup"></a> <a id="choose-agent"></a>
 
-任何 Agent 入口安装成功后，都应在当前对话按 [安装回复规则与示例](docs/install.md#installation-success-reply) 发出体验邀请。安装结果附带真实模板摘要；用户接受后才按所选模板创建工程。
+### 接入你的本地 Agent
 
-通过 Agent 安装，请使用[上方的安装指令](#quick-start)。如需从源码运行，使用下面的步骤。
+点击下方图标跳转对应配置，把本地 OpenGame MCP 服务与游戏 Skill 接入你的常用 Agent：
 
-#### 运行 OpenMotion
+<p>
+  <a href="#deepseek-setup"><img src="docs/readme/agents/deepseek-badge.svg" width="144" height="34" alt="DeepSeek TUI / Harness" /></a>
+  <a href="#claude-setup"><img src="docs/readme/agents/claude-code-badge.svg" width="144" height="34" alt="Claude Code" /></a>
+  <a href="#codex-setup"><img src="docs/readme/agents/codex-badge.svg" width="144" height="34" alt="Codex CLI" /></a>
+  <a href="#workbuddy-setup"><img src="docs/readme/agents/workbuddy-badge.svg" width="144" height="34" alt="WorkBuddy" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/opencode-badge.svg" width="144" height="34" alt="OpenCode" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/hermes-badge.svg" width="144" height="34" alt="Hermes" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/antigravity-badge.svg" width="144" height="34" alt="Antigravity" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/gemini-badge.svg" width="144" height="34" alt="Gemini CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/grok-build-badge.svg" width="144" height="34" alt="Grok Build" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/kimi-badge.svg" width="144" height="34" alt="Kimi CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/cursor-badge.svg" width="144" height="34" alt="Cursor Agent" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/qwen-badge.svg" width="144" height="34" alt="Qwen Code" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/qoder-badge.svg" width="144" height="34" alt="Qoder CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/copilot-badge.svg" width="144" height="34" alt="GitHub Copilot" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/pi-badge.svg" width="144" height="34" alt="Pi" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/kiro-badge.svg" width="144" height="34" alt="Kiro CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/kilo-badge.svg" width="144" height="34" alt="Kilo" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/vibe-badge.svg" width="144" height="34" alt="Mistral Vibe" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/reasonix-badge.svg" width="144" height="34" alt="Reasonix" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/aider-badge.svg" width="144" height="34" alt="Aider" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/devin-badge.svg" width="144" height="34" alt="Devin" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/trae-badge.svg" width="144" height="34" alt="Trae CLI" /></a>
+</p>
 
-**从免费本地创作全栈开始。** 连接自己的 Agent、打开内置模板或导入实拍，用本地应用渲染。需要生成新素材时，在 Model Settings 加入受支持的媒体 Key。
-
-准备 Git、npm 和 **Node.js 26.11.1**。从源码预览和导出还需要 Chrome/Chromium 和 FFmpeg/FFprobe。[运行环境配置](docs/usage.md)
-
-```sh
-git clone --branch main https://github.com/nexu-io/openmotion.git openmotion
-cd openmotion
-npm ci
-npm run build:studio
-npm start
-```
-
-在浏览器中打开 <http://localhost:4173>，进入**模板库**，选择模板并点击**复刻模板**，复制指令给你的 Agent。工程与凭据保存在代码仓库之外；用 `MOTION_DATA_DIR` 选择工作区。
-
-<a id="agent-setup"></a>
-
-#### 接入你的 Agent
-
-支持插件的 Codex 可在 checkout 中运行：
-
-```sh
-bash scripts/install-motion.command
-```
-
-<a id="workbuddy-setup"></a>
-
-**WorkBuddy** · 在 WorkBuddy 中导入 OpenMotion Connector，或将它提供的 `mcp.json` 添加为自定义 MCP，然后让 WorkBuddy 列出可用的视频模板。[WorkBuddy 接入说明](docs/agent-adapters.md#workbuddy)
-
-<a id="claude-setup"></a>
-
-**Claude Code** · 按[手动 MCP 配置](#manual-mcp)连接这份源码，再运行 `/mcp` 检查连接。
-
-<a id="deepseek-setup"></a>
-
-**DeepSeek** · 在 DeepSeek TUI 中可从终端操作可编辑的 HTML 工程。使用 DeepSeek Harness 时，可通过 Cordis 配置连接 OpenMotion 的 MCP 工具。[DeepSeek Harness 配置](docs/agent-adapters.md#deepseek-harness)
-
-本地安装器使用本地构建的包。[Windows 测试包](docs/test-packages.md)
-
-先试一个线上模板：
-
-> 用 OpenMotion 复刻这个模板详情页的视频，替换成我提供的 Brand Kit 和文案。保留动作与节奏，在 Studio 中打开可编辑结果供我检查。
-
-要从视频开始，请提供参考并使用[复刻简报](#reverse-engineer-a-video)。宿主无法在对话旁打开 Studio 时，可使用返回的本地工程链接。
-
-##### Skills、MCP 与 CLI
-
-插件与 MCP 服务名称为 `openmotion`；Tools、Skills 与资源分别使用 `openmotion_*`、`openmotion-*` 和 `openmotion://`。旧 Tool 和资源名称保留兼容；旧 Skill 入口已移除，请使用 `openmotion-*`，升级后刷新宿主 Skill 列表。[命名与安装兼容说明](docs/npm-installation.md#public-names-and-compatibility)
-
-在 checkout 中发现并安装五个核心工作流，使用 [Skills CLI](https://github.com/vercel-labs/skills):
-
-```sh
-npx skills add ./skills --list
-npx skills add ./skills --skill openmotion-director openmotion-production openmotion-template-to-video openmotion-recreate openmotion-video-to-template
-```
-
-这只复制指引，不安装运行时或注册 MCP。保持共享文档可用并单独连接应用，或使用上面的一体化本地安装器。
-
-| Skill | 用途 |
-| --- | --- |
-| [openmotion-recreate](skills/openmotion-recreate/SKILL.md) | 重建参考视频并对比结果 |
-| [openmotion-template-to-video](skills/openmotion-template-to-video/SKILL.md) | 改编已有可编辑模板 |
-| [openmotion-director](skills/openmotion-director/SKILL.md) | 原创影片、叙事、动作、声音与创作审片 |
-| [openmotion-video-to-template](skills/openmotion-video-to-template/SKILL.md) | 制作便携的可复用模板 |
-| [openmotion-production](skills/openmotion-production/SKILL.md) | 范围明确的修改、预览、检查、排错和导出 |
-
-<a id="local-agent-connection"></a>
-
-**连接其他本地 Agent** · 按照官方安装指南在客户端完成接入。支持 stdio MCP 的客户端可以使用下方配置。对于通过终端工作的 Agent，打开工程目录，用[本机引擎 CLI](skills/openmotion-production/references/native.md) 预览和渲染 HTML 场景。 使用 npm 发布版时，运行 `openmotion setup --host <Agent 名称>`（例如 `opencode`）。setup 会安装应用和 Skills，并返回需要添加的启动器配置。[其他本地 Agent](docs/npm-installation.md#other-local-agents)
+- <a id="deepseek-setup"></a>**DeepSeek TUI / Harness** · 安装 `openmotion-game` Skill，并通过 Cordis 配置连接本地 MCP 工具，或在仓库根目录运行 `node integrations/dsh/install.ts`。[DeepSeek Harness 配置指南](docs/agent-adapters.md#deepseek-harness)
+- <a id="claude-setup"></a>**Claude Code** · 添加下方 stdio MCP 配置并安装 `openmotion-game` Skill，然后执行 `/mcp` 确认连接就绪。
+- <a id="codex-setup"></a>**Codex CLI** · 在仓库根目录运行 `bash scripts/install-motion.command`，自动完成本地插件与 MCP 注册。
+- <a id="workbuddy-setup"></a>**WorkBuddy** · 导入 Connector 或将下方 `mcp.json` 添加为自定义 MCP 服务。[WorkBuddy 接入说明](docs/agent-adapters.md#workbuddy)
 
 <a id="manual-mcp"></a>
+
+#### 通用手动 stdio MCP 配置（适用于所有支持 MCP 的客户端）
 
 ```json
 {
   "mcpServers": {
     "openmotion": {
       "command": "/absolute/path/to/node",
-      "args": ["--experimental-strip-types", "/absolute/openmotion/mcp.ts"],
-      "env": { "MOTION_DATA_DIR": "/absolute/openmotion-data" }
+      "args": ["--experimental-strip-types", "/absolute/path/to/opengame/mcp.ts"],
+      "env": {
+        "MOTION_DATA_DIR": "/absolute/path/to/opengame-data"
+      }
     }
   }
 }
 ```
 
-**十八个公开 MCP 名称（含一个素材库兼容别名）**覆盖模板发现与详情、Skill 发现与读取、工程创建与读取、编辑、预览、媒体导入与 BYOK 生成、可复用素材版本、工程管理与 ZIP 分享、导出、版本恢复与取消。共享工作流和引擎指引通过 MCP resources 提供。[工具契约](docs/mcp-phase1-tools.md)
+> 请将 `MOTION_DATA_DIR` 指向仓库目录之外的绝对路径，确保你的游戏工程、生成素材和 API 密钥与仓库更新完全隔离。完整接入细节见 [部署与配置指南](docs/opengame-setup.md) · [系统架构说明](docs/opengame-architecture.md)。
 
-用 `openmotion_list_templates` 查找模板，`openmotion_get_template` 查看详情，再用 `openmotion_create_project` 创建可编辑副本。[模板目录](docs/template-catalog.md)
+### 12 个游戏专用 MCP 工具
 
-使用 `npm start` 启动应用，使用 `npm run mcp` 启动 stdio。具备 shell 的 Agent 可使用运行时返回的固定版本引擎 CLI 检查和渲染；托管修改仍遵守工程 revision 校验。[原生创作](skills/openmotion-production/references/native.md)
+OpenGame 通过本地 stdio MCP 暴露完整的游戏开发与测试工具集（沿用 `openmotion_game_*` 命名空间，确保所有既有宿主与适配器无缝兼容）：
 
-<a id="product-tour"></a> <a id="产品界面"></a> <a id="connect-your-agent"></a> <a id="use-from-your-agent"></a> <a id="从-agent-接入"></a> <a id="your-agent-your-studio"></a>
-
-<a id="reverse-engineer-a-video"></a>
-
-### 从参考视频到可编辑工程
-
-| 研究参考 | 为你的故事重建 |
+| MCP 工具 | 用途 |
 | --- | --- |
-| **开头与叙事** — 先出现什么，如何铺垫，何时揭示 | 你的承诺、产品事实与行动号召 |
-| **镜头结构** — 构图、镜头运动、图层与视觉层级 | 你的界面、实拍、标志和辅助图片 |
-| **动效与节奏** — 入场、转场、缓动与阅读停留 | 按你的内容调整相同的运动意图 |
-| **字体与身份** — 字体层级、配色与构图 | 你的字体、色板、文案和 Brandkit |
-| **声音与节拍** — 语音时序、配乐提示与重音 | 你的声音、音乐素材与声音方向 |
+| `openmotion_game_create` | 创建新游戏草稿（支持 2D、内置 Three.js 的 3D，或 9:16 `playableAd` 试玩广告），返回完整 Agent 指令 |
+| `openmotion_game_get` | 读取游戏卡片、当前生命周期状态与全部文件清单 |
+| `openmotion_game_read_file` | 读取游戏工程内的任意源码或设计文档 |
+| `openmotion_game_write_files` | 批量写入多个游戏源码与设计文件（单次最多 100 个文本文件 / 8 MiB） |
+| `openmotion_game_update_meta` | 合并更新标题、简介、操控说明、封面路径及多语言翻译（如 `zh-CN`） |
+| `openmotion_game_validate` | 校验 `index.html`、资源规范、确定性核心导出并执行 50-tick 逻辑冒烟测试 |
+| `openmotion_game_simulate` | 无需浏览器运行三档有界确定性仿真（标准路线通关 / 弱操作受挫 / 挂机失败） |
+| `openmotion_game_playtest` | 启动隔离无头 Chrome（1–4 客户端）验证真实操控、390×844 竖屏布局及控制台无报错 |
+| `openmotion_game_capture_cover` | 直接截取纯游戏画布的 `1280×720` 高清 PNG 保存到 `assets/cover.png` |
+| `openmotion_game_trailer` | 后台录制真实玩法片段并合成导出约 19 秒可编辑 MP4 宣传预告片 |
+| `openmotion_game_set_status` | 更新游戏构建状态（`building`、`ready`、`failed`） |
+| `openmotion_game_publish` | 重新校验并将游戏发布到本地 Game Studio 市场 |
 
-如果 Agent 无法打开社媒链接，可以提供本地视频和时间码。只有原片时使用[参考片复刻流程](skills/openmotion-recreate/SKILL.md)，手里已有可编辑源码时使用[模板流程](skills/openmotion-template-to-video/SKILL.md)。
+配合 **`openmotion_media_use`**（查询已配置的 BYOK 多模态模型）与 **`openmotion_assets_use`**（生成图/音/视素材并调用 `action: "web_publish"` 一键发布在线试玩链接）。[完整 MCP 工具契约](docs/mcp-phase1-tools.md)
 
-```text
-用 OpenMotion 为我们的品牌重建附件参考视频。
+### 游戏工程 Skill 与 18 份专业手册
 
-研究：开头、镜头顺序、字体、转场和声音提示。
-保留：选定片段的产品揭示方式与镜头节奏。
-替换：用提供的素材替换标志、界面、主张、文案和片尾。
-生成：遵循品牌与已确认脚本，通过已配置模型生成缺少的
-图片、视频、背景音乐和 TTS 旁白。
+接入的 Agent 可直接读取 [`skills/openmotion-game/SKILL.md`](skills/openmotion-game/SKILL.md)（或通过 MCP Resource 读取 `openmotion://workflow/game/start`）以及 18 份游戏工程参考文档：
 
-创建可编辑工程，在 Studio 打开并对比参考的对应时刻。
-解释剩余差异。审阅后导出 MP4，保留源码供后续修改。
-```
+| 领域 | 参考手册 |
+| --- | --- |
+| **立项与玩法设计** | [需求简报标准](skills/openmotion-game/references/game-brief.md) · [类型与核心循环](skills/openmotion-game/references/game-genres.md) · [设计体系](skills/openmotion-game/references/game-design-system.md) · [参考拆解与盲区排查](skills/openmotion-game/references/game-lookup.md) |
+| **3C 操控与打击感** | [3C 模块规范](skills/openmotion-game/references/game-3c-modules.md) · [手感与打磨细节](skills/openmotion-game/references/game-feel-craft.md) · [完整制作流](skills/openmotion-game/references/game-flow.md) |
+| **美术、2D/3D 与音频** | [风格化指南](skills/openmotion-game/references/game-stylization.md) · [贴图规范](skills/openmotion-game/references/game-textures.md) · [2D 动画](skills/openmotion-game/references/game-2d-animation.md) · [3D 动画](skills/openmotion-game/references/game-3d-animation.md) · [程序化动效](skills/openmotion-game/references/game-procedural-animation.md) · [音频与 Web Audio](skills/openmotion-game/references/game-audio.md) |
+| **试玩广告与质量门禁** | [试玩广告完整规范](skills/openmotion-game/references/game-playable-ad.md) · [分级质量门禁](skills/openmotion-game/references/game-gates.md) · [验收评分标准](skills/openmotion-game/references/review-rubric.md) |
 
-<a id="ai-video-editing"></a> <a id="keep-editing-after-the-remake"></a>
+### 技术栈与源码导航
 
-<a id="查看模板与-motionmd"></a>
-
-#### 把模板交给 Agent
-
-1. 播放参考视频，展开「风格描述」或「制作要点」查看细节。要保存指南，点击「下载 motion.md」。
-2. 点击「查看完整指令」，再点「复刻模板」复制指令。把指令粘贴到 Agent，附上品牌素材和创作要求。
-3. 在 Studio 打开 Agent 生成的工程，继续剪辑并导出。
-
-![Studio 模板详情全屏：左侧预览参考视频，右侧显示完整指令和「复刻模板」按钮，顶部提示指令已复制。](docs/readme/live-product/remix.zh-CN.jpg)
-
-<a id="open-projects-reusable-knowledge"></a> <a id="developer-architecture"></a>
-
-### 系统架构
-
-在 Studio 调整时间轴，或让 Agent 修改镜头，编辑的都是同一份 HTML 工程。TypeScript 本地服务管理素材和版本，浏览器渲染引擎把选定版本导出为 MP4。
-
-#### 各模块如何协同
-
-![本地 Agent 通过九个 MCP 工程工具连接，Studio 通过本地 HTTP 接入。应用管理版本、素材与导出任务，Model Gateway 向工程提供媒体，渲染器导出并校验选定的工程版本。](docs/readme/diagrams/runtime-architecture.zh-CN.svg)
-
-Agent 通过工程工具写入时会核对版本，避免旧请求覆盖刚完成的修改。生成的素材由你选定后加入工程。每次导出都使用发起导出时的版本，之后的编辑留给下一版。导出器检查文件规格，画面、声音和节奏可以通过播放成片确认。
-
-<details>
-<summary>查看完整架构与路线图文字说明</summary>
-
-```text
-创作输入
-参考视频 + 实拍 + 脚本 + 品牌素材
-                 ↓
-社区知识
-Motion.md + BRANDKIT.md + Skills + 模板 + 组件
-                 ↓
-BYOA：本地 Agent                       OPENMOTION STUDIO
-DeepSeek Harness / Codex / Claude Code  React 19 + TypeScript + Vite
-其他本地宿主、Skills 与宿主分析工具     Tailwind CSS + Zustand
-                 |                     CodeMirror + Dockview
-          stdio MCP                    素材 / 预览 / 时间轴
-          9 个公开工程工具             本地 HTTP
-                 └──────────┬──────────┘
-                            ↓
-本地应用：Node.js + TypeScript + node:http
-会话 / 工程文件 / 素材 / revision / 导出任务
-                 ↓                         ↓
-BYOK：MODEL GATEWAY                    视频即代码
-你的 Key / 账号 / 模型路由             HTML 场景 + 素材 + Studio 数据
-发现 / 生成任务                       HTML + CSS + JavaScript + GSAP
-                 ↓                         ↑
-模型适配器                                 |
-Codex Image / Atlas Cloud / fal.ai          |
-图片 / 视频 / 音乐 / TTS                   |
-                 ↓                         |
-生成候选 → 预览 / 选择 → 显式采用到工程 ────┘
-                            ↓
-渲染与验证
-选定的工程版本 → HTML 引擎 + Chromium → FFmpeg / FFprobe
-                            ↓
-当前交付
-MP4 + 可编辑源码 + 素材 + 版本和导出证据
-                            ↓
-规划中：多平台发布
-平台连接器 → 发布审阅 → 排期 → 表现反馈
-                            ↓
-规划中：知识反馈
-版本关联结果 → 团队记忆 / RAG → 经评估的 Skill 改进
-```
-
-</details>
-
-BYOA 连接已有 Agent 客户端；素材工作区支持直接用模型生成和复用素材。BYOK 连接受支持的模型账号。Studio 与本地服务管理可编辑工程，供应商凭据不写入工程文件。一期公开 MCP 包含**十八个名称：九个工程工具、两个模板目录工具、两个 Skill 库工具、一个工程归档工具、一个工程管理工具、一个 BYOK 媒体工具，以及同一素材库能力的两个名称**。先在 Studio 配置供应商密钥，再用 `openmotion_media_use` 发现模型、经本地 Gateway 生成媒体。用 `openmotion_assets_use`（`openmotion_assets` 仍兼容）上传、查看或生成可复用素材，保留版本，并把选定版本导入影片。[素材库指南](docs/assets.md)。密钥留在服务内；公开 MCP 契约不包含发布。
-
-#### 技术栈与源码索引
-
-| 层次 | 技术 | 阅读入口 |
+| 层级 | 核心技术 | 源码入口 |
 | --- | --- | --- |
-| **Studio 与编辑器界面** | React 19、TypeScript 5.9、Vite 6、Tailwind CSS 4、Zustand、CodeMirror、Dockview | [Studio 源码](studio/src) · [Motion 应用](studio/src/motion/MotionApp.tsx) · [编辑器开发](docs/editor-fork.md) |
-| **应用运行时** | CI 固定 Node.js 26.11.1，原生 HTTP、TypeScript 执行和本地文件/JSON | [server.ts](server.ts) · [workspace.ts](workspace.ts) · [会话架构](docs/session-architecture.md) |
-| **Agent 接入** | 本地 stdio MCP、五个核心 Skills 和生成的宿主适配器 | [mcp.ts](mcp.ts) · [phase1.ts](phase1.ts) · [适配器生成](scripts/export-adapters.ts) |
-| **多模态生成** | Codex 媒体适配器、Atlas Cloud predictions、fal.ai 队列集成与持久化生成任务 | [Gateway 服务](gateway/service.ts) · [供应商适配器](gateway/providers.ts) · [模型目录](gateway/catalog.ts) |
-| **合成与动效** | HTML/CSS/JS、GSAP、固定版本合成引擎与原生时间轴/历史 | [引擎集成](hyperframes.ts) · [模板源码](template-library) · [版本适配器](phase1-versions.ts) |
-| **渲染与媒体** | Chromium、Puppeteer Core、FFmpeg、FFprobe | [渲染服务](server.ts) · [导出校验器](scripts/verify-export.ts) · [原生运行时锁定](scripts/runtime-lock.json) |
-| **创作知识** | Markdown、源码包、预设和对比证据 | [Motion.md](docs/motion-md.zh-CN.md) · [核心 Skills](skills) · [社区资源库](library/README.zh-CN.md) |
-| **验证与打包** | Node 测试运行器、Vitest、Studio 检查、npm 锁文件和显式分发清单 | [测试](tests) · [Studio 测试](studio/tests) · [CI](.github/workflows/ci.yml) · [分发](scripts/distribution.ts) |
-| **发布与学习 — 规划中** | 平台适配器、排期、版本关联反馈与检索，实现仍待设计 | [Studio 蓝图](docs/product/studio-vision.md) |
+| **OpenGame Studio 界面** | React 19, TypeScript 5.9, Vite 6, Tailwind CSS 4, Zustand | [GameStudio.tsx](studio/src/motion/game/GameStudio.tsx) · [gameCatalog.ts](studio/src/motion/game/gameCatalog.ts) |
+| **游戏运行时与自动 QA** | Node.js, 原生 HTTP, Puppeteer Core / Chrome, 确定性仿真器 | [game-projects.ts](game-projects.ts) · [shared/game-contract.ts](shared/game-contract.ts) · [server.ts](server.ts) |
+| **MCP 与游戏 Skill** | 本地 stdio MCP 服务、`openmotion-game` Skill 及 18 份手册 | [mcp.ts](mcp.ts) · [skills/openmotion-game/](skills/openmotion-game/) |
+| **多模态 Model Gateway** | BYOK 模型发现、异步任务轮询、素材库与在线分享发布 | [gateway/service.ts](gateway/service.ts) · [gateway/catalog.ts](gateway/catalog.ts) · [docs/assets.md](docs/assets.md) |
+| **内置游戏模板库** | 26 款独立可玩 HTML5 / Canvas / Three.js 工程与封面 | [templates/games/](templates/games/) |
+| **实机预告片管线** | 无头实机录屏 + HTML 合成 + FFmpeg MP4 渲染 | [docs/usage.md](docs/usage.md) · [scripts/verify-export.ts](scripts/verify-export.ts) |
 
-依赖锁定在 [package.json](package.json)、[package-lock.json](package-lock.json) 和[运行时锁文件](scripts/runtime-lock.json)中。模型和第三方库保留各自条款；应用采用 Apache-2.0。
+<a id="community"></a>
 
-#### 选择一层，一起建设
+## 🤝 一起共建 OpenGame
 
-| 你的方向 | 可贡献的内容 | 入口 |
-| --- | --- | --- |
-| **前端与交互** | 改进时间轴、媒体生成控件、无障碍或预览行为 | [Studio](studio/src) · [媒体生成器](studio/src/motion/MediaGenerator.tsx) |
-| **AI 与模型基础设施** | 沿用共享任务与媒体流程，新增供应商适配器或模型预设 | [Gateway 设计](docs/product/media-generation-design.md) · [供应商适配器](gateway/providers.ts) |
-| **Agent 与开发工具** | 改进宿主适配器、Skill、资源指引或工程工具流程 | [Agent 适配器](docs/agent-adapters.md) · [MCP 契约](docs/mcp-phase1-tools.md) |
-| **动效与创意编程** | 分享组件、原生模板或带真实改编的 Motion.md 包 | [组件](library/components/README.md) · [条目清单](library/ENTRY_TEMPLATE.md) |
-| **视频与渲染** | 改进导出可靠性、媒体处理或可复现验证 | [引擎说明](docs/hyperframes.md) · [导出校验器](scripts/verify-export.ts) |
-| **社交发布** | 设计规划中的连接器层：账号访问、发布审阅、排期和版本映射 | [发布方向](docs/product/studio-vision.md) · [讨论提案](https://github.com/nexu-io/openmotion/issues) |
+欢迎贡献可玩游戏模板、热门小游戏复刻壳子、美术风格指南、微信/抖音/TikTok/itch.io 等平台上架打包脚本，以及 Game Studio 体验优化。
 
-从[本地安装](#quick-start)开始，选择一层，遵循 [CONTRIBUTING.md](CONTRIBUTING.md) 和 [AGENTS.md](AGENTS.md)。工程与凭据放在 checkout 外，保留依赖锁定与上游许可。
-
-[产品架构](docs/product/architecture.md) · [Studio 开发](studio/README.md) · [Model Gateway](docs/model-gateway.md) · [贡献指南](CONTRIBUTING.md)
-
-<a id="one-video-more-places-to-share"></a> <a id="publish-to-every-platform"></a>
-
-<a id="super-motion-video-agent"></a> <a id="status--roadmap"></a> <a id="当前状态与路线图"></a> <a id="roadmap"></a>
-
-### 多画幅交付与发布
-
-为每种画幅调整构图，在 Studio 逐版审阅，再导出 MP4 上传到对应平台。
-
-| 请求的版本 | 需要调整什么 |
+| 贡献方向 | 建议包含内容 |
 | --- | --- |
-| **竖屏短视频** — Reels、Shorts、TikTok、小红书等 | 开头、大号易读文字、构图和字幕位置 |
-| **横屏影片** — 产品页、发布或 YouTube | 界面细节、更宽构图与解释时间 |
-| **方形信息流** — 社交活动 | 紧凑构图、标题与清楚的结尾信息 |
+| **可玩游戏模板** | 放在 `templates/games/<id>/` 下的完整独立目录，包含 `index.html`、`game.json`、`cover.webp` 与可选 `DESIGN.md` |
+| **玩法与试玩广告配方** | 清晰的 3C 操控约定、数值平衡规则与验证说明 |
+| **平台上架与打包适配器** | 面向微信小游戏、抖音小游戏、Web 门户的打包脚本与提交清单 |
+| **Agent 与模型接入** | 更多本地 Agent 适配或 BYOK 多模态供应商集成 |
 
-渠道账号连接、定时发布和成片表现回流仍在规划中。
+[贡献指南](CONTRIBUTING.zh-CN.md) · [仓库开发规范](AGENTS.md) · [提交 Issue](https://github.com/OpenDesignHQ/opengame/issues)
 
-#### Studio 路线图与协作概念图
+## 贡献者
 
-| 领域 | 当前可用 | 方向 |
-| --- | --- | --- |
-| **重建与剪辑** | Agent 引导重建、模板改编、可编辑工程和 MP4 导出 | 更多经评估的重建案例和可复现对比 |
-| **品牌与知识** | 显式使用 Brandkit、Motion.md、Skills 和源码包 | 个人/团队记忆、RAG 和经评估的 Skill 改进 |
-| **人与 Agent** | 同一本地工程交接 | 时间轴评论、共同审阅和协作编辑 |
-| **多模态创作** | 内置图片、视频、音乐和 TTS 集成；生成、选候选、采用到时间轴 | 跨视频、图片、声音、音乐和 Avatar 服务的综合搜索 |
-| **多平台发布 — 规划中** | 手动编排不同画幅，交付 MP4 | 平台连接器、发布审阅、排期、自动画幅重构与社交预设 |
-| **反馈** | 人工审阅和保存工程版本 | 版本关联表现数据与周期制作任务 |
+感谢每一位参与共建的开发者与创作者——代码、游戏模板、Skill、文档、反馈与 Issue。
 
-![人与 Agent 在共享时间轴审阅的生成式概念图；协作体验仍在规划。](https://releases.open-design.ai/open-motion/media/sha256/a5efa5be51936f33ecc7ef4241ce2602ebf4e7efcc8ce30e0dac5a8bd2b34957.png)
-
-*协作概念图：在时间轴上标注“这个镜头多留一拍”，Agent 据此调整节奏。此功能仍在规划中。* [Studio 蓝图](docs/product/studio-vision.md) · [知识与反馈](docs/product/studio-vision.md#knowledge-and-feedback)
-
-<a id="社区共建"></a> <a id="community"></a>
-
-<a id="社区"></a>
-
-## 🤝 分享作品与制作方法
-
-欢迎分享你复刻的视频、可复用的模板，或记录镜头节奏的 Motion.md。把参考片和成片放在一起，附上可编辑工程，其他人就能沿用你的剪辑节奏，换上自己的素材。
-
-| 贡献类型 | 应包含 |
-| --- | --- |
-| **复刻作品** | 参考与作者、简报、工程、预览、对比和剩余差异 |
-| **模板或组件** | 可运行源码、可编辑项、素材、预览和署名 |
-| **Skill 或设计体系** | 方法、保持/修改规则、实际执行示例 |
-| **Brandkit** | 品牌身份、准确产品事实和可分享素材 |
-| **Agent 支持或编辑器改进** | 范围聚焦且可复现验证的变更 |
-
-[资源提交清单](library/ENTRY_TEMPLATE.md) · [参与贡献](CONTRIBUTING.md) · [反馈问题](https://github.com/nexu-io/openmotion/issues) · [贡献者](https://github.com/nexu-io/openmotion/graphs/contributors) · [媒体资料](docs/media-kit.md)
-
-本仓库已从 `nexu-io/html-anything` 更名为 [`nexu-io/openmotion`](https://github.com/nexu-io/openmotion)。
-
-[OpenMotion 官网](https://open-design.ai/zh/motion/) · [OpenDesign Go](https://go.open-design.ai/?utm_source=github&utm_medium=referral&utm_campaign=openmotion&utm_content=readme_zh) · [Discord](https://discord.com/invite/M7NnHS9gNa) · [飞书群](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=b6cs46dc-acb2-48ed-941d-c45642ead841) · [X @OpenDesignDevs](https://x.com/OpenDesignDevs) · [X @OpenDesignHQ](https://x.com/OpenDesignHQ) · [YouTube](https://www.youtube.com/channel/UChtshixMhvtgBWzoD9R_Qfg)
-
-[**在 GitHub 上给 OpenMotion 点个 Star**](https://github.com/nexu-io/openmotion)
-
-[![关注 OpenMotion · 在 GitHub 上加星](https://releases.open-design.ai/open-motion/media/sha256/eb32b6cd4736cbbf42a537af24ed1ab8745192efcd7f3f69ffd5f2d569fe1607.gif)](https://github.com/nexu-io/openmotion)
-
-<a id="acknowledgements"></a>
-
-### 致谢
-
-品牌原片的发布者及时间码见对照区。 [Agent 与模型标志](docs/readme/models/README.md)
-
-OpenMotion 采用 [Apache-2.0](LICENSE)许可。第三方代码、模板、媒体和字体保留各自许可证和署名。
-
-| 来源 | 关联 |
-| --- | --- |
-| [OpenDesign](https://github.com/nexu-io/open-design) | OpenMotion 的开发团队，负责界面设计、资源结构、品牌方向，并提供 Apache-2.0 HTML 设计模板、设计系统、Skills、工艺规范与场景任务指南；[设计体系](docs/design-system.md)、[设计资源声明](library/design/NOTICE.md)和 [Motion 展示](https://open-design.ai/zh/motion/) |
-| [Hyperframes](https://github.com/heygen-com/hyperframes) | HTML 视频合成、Studio 和渲染基础，固定为 0.9.7；创作者参考、外部改编演示与组件源码；[引擎说明](docs/hyperframes.md)、[模板声明](template-library/NOTICE.md) 和[目录来源](docs/template-catalog.md) |
-| [MotionGit](https://motiongit.com/) / adunext | Kinetic Tech 源码以 Presenter Tech 打包；[许可与署名](library/templates/presenter-tech/NOTICE.md) |
-| [Hypit](https://github.com/hypit-ai/hypit) | Agent 主导热门视频复刻与可编辑版本的灵感来源；未引入运行时 |
-| [rea-video](https://github.com/JuneYaooo/rea-video) | 参考分析与案例研究：[实拍开箱](https://github.com/JuneYaooo/rea-video/blob/main/docs/cases/unboxing/report_en.md) 及[角色、代码和屏幕录制](https://github.com/JuneYaooo/rea-video/blob/main/docs/cases/dual_role/report_en.md)；[展示素材署名](docs/readme/brand-showcase/README.md)，未引入运行时 |
-| [OpenAI · Codex Originals](https://openai.com/codex-originals/) | 外部品牌影片参考；官方活动静帧与站外观看链接 |
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) / [Super-agent 原型](https://github.com/deepseek-ai/dsh-superagent-prototype) | Agent 可扩展性与持续任务的参考；该原型独立于 OpenMotion 当前运行时 |
-| Claude Motion / CapCut / [ChatCut](https://chatcut.io/docs/what-is-chatcut) / [OpenChatCut](https://github.com/0xsline/OpenChatCut) | Agent 创作、易用 AI 剪辑与持续改稿的产品参考 |
-| [OpusClip](https://www.opus.pro/calendar) | 分发与[外部排期](https://www.opus.pro/tools/instagram-reels-scheduler)的产品参考；无内置连接器 |
-| [GSAP](https://github.com/greensock/GSAP) / [FFmpeg](https://ffmpeg.org/) | 动画与媒体依赖，版本保留在 [package.json](package.json) 和[运行时锁文件](scripts/runtime-lock.json) |
-
-[素材来源](docs/readme/ASSETS.md) · [其他展示素材来源](docs/readme/brand-showcase/README.md) · [字体声明](web/design-system/fonts/NOTICES.txt) · [Studio 许可证](studio/LICENSE)
-
-原 HTML Anything 应用保留在 [`legacy` 分支](https://github.com/nexu-io/openmotion/tree/legacy)。当前分支与分发边界参见[仓库迁移指南](docs/repository-migration.md) 。
-
-## Star 历史趋势
-
-<a href="https://www.star-history.com/?repos=nexu-io%2Fopenmotion&amp;type=date">
-  <picture>
-    <source media="screen" srcset="https://raw.githubusercontent.com/nexu-io/openmotion/readme-charts/star-history.svg">
-    <img alt="OpenMotion 的 GitHub Star 历史趋势，每日更新" src="docs/readme/star-history.svg">
-  </picture>
+<a href="https://github.com/OpenDesignHQ/opengame/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=OpenDesignHQ/opengame&amp;max=500&amp;columns=20&amp;anon=1" alt="OpenGame 贡献者" />
 </a>
 
-[离线快照](docs/readme/star-history.svg)
+## Star History
+
+<a href="https://www.star-history.com/#OpenDesignHQ/opengame&amp;Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date&amp;theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date" />
+    <img alt="OpenGame Star History" src="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date" />
+  </picture>
+</a>
