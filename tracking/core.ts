@@ -1,6 +1,6 @@
 import { validHostContext } from './host.ts';
 import type { HostContext } from './host.ts';
-export type Rule = 'project_id' | 'uuid' | 'code' | 'slug' | 'text' | 'timestamp' | 'boolean' | 'integer' | readonly string[] | { readonly min: number; readonly max: number };
+export type Rule = 'project_id' | 'uuid' | 'code' | 'model_id' | 'slug' | 'text' | 'timestamp' | 'boolean' | 'integer' | readonly string[] | { readonly min: number; readonly max: number };
 export type Registry = Record<string, { fields: Record<string, Rule>; required: readonly string[] }>;
 export type Fields = Record<string, string | number | boolean>;
 type RuleValue<R> = R extends readonly string[] ? R[number] : R extends 'boolean' ? boolean : R extends 'integer' | { readonly min: number; readonly max: number } ? number : string;
@@ -16,6 +16,9 @@ export type PendingEvent = {
 export type Receipt = 'accepted' | 'retry' | 'drop';
 export const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const code = /^[A-Za-z0-9_.-]{1,128}$/;
+// A catalogue model id: 1–5 vendor/family path segments separated by `/`, at most 128 characters.
+// Rejects leading/trailing/empty segments, `..`, whitespace, query strings and URL schemes (`:`).
+export const modelId = /^(?=.{1,128}$)(?!.*\.\.)[A-Za-z0-9][A-Za-z0-9_.-]*(?:\/[A-Za-z0-9][A-Za-z0-9_.-]*){0,4}$/;
 // A catalogue resource id: letters, digits and single hyphens between them, at most 64 characters.
 // No dots, slashes, spaces or underscores, so a path, URL, file name or title cannot pass.
 export const slug = /^(?=.{1,64}$)[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$/;
@@ -30,7 +33,7 @@ export function validField(rule: Rule, value: unknown): value is string | number
   if (rule === 'text') return typeof value === 'string' && text(value);
   if (rule === 'timestamp') return typeof value === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(value) && Number.isFinite(Date.parse(value));
   if (rule === 'project_id') return typeof value === 'string' && (value === 'project' || uuid.test(value));
-  return typeof value === 'string' && (rule === 'uuid' ? uuid : rule === 'slug' ? slug : code).test(value);
+  return typeof value === 'string' && (rule === 'uuid' ? uuid : rule === 'slug' ? slug : rule === 'model_id' ? modelId : code).test(value);
 }
 export function deviceContext() {
   return { device_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || null,

@@ -244,7 +244,9 @@ export function AssetComposer({ active, studio, draft, setDraft, agentReferences
   const promptReady = Boolean(draft.prompt.trim() || promptOptional);
   const submit = async () => {
     if (!selected || !promptReady || busy || uploadingReferences || invalidReferences || capabilityBlocked) return; setBusy(true);
-    const studioContext = studio ? { studio: studio.destination.studio.id, scene: studio.destination.scene.id, model: selected.id } : undefined;
+    const studioContext = studio
+      ? { studio: studio.destination.studio.id, scene: studio.destination.scene.id, model: selected.id, ...(activeCapability ? { capabilityId: activeCapability.id } : {}) }
+      : undefined;
     try {
       const parsed = requestParameters(parameters, selected, draft.references.length > 0, studioDefaultValues(selected));
       const prompt = activeCapability

@@ -1,6 +1,6 @@
 // Shared building blocks for page-level reporting modules (template library, Skills, Brand Kit).
 // One implementation of the closed-field rules, so every page sends values the server admits.
-import { slug } from '../../../tracking/core.ts';
+import { modelId, slug } from '../../../tracking/core.ts';
 import type { EventFields } from '../../../tracking/core.ts';
 import { studioEvents } from '../../../tracking/events.ts';
 import type { StudioEvent } from '../../../tracking/events.ts';
@@ -31,7 +31,7 @@ export function modelFields(key: string | null | undefined): { model_provider?: 
   const provider = split > 0 ? key.slice(0, split) : undefined;
   const model = split > 0 ? key.slice(split + 1) : key;
   if (provider?.startsWith('custom-')) return {};
-  return { ...slugField('model_provider', provider), ...(/^[A-Za-z0-9_.-]{1,128}$/.test(model) ? { model_id: model } : {}) };
+  return { ...slugField('model_provider', provider), ...(modelId.test(model) ? { model_id: model } : {}) };
 }
 /** Whether the application is shown inside a host (same rule as the studio page view). */
 export const embeddedView = () => new URLSearchParams(location.search).get('embed') === '1';

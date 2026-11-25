@@ -21,14 +21,16 @@ beforeEach(() => { sent.length = 0; });
 
 it('admits Studio views and generations, splits real provider:model keys and leaves out custom providers', () => {
   explore.reportCreativePageView('creative_studio', false, { studio: 'cinema', scene: 'text-to-video', model: 'custom-1f2e:my-private-model', landing: true });
-  pages.reportAssetGenerationSubmit('video', 'success', 1, false, { studio: 'cinema', scene: 'image-to-video', model: 'fal:bytedance-seedance-2.0' });
+  pages.reportAssetGenerationSubmit('video', 'success', 1, false, { studio: 'cinema', scene: 'image-to-video', model: 'fal:fal-ai/wan/v2.2-a14b/text-to-video', capabilityId: 'video-camera-control' });
+  pages.reportAssetGenerationSubmit('audio', 'success', 0, false, { studio: 'sound', scene: 'sfx', model: 'fal:fal-ai/elevenlabs/sound-effects/v2', capabilityId: 'invalid cap id!' });
   pages.reportAssetGenerationSubmit('image', 'failure', 0, false);
   explore.reportCreativeClick('creative_studio', 'studio_bar', 'scene_tab', { studio: 'design', scene: 'image-edit', model: null });
   expect(of('page_view')[0].properties).toMatchObject({ page_name: 'creative_studio', studio_id: 'cinema', scene_id: 'text-to-video', landing: true });
   expect(of('page_view')[0].properties).not.toHaveProperty('model_id');
   expect(of('page_view')[0].properties).not.toHaveProperty('model_provider');
   expect(of('asset_generation_submit_result').map(row => row.properties)).toEqual([
-    expect.objectContaining({ page_name: 'creative_studio', studio_id: 'cinema', scene_id: 'image-to-video', model_provider: 'fal', model_id: 'bytedance-seedance-2.0', modality: 'video' }),
+    expect.objectContaining({ page_name: 'creative_studio', studio_id: 'cinema', scene_id: 'image-to-video', model_provider: 'fal', model_id: 'fal-ai/wan/v2.2-a14b/text-to-video', capability_id: 'video-camera-control', modality: 'video' }),
+    expect.objectContaining({ page_name: 'creative_studio', studio_id: 'sound', scene_id: 'sfx', model_provider: 'fal', model_id: 'fal-ai/elevenlabs/sound-effects/v2', capability_id: 'other', modality: 'audio' }),
     { page_name: 'assets', modality: 'image', outcome: 'failure', reference_count: 0, new_version: false },
   ]);
   expectAdmitted();

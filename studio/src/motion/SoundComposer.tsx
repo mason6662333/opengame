@@ -163,7 +163,7 @@ export function SoundComposer({
   const submit = async () => {
     if (!selected || !promptReady || !referencesReady || busy) return;
     setBusy(true);
-    const studioContext = { studio: studio.destination.studio.id, scene: effectiveTab, model: selected.id };
+    const studioContext = { studio: studio.destination.studio.id, scene: effectiveTab, model: selected.id, ...(activeCapability ? { capabilityId: activeCapability.id } : {}) };
     try {
       const parsed = requestParameters(parameters, selected, draft.references.length > 0);
       const effectiveVoice = selected.mode === 'text-to-speech' && !parsed.voice

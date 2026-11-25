@@ -22,18 +22,17 @@ import { loadRegistry, toOpenMotionGenerationOptions } from '../packages/multimo
 import { audioAssetTitle, classifyAudioKind } from '../shared/audio-kind.ts';
 import { MAX_ASSET_BYTES } from '../shared/asset-limits.ts';
 import { rankSearchResults } from '../shared/fuzzy-search.ts';
-import { slug } from '../tracking/core.ts';
+import { modelId, slug } from '../tracking/core.ts';
 import { validHostContext, type HostContext } from '../tracking/host.ts';
 import { mediaGenerationError, safeCapabilityId } from '../tracking/tool-fields.ts';
 
-const safeCodePattern = /^[A-Za-z0-9_.-]{1,128}$/;
 function generationTrackingFields(job: GenerationJob) {
   const provider_kind: 'builtin' | 'custom' | 'account' | 'agent' =
     job.model.provider === 'account' ? 'account'
       : job.model.provider === 'codex' ? 'agent'
         : isGatewayProvider(job.model.provider) ? 'builtin' : 'custom';
   const model_provider = provider_kind !== 'custom' && slug.test(job.model.provider) ? job.model.provider : undefined;
-  const model_id = provider_kind !== 'custom' && job.model.source !== 'custom' && safeCodePattern.test(job.model.modelId)
+  const model_id = provider_kind !== 'custom' && job.model.source !== 'custom' && modelId.test(job.model.modelId)
     ? job.model.modelId : undefined;
   const capability_id = safeCapabilityId(job.capabilityId ?? job.library?.capabilityId);
   const reference_count = job.references?.length ?? (job.reference ? 1 : 0);

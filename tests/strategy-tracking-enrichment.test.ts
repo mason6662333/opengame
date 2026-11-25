@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fixture } from './fixtures.ts';
-import { createTracker, validProperties } from '../tracking/core.ts';
+import { createTracker, validField, validProperties } from '../tracking/core.ts';
 import { omEvents } from '../tracking/events.ts';
 import {
   mediaGenerationError,
@@ -99,7 +99,49 @@ test('P0-A: media generation worker events carry provider/model/capability/durat
   assert.equal(resEv.properties.error_code, undefined);
   assert.equal(resEv.host_context?.host_agent, 'codex');
 
-  // 2) Failure path maps closed error_code without raw message leakage
+  // 2) Builtin vendor-path model_id validation and gateway retention
+  assert.equal(validField('model_id', 'fal-ai/flux/schnell'), true);
+  assert.equal(validField('model_id', 'fal-ai/wan/v2.2-a14b/text-to-video'), true);
+  assert.equal(validField('model_id', '../invalid'), false);
+  assert.equal(validField('model_id', '/etc/passwd'), false);
+  assert.equal(validField('model_id', 'https://example.com/model'), false);
+  assert.equal(validField('model_id', 'a/b/c/d/e/f'), false);
+
+  const falGateway = new ModelGateway(store, {
+    tracking,
+    fetcher: async (url, init = {}) => {
+      if (init.method === 'POST') return Response.json({ request_id: 'fal-1', status_url: 'https://queue.fal.run/s', response_url: 'https://queue.fal.run/r' });
+      if (String(url).endsWith('/s')) return Response.json({ status: 'COMPLETED' });
+      return Response.json({ outputs: ['https://cdn.example/out.png'] });
+    },
+    download: async () => png1x1,
+    pollMs: 10,
+  });
+  await falGateway.configureProvider('fal', { apiKey: 'test-key' });
+  const falJob = await falGateway.submit({
+    modality: 'image',
+    prompt: 'Builtin vendor path model',
+    model: 'fal:fal-ai/flux/schnell',
+    library: { title: 'Fal poster' },
+  }, codexHost);
+  await falGateway.tick();
+  for (let i = 0; i < 40; i++) {
+    const current = await falGateway.getJob(falJob.id);
+    if (current.state === 'completed' || current.state === 'failed') break;
+    await new Promise(r => setTimeout(r, 20));
+  }
+  await tracking.flush();
+  const falSub = events.find(e => e.event === 'media_generation_submitted' && e.properties.job_id === falJob.id);
+  const falRes = events.find(e => e.event === 'media_generation_result' && e.properties.job_id === falJob.id);
+  assert.equal(falSub?.properties.provider_kind, 'builtin');
+  assert.equal(falSub?.properties.model_provider, 'fal');
+  assert.equal(falSub?.properties.model_id, 'fal-ai/flux/schnell');
+  assert.equal(falRes?.properties.provider_kind, 'builtin');
+  assert.equal(falRes?.properties.model_provider, 'fal');
+  assert.equal(falRes?.properties.model_id, 'fal-ai/flux/schnell');
+  await falGateway.close();
+
+  // 3) Failure path maps closed error_code without raw message leakage
   assert.equal(mediaGenerationError(Object.assign(new Error('secret key sk-123 failed'), { status: 401 })), 'AUTH_REJECTED');
   assert.equal(mediaGenerationError(Object.assign(new Error('quota'), { status: 402 })), 'BALANCE_LOW');
   assert.equal(mediaGenerationError(new Error('Generation timed out')), 'TIMEOUT');
@@ -263,6 +305,28 @@ test('P1-D: ScenarioRuns emits terminal scenario_run_result and scenario_step_re
   await runs.create({ requestId: createReq, scenarioId: 'motion-full-chain' });
 
   const firstStep = Object.keys(run.steps)[0]!;
+  // Rejected mutations that throw after mutating status/archived must NOT emit success milestones
+  await assert.rejects(
+    runs.updateStep({
+      runId: run.id,
+      expectedRevision: run.revision,
+      requestId: crypto.randomUUID(),
+      stepId: firstStep,
+      status: 'done',
+      bindings: { reference: ['nonexistent-pool-item'] },
+    }),
+    /POOL_ITEM_NOT_FOUND|not found/i,
+  );
+  await assert.rejects(
+    runs.updateRun({
+      runId: run.id,
+      expectedRevision: run.revision,
+      requestId: crypto.randomUUID(),
+      changes: { archived: true, activeStepId: 'nonexistent-step' },
+    }),
+    /Unknown step|not found/i,
+  );
+
   const stepReq = crypto.randomUUID();
   const updated = await runs.updateStep({
     runId: run.id,

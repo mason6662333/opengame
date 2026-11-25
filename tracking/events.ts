@@ -26,7 +26,7 @@ const generation = { modality: ['image', 'video', 'audio'] } as const;
 const mediaGenerationDimensions = {
   provider_kind: ['builtin', 'custom', 'account', 'agent'],
   model_provider: 'slug',
-  model_id: 'code',
+  model_id: 'model_id',
   capability_id: 'code',
   reference_count: 'integer',
 } as const;
@@ -64,7 +64,7 @@ const pages = ['home', 'studio', 'skills', 'brand_kit', 'mcp', 'assets', 'settin
 // Explore, the top navigation and the creative Studios. Destinations are catalogue ids only: Studio, scene, community, carousel slide or model.
 // A model id that is not a bounded slug is left out. Prompts, example text and model labels never become fields.
 // A catalogue model key `provider:modelId` is sent as model_provider + model_id; custom providers send neither.
-const creative = { studio_id: 'slug', scene_id: 'slug', model_provider: 'slug', model_id: 'code', explore_community: 'slug', medium: ['all', 'image', 'video', 'audio'],
+const creative = { studio_id: 'slug', scene_id: 'slug', model_provider: 'slug', model_id: 'model_id', explore_community: 'slug', medium: ['all', 'image', 'video', 'audio'],
   nav_target: 'slug', slide_id: 'slug', collection_id: 'slug', in_overflow: 'boolean', landing: 'boolean' } as const;
 // A model hub (page=model-hub) and one of its community videos, by catalogue id; whether the viewer is signed in to OpenDesign.
 const modelHub = { hub_id: 'slug', hub_video_id: 'slug', signed_in: 'boolean' } as const;
@@ -163,7 +163,7 @@ export const omEvents = {
   }, required: ['work_id', 'project_id', 'stage', 'task_type'] },
   // Terminal Super Agent turn and approval outcomes. No prompts, replies, titles or raw error text.
   super_agent_turn_result: { producers: ['worker'], fields: {
-    runtime_kind: superAgentRuntimeKinds, engine: 'slug', model_id: 'code',
+    runtime_kind: superAgentRuntimeKinds, engine: 'slug', model_id: 'model_id',
     permission_mode: ['on-request', 'auto'], intent: superAgentIntents,
     outcome: ['completed', 'failed', 'cancelled'], duration_ms: 'integer',
     tool_call_count: 'integer', approval_count: 'integer', artifact_count: 'integer', changed_file_count: 'integer',

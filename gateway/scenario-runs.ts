@@ -548,6 +548,7 @@ export class ScenarioRuns {
     expectedRevision: number,
     inputForHash: unknown,
     mutate: (run: ScenarioRun, scenario: ScenarioDefinition) => T | Promise<T>,
+    onCommitted?: (run: ScenarioRun, result: T) => void,
   ): Promise<T> {
     const id = validateUuid(runId, 'runId');
     const rid = validateRequestId(requestId);
@@ -566,6 +567,7 @@ export class ScenarioRuns {
         ? { ...(result as Record<string, unknown>), run: computeDefaultBindings(run, scenario) } as T
         : result;
       await this.writeReceipt(scope, rid, inputHash, hydrated);
+      onCommitted?.(run, hydrated);
       return hydrated;
     });
   }
@@ -578,7 +580,7 @@ export class ScenarioRuns {
     inputForHash: unknown,
     prepareAndExecute: (run: ScenarioRun, scenario: ScenarioDefinition) => Promise<S>,
     commit: (run: ScenarioRun, scenario: ScenarioDefinition, sideEffectResult: S) => T | Promise<T>,
-    options?: { adoptOnConflict?: boolean },
+    options?: { adoptOnConflict?: boolean; onCommitted?: (run: ScenarioRun, result: T) => void },
   ): Promise<T> {
     const id = validateUuid(runId, 'runId');
     const rid = validateRequestId(requestId);
@@ -613,6 +615,7 @@ export class ScenarioRuns {
         ? { ...(result as Record<string, unknown>), run: computeDefaultBindings(latest, scenario) } as T
         : result;
       await this.writeReceipt(scope, rid, inputHash, hydrated);
+      options?.onCommitted?.(latest, hydrated);
       return hydrated;
     });
   }
@@ -745,13 +748,17 @@ export class ScenarioRuns {
         if (title !== undefined) run.title = title;
         if (changes.archived !== undefined) {
           run.archivedAt = changes.archived ? Date.now() : null;
-          this.trackRun(run, changes.archived ? 'archive' : 'unarchive', 'success');
         }
         if (changes.activeStepId !== undefined) {
           this.requireStep(scenario, changes.activeStepId);
           run.activeStepId = changes.activeStepId;
         }
         return { run };
+      },
+      run => {
+        if (changes.archived !== undefined) {
+          this.trackRun(run, changes.archived ? 'archive' : 'unarchive', 'success');
+        }
       },
     );
   }
@@ -816,7 +823,6 @@ export class ScenarioRuns {
             throw new ScenarioError('INVALID_ARGUMENT', `Invalid step status: ${String(input.status)}`);
           }
           step.status = input.status;
-          this.trackStep(run.scenarioId, input.stepId, 'status_change', 'success', step.status);
         }
         if (input.draft !== undefined) {
           if (!input.draft || typeof input.draft !== 'object' || Array.isArray(input.draft)) {
@@ -858,6 +864,11 @@ export class ScenarioRuns {
           iter.note = input.iterationNote.note.trim();
         }
         return { run };
+      },
+      run => {
+        if (input.status !== undefined) {
+          this.trackStep(run.scenarioId, input.stepId, 'status_change', 'success', run.steps[input.stepId]?.status);
+        }
       },
     );
   }
@@ -1142,8 +1153,10 @@ export class ScenarioRuns {
         if (step.status === 'todo') {
           step.status = 'in-progress';
         }
-        this.trackStep(run.scenarioId, stepDef.id, 'add_iteration', 'success', step.status);
         return { run, iteration: created };
+      },
+      run => {
+        this.trackStep(run.scenarioId, input.stepId, 'add_iteration', 'success', run.steps[input.stepId]?.status);
       },
     );
   }
@@ -1250,10 +1263,14 @@ export class ScenarioRuns {
           requestId: input.requestId,
         });
         if (step.status === 'todo') step.status = 'in-progress';
-        this.trackStep(run.scenarioId, stepDef.id, 'generate', 'success', step.status);
         return { run, job, iteration };
       },
-      { adoptOnConflict: true },
+      {
+        adoptOnConflict: true,
+        onCommitted: run => {
+          this.trackStep(run.scenarioId, input.stepId, 'generate', 'success', run.steps[input.stepId]?.status);
+        },
+      },
     );
   }
 
@@ -1519,8 +1536,12 @@ export class ScenarioRuns {
         step.links.designProjectId = project.id;
         step.activeIterationId = iteration.id;
         if (step.status === 'todo') step.status = 'in-progress';
-        this.trackStep(run.scenarioId, stepDef.id, 'create_page', 'success', step.status);
         return { run, project };
+      },
+      {
+        onCommitted: run => {
+          this.trackStep(run.scenarioId, input.stepId, 'create_page', 'success', run.steps[input.stepId]?.status);
+        },
       },
     );
   }
@@ -1685,8 +1706,12 @@ export class ScenarioRuns {
         step.links.designProjectId = project.id;
         step.activeIterationId = iteration.id;
         if (step.status === 'todo') step.status = 'in-progress';
-        this.trackStep(run.scenarioId, stepDef.id, 'link_design', 'success', step.status);
         return { run, project };
+      },
+      {
+        onCommitted: run => {
+          this.trackStep(run.scenarioId, input.stepId, 'link_design', 'success', run.steps[input.stepId]?.status);
+        },
       },
     );
   }
@@ -1779,8 +1804,12 @@ export class ScenarioRuns {
         if (project.sessionId) step.links.motionSessionId = project.sessionId;
         step.activeIterationId = iteration.id;
         if (step.status === 'todo') step.status = 'in-progress';
-        this.trackStep(run.scenarioId, stepDef.id, 'create_motion', 'success', step.status);
         return { run, project };
+      },
+      {
+        onCommitted: run => {
+          this.trackStep(run.scenarioId, input.stepId, 'create_motion', 'success', run.steps[input.stepId]?.status);
+        },
       },
     );
   }
@@ -1820,8 +1849,12 @@ export class ScenarioRuns {
         if (linked.sessionId) step.links.motionSessionId = linked.sessionId;
         step.activeIterationId = iteration.id;
         if (step.status === 'todo') step.status = 'in-progress';
-        this.trackStep(run.scenarioId, stepDef.id, 'link_motion', 'success', step.status);
         return { run };
+      },
+      {
+        onCommitted: run => {
+          this.trackStep(run.scenarioId, input.stepId, 'link_motion', 'success', run.steps[input.stepId]?.status);
+        },
       },
     );
   }
