@@ -53,7 +53,18 @@ describe('playable ads in Super Agent', () => {
       const remix = await service.remix(created.id);
       expect(readDirectGameBrief(buildDirectGamePrompt(remix.game, remix.agentInstruction), remix.game.id)).toBe(brief);
 
-      const legacyInstruction = instruction
+      const previousInstruction = instruction
+        .replace(
+          ` and openmotion_game_get(id=${created.id}). Brief: `,
+          ` (or use your host's workflow reader if provided) and openmotion_game_get with id=${created.id}. Brief: `,
+        )
+        .replace(
+          '\nBuild a single-player game. Ask for local-market publication consent only when missing.',
+          '\nAsk whether to publish to the local market only when the decision is missing. Build a single-player game.',
+        );
+      expect(readDirectGameBrief(buildDirectGamePrompt(created, previousInstruction), created.id)).toBe(brief);
+
+      const legacyInstruction = previousInstruction
         .replace(" (or use your host's workflow reader if provided)", '')
         .replace(
           'Ask whether to publish to the local market only when the decision is missing.',

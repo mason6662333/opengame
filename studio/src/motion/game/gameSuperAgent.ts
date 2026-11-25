@@ -131,14 +131,26 @@ export function readDirectGameBrief(text: string, gameId: string): string | unde
     .map(action => `Use the openmotion-game Skill to ${action} ${header}`)
     .find(candidate => text.startsWith(candidate));
   if (!prefix) return;
-  // Handoffs may include a parenthetical hint about the host's workflow reader.
-  const briefMarker = ` and openmotion_game_get with id=${gameId}. Brief: `;
-  const markerStart = text.indexOf(briefMarker, prefix.length);
-  if (markerStart < 0 || !/^(?: \([^()\r\n]*\))?$/.test(text.slice(prefix.length, markerStart))) return;
-  const briefStart = markerStart + briefMarker.length;
+  // Handoffs may include a parenthetical hint about the host's workflow reader and either current or legacy tool syntax.
+  const briefMarkers = [
+    ` and openmotion_game_get(id=${gameId}). Brief: `,
+    ` and openmotion_game_get with id=${gameId}. Brief: `,
+  ];
+  let markerStart = -1;
+  let briefStart = -1;
+  for (const briefMarker of briefMarkers) {
+    const idx = text.indexOf(briefMarker, prefix.length);
+    if (idx >= 0 && /^(?: \([^()\r\n]*\))?$/.test(text.slice(prefix.length, idx))) {
+      markerStart = idx;
+      briefStart = idx + briefMarker.length;
+      break;
+    }
+  }
+  if (markerStart < 0 || briefStart < 0) return;
   const context = text.lastIndexOf('\n\nGame Studio context: ');
   const instructionEnd = context < 0 ? text.length : context;
   const steps = Math.max(
+    text.lastIndexOf('\nBuild a single-player game. Ask for local-market publication consent only when missing.', instructionEnd),
     text.lastIndexOf('\nAsk whether to publish to the local market only when the decision is missing.', instructionEnd),
     text.lastIndexOf('\nAsk at most two short questions (multiplayer mode and local-market publication)', instructionEnd),
   );
