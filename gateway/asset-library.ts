@@ -146,9 +146,12 @@ export class AssetLibrary {
           ? input.version.audioKind
           : classifyAudioKind(input.version.model, undefined, input.version.source))
         : undefined;
+      const mergedResult = media.result
+        ? { ...(input.version.result ?? {}), ...media.result }
+        : input.version.result;
       const version: AssetVersion = { ...input.version, id: versionId, createdAt: now, filename, name: input.name, mimeType: media.mimeType, bytes, sha256,
         ...(media.width ? { width: media.width, height: media.height } : {}), ...(media.duration ? { duration: media.duration } : {}), ...(media.waveform ? { waveform: media.waveform } : {}),
-        ...(media.result && !input.version.result ? { result: media.result } : {}),
+        ...(mergedResult ? { result: mergedResult } : {}),
         ...(resolvedAudioKind ? { audioKind: resolvedAudioKind } : {}) };
       const asset: LibraryAsset = existing ?? { id, name: assetName(input.name), modality: media.modality, createdAt: now, updatedAt: now, currentVersionId: versionId, versions: [] };
       asset.versions.push(version); asset.currentVersionId = versionId; asset.updatedAt = now;

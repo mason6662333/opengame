@@ -7,7 +7,7 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { deflateSync } from 'node:zlib';
 import { browserExecutable } from '../browser.ts';
-import { GameProjects, gamePlaytestAssertions, normalizeSelfTestAssertions, validateGameScript } from '../game-projects.ts';
+import { GameProjects, buildPlaytestContactSheet, gamePlaytestAssertions, normalizeSelfTestAssertions, validateGameScript } from '../game-projects.ts';
 import { AssetLibrary } from '../gateway/asset-library.ts';
 import { assetOperation } from '../gateway/asset-operations.ts';
 import { readLibraryAsset } from '../gateway/asset-read.ts';
@@ -200,16 +200,23 @@ test('H1: adaptive validation supports modular solo ESM games without logic.js a
     assert.ok(broken.diagnostics.some(d => d.path === 'src/world.js' && /evil\.example/.test(d.message)));
   }));
 
-test('H2: validateGameScript supports screenshot actions and gamePlaytestAssertions flattens runSelfTests & sandbox phases', () => {
+test('H2: validateGameScript supports screenshot & action inputs and gamePlaytestAssertions flattens runSelfTests & sandbox phases', () => {
   const script = validateGameScript([
     { type: 'screenshot', label: 'entry_ready' },
+    { type: 'action', action: { type: 'setCamera', view: 'back' } },
     { type: 'key', key: 'w', event: 'down' },
     { type: 'wait', ms: 200 },
     { type: 'key', key: 'w', event: 'up' },
     { type: 'screenshot', label: 'after_move' },
   ]);
-  assert.equal(script.length, 5);
+  assert.equal(script.length, 6);
   assert.throws(() => validateGameScript([{ type: 'screenshot', label: '../bad' }]), /Screenshot labels/);
+  assert.throws(() => validateGameScript([{ type: 'action', action: null as any }]), /JSON object/);
+  assert.throws(() => validateGameScript([{ type: 'action', action: [] as any }]), /JSON object/);
+  assert.throws(
+    () => validateGameScript([{ type: 'action', action: { blob: 'x'.repeat(17000) } }]),
+    /at most 16 KiB/,
+  );
   assert.throws(
     () => validateGameScript(Array.from({ length: 9 }, (_, i) => ({ type: 'screenshot', label: `s${i}` }))),
     /at most 8 screenshot/,
@@ -264,6 +271,7 @@ test('H2 (live headless): playtest waits for phase loading->ready, captures mid-
         content: `
 let phase = 'loading';
 let px = 0;
+let diagnosticStage = 'idle';
 const btn = document.getElementById('start');
 const cover = document.getElementById('cover');
 const ctx = document.getElementById('game').getContext('2d');
@@ -272,8 +280,14 @@ setTimeout(() => { phase = 'ready'; btn.disabled = false; btn.textContent = 'Ent
 btn.addEventListener('click', () => { phase = 'explore'; cover.remove(); });
 addEventListener('keydown', e => { if (phase === 'explore' && (e.key === 'd' || e.key === 'D')) px += 2; });
 window.__omGame = {
-  getState: () => ({ selfId: 'p1', phase, players: { p1: { connected: true, x: px, z: 0 } } }),
-  getStats: () => ({ drawCalls: 1, entities: 1 }),
+  getState: () => ({ selfId: 'p1', phase, diagnosticStage, players: { p1: { connected: true, x: px, z: 0 } } }),
+  getStats: () => ({ drawCalls: 1, triangles: 240, entities: 1 }),
+  sendAction: (action) => {
+    if (action?.type === 'setStage' && typeof action.stage === 'string') {
+      diagnosticStage = action.stage;
+      ctx.fillStyle = '#662244'; ctx.fillRect(0, 0, 1280, 720);
+    }
+  },
   runSelfTests: () => ({
     coverUnmounted: { pass: !document.getElementById('cover'), detail: document.getElementById('cover') ? 'still mounted' : 'removed' },
     finitePos: { pass: Number.isFinite(px), detail: String(px) },
@@ -288,9 +302,10 @@ window.__omGame = {
       waitForReadyMs: 5000,
       scripts: [[
         { type: 'screenshot', label: 'after_entry' },
+        { type: 'action', action: { type: 'setStage', stage: 'boss_phase2' } },
         { type: 'key', key: 'd', event: 'press' },
         { type: 'wait', ms: 80 },
-        { type: 'screenshot', label: 'after_move' },
+        { type: 'screenshot', label: 'boss_phase2' },
       ]],
     });
     const client = result.clients[0];
@@ -298,7 +313,19 @@ window.__omGame = {
     assert.deepEqual(client.failedRequests, []);
     assert.equal(client.screenshots?.length, 2);
     assert.equal(client.screenshots?.[0].label, 'after_entry');
-    assert.equal(client.screenshots?.[1].label, 'after_move');
+    assert.equal(client.screenshots?.[1].label, 'boss_phase2');
+    assert.equal(client.authoritative?.state?.diagnosticStage, 'boss_phase2');
+    assert.equal(client.authoritative?.stats?.drawCalls, 1);
+    if (client.contactSheetPath) {
+      const sheetBytes = await readFile(client.contactSheetPath);
+      assert.ok(sheetBytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])), 'contactSheetPath should be a valid PNG');
+      assert.match(client.contactSheetLegend ?? '', /r1c1=after_entry/);
+      assert.match(client.contactSheetLegend ?? '', /r1c2=boss_phase2/);
+    }
+    const missingSheet = await buildPlaytestContactSheet(client.screenshots!, path.join(service.root, 'missing-sheet.png'), {
+      ffmpeg: '/nonexistent/ffmpeg-binary',
+    });
+    assert.equal(missingSheet, null, 'buildPlaytestContactSheet should degrade gracefully when ffmpeg is unavailable');
     assert.equal(client.assertions.find((a: any) => a.name === 'phase')?.passed, true);
     assert.equal(client.assertions.find((a: any) => a.name === 'scriptedMovement')?.passed, true);
     assert.equal(client.assertions.find((a: any) => a.name === 'selfTest:coverUnmounted')?.passed, true);
@@ -329,10 +356,27 @@ test('Option B + H4: AssetLibrary imports/reads local .glb, buildPublishBundle o
     assert.equal(version.filename, 'media.glb');
     assert.equal((version.result?.glb as any)?.triangleCount, 1);
 
+    // 1b. Generated 3D versions carrying provider result metadata still keep authoritative local GLB inspection.
+    const generatedPrepared = await library.prepare(glbPath);
+    const generatedAsset = await store.lock(() => library.addLocked(generatedPrepared, {
+      name: 'Generated Boss',
+      expectedModality: '3d',
+      version: {
+        source: 'generated',
+        name: 'Generated Boss',
+        result: { providerJobId: 'tripo-job-1', qualityTier: 'high', glb: 'stale-provider-summary' },
+      },
+    }));
+    const generatedVersion = generatedAsset.versions[0];
+    assert.equal((generatedVersion.result as any)?.providerJobId, 'tripo-job-1');
+    assert.equal((generatedVersion.result as any)?.qualityTier, 'high');
+    assert.equal((generatedVersion.result?.glb as any)?.triangleCount, 1);
+
     // 2. Listing by modality:'3d' and reading via readLibraryAsset work cleanly.
     const listed = await library.list({ modality: '3d' });
-    assert.equal(listed.assets.length, 1);
-    assert.equal(listed.assets[0].id, asset.id);
+    assert.equal(listed.assets.length, 2);
+    assert.ok(listed.assets.some(a => a.id === asset.id));
+    assert.ok(listed.assets.some(a => a.id === generatedAsset.id));
     const readRes = await readLibraryAsset(library, { assetId: asset.id, versionId: version.id });
     assert.equal(readRes.modality, '3d');
     assert.match((readRes.content[0] as any).text, /3D GLB model/);

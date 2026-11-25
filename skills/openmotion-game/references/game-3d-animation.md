@@ -6,7 +6,10 @@ Use for 3D characters, vehicles, props, environments, and animations in Three.js
 
 ## 1. Capability-Driven 3D Asset Selection
 
-Always check live capability discovery (`openmotion_capability_discover` / `openmotion_media_use`) first, then select the highest-fidelity feasible route by **screen dominance** (invest highest fidelity in screen-center focal anchors — third-person hero, hero vehicle, signature equipment — and let code handle motion, lighting, and VFX):
+Always check live capability discovery (`openmotion_capability_discover` / `openmotion_media_use`) first — noting each model's live rigging, quality tier, multi-view support, latency, and cost — then route by **screen dominance** rather than sending every object to 3D generation:
+
+- **Hero & focal actors → 3D models (Image-to-3D preferred):** Concentrate high-fidelity 3D models on near-camera focal subjects (player character, boss, hero vehicle, signature gear). Prefer generating a clean concept/turnaround image first and passing it to Image-to-3D over blind Text-to-3D so style and proportions stay locked.
+- **Arenas, terrain, obstacles & VFX → procedural geometry + generated 2D PBR textures + lighting:** Keep large architecture, floors, collision geometry, and dynamic effects in Three.js code with seamless generated textures so silhouettes stay crisp up close and colliders match visuals 1:1.
 
 | Priority | Route | Best For | Notes |
 | :---: | :--- | :--- | :--- |
@@ -15,7 +18,7 @@ Always check live capability discovery (`openmotion_capability_discover` / `open
 | **3** | **Procedural PBR Three.js geometry + generated 2D textures/skybox** | Modular environments, roads/bridges, mechanical/non-humanoid props, stylized low-poly worlds | Use bevelled/extruded profiles, PBR `MeshStandardMaterial`/`MeshPhysicalMaterial`, generated seamless tiles + IBL skybox (`PMREMGenerator`) |
 | **4** | **Bundled CC0 fallback** (`templates/game-kits/characters/Mage.glb`, `Knight.glb`, 12 clips, 41 bones) | Stylized fantasy/action humanoids when no 3D generation or supplied model is available | Keep `LICENSE-KayKit.txt`; retint materials and attach procedural accessories to bones; state realism ceiling honestly |
 
-**Importing local/external `.glb` models:** Import a local `.glb` into the workspace Asset Library via `openmotion_asset_manage` / `openmotion_assets_use` (`action:"import"`, `sourcePath:"/abs/path/model.glb"`) — it validates GLB 2, runs `inspectGlb` automatically into `version.result.glb`, and serves via `/motion-api/assets/<assetId>/versions/<versionId>/media` (auto-bundled and WebP-optimized on `web_publish` and `exportZip`). Never encode binaries into `openmotion_game_write_files`.
+**Importing local/external `.glb` models:** Import a local `.glb` into the workspace Asset Library via `openmotion_asset_manage` / `openmotion_assets_use` (`action:"import"`, `sourcePath:"/abs/path/model.glb"`) — both generated and imported GLB 2 assets are automatically inspected into `version.result.glb` and served via `/motion-api/assets/<assetId>/versions/<versionId>/media` (auto-bundled and WebP-optimized on `web_publish` and `exportZip`). Never encode binaries into `openmotion_game_write_files`. For high-importance focal actors, verify grounding, orientation, materials, and attachments in a clean view before layering heavy arena lighting or combat VFX.
 
 ## 2. Pre-Integration GLB Inspection Gate
 
@@ -35,6 +38,7 @@ Inspect `totalBytes` and `textureRatio` in `game-glb-inspect.mjs` before optimiz
 
 ## 4. Visual Craft & Performance Budget
 
-- **Lighting & materials:** Derive key directional light, hemisphere fill, skybox/IBL (`PMREMGenerator`), and matching fog from `design/style.md`. Use `ACESFilmicToneMapping` + `SRGBColorSpace` on color/emissive maps only (linear on normal/roughness/metalness).
-- **Draw calls & lifecycle:** Merge static compatible geometry once (`BufferGeometryUtils.mergeGeometries`), use `InstancedMesh` for swarms/props (never merge skinned meshes), cap DPR ≤ 1.5, keep typical scenes within ~100 draw calls / ~100k rendered triangles where practical, verify via `renderer.info`, and dispose detached resources cleanly.
-- **Headless check note:** Server playtests run SwiftShader WebGL — FPS there is pacing only, not real GPU performance, but blank canvases, console errors, and failed GLB/texture requests are real failures to fix.
+- **Lighting, clarity & multi-pass trade-offs:** Derive key directional light, hemisphere fill, skybox/IBL (`PMREMGenerator`), and matching fog from `design/style.md`. Use `ACESFilmicToneMapping` + `SRGBColorSpace` on color/emissive maps only (linear on normal/roughness/metalness). Post-processing and multi-pass effects (bloom, real-time reflections, heavy clones) must serve sharpness and steady frame rate — prefer crisp direct rendering over washed-out/blurry post-processing or multiplied draw cost.
+- **Asset rejection safety valve:** Visual cohesion and close-up clarity outrank asset provenance. If an external or generated 3D model reads blurry, fused, or stylistically jarring in live captures, discard it and replace or fall back to clean procedural geometry + lighting rather than defending sunk cost.
+- **Draw calls & lifecycle:** Merge static compatible geometry once (`BufferGeometryUtils.mergeGeometries`), use `InstancedMesh` for swarms/props (never merge skinned meshes), cap DPR ≤ 1.5, keep typical scenes within ~100 draw calls / ~100k rendered triangles where practical, expose `renderer.info.render` (`calls`, `triangles`) in `window.__omGame.getStats()` so playtests surface real draw cost, and dispose detached resources cleanly.
+- **Headless check note:** Server playtests run SwiftShader WebGL — FPS there is pacing only, not real GPU performance, but blank canvases, console errors, failed GLB/texture requests, and runaway `renderer.info` counts are real failures to fix.

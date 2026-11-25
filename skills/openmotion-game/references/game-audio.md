@@ -81,7 +81,7 @@ Recipes: pickup = rising square blip; jump = short sine sweep up; hit = 40–80 
 
 ## Scope
 
-- Music: at most two looping tracks for a small game; one per major scene is usually enough.
+- Music: scale track count to the game's pacing (one clean loop suffices for small games; multi-phase boss fights or distinct zones may cross-fade across phases), and couple audio dynamically to core game states (e.g. low-pass filtering during slow-motion/danger, intensity shifts on phase change) rather than playing a static wallpaper loop.
 - SFX: prioritize the primary verb, damage/feedback, pickup/reward, important environment, then one ambience layer. Keep small games to roughly five essential effects.
 - Voice: lock one voice per speaking entity and reuse it. Keep lines short enough not to block gameplay; always show subtitles.
 - Submit independent approved clips together, but wait for every job and wire only completed versions.

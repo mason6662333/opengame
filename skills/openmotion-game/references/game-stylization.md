@@ -31,6 +31,7 @@ Combine: `<asset role & clear visual shorthand> + <style direction> + <framing/s
 - **Discover live capabilities/models first** (`SKILL.md` §2). Pair higher-quality models for 1–4 focal hero visuals/covers with faster models for tiles/icons/props so batches complete quickly. Pass only live-listed model parameters.
 - **Submit approved assets concurrently** right after planning while writing game logic and UI.
 - **Inspect together before wiring:** Call batch contact-sheet `read` (`items: [{ assetId, versionId }, ...]`, up to 12 images on one neutral-gray sheet) to check style cohesion, rendering-medium fidelity, silhouette clarity, and real alpha cutouts in one turn without bloating context. Cap retries at 2 per asset within approved spend.
+- **Optional visual reference sheets (only when ROI justifies spend/time):** When a heavy custom pose set, camera storyboard, or multi-stage evolution is hard to nail in code alone, you may generate lightweight reference sheets into `assets-raw/` (excluded automatically from publish/ZIP) to align code implementation and live screenshots; skip this for routine builds.
 - **Right-size raster payload:** Request game-appropriate sizes matched to actual rendering pixels rather than defaulting every tile or icon to 4K PNGs (during `web_publish`/`exportZip`, large PNG/JPEG assets and embedded GLB textures are automatically WebP-optimized while preserving resolution).
 
 ## 4. 3D Style Synchronization
@@ -42,4 +43,4 @@ In 3D scenes, textures alone never sell a style — **engine lighting, skybox/IB
 
 ## 5. Multimodal-First vs. Procedural Fallback
 
-Procedural Canvas/SVG art excels for abstract, geometric, pixel, or minimalist briefs, but is the wrong tool for illustrated characters, key art, or atmospheric audio when real models are available. Generate real assets first whenever fitting models are connected and approved; use crisp code-drawn art and Web Audio synthesis cleanly whenever generation is unavailable or declined, and record the reason in `design/assets.csv`.
+Procedural Canvas/SVG art excels for abstract, geometric, pixel, or minimalist briefs, but is the wrong tool for illustrated characters, key art, or atmospheric audio when real models are available. Generate real assets first whenever fitting models are connected and approved; use crisp code-drawn art and Web Audio synthesis cleanly whenever generation is unavailable or declined, and record the reason in `design/assets.csv`. Style cohesion and visual clarity always outrank provenance — if a generated or external asset looks blurry, fused, or jarring in live captures, drop and replace it or fall back to crisp procedural craft rather than keeping it out of sunk cost.

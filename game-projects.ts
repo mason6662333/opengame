@@ -327,7 +327,8 @@ export type GameBrowserAction =
   | { type: 'key'; key: string; event?: 'down' | 'up' | 'press' }
   | { type: 'mouse'; event: 'move' | 'down' | 'up' | 'click'; x?: number; y?: number; selector?: string; button?: 'left' | 'middle' | 'right' }
   | { type: 'wait'; ms: number }
-  | { type: 'screenshot'; label?: string };
+  | { type: 'screenshot'; label?: string }
+  | { type: 'action'; action: Record<string, unknown> };
 
 export function validateGameScript(value: unknown): GameBrowserAction[] {
   if (!Array.isArray(value) || value.length > 100) throw new GameError('Use at most 100 input actions per client');
@@ -347,10 +348,57 @@ export function validateGameScript(value: unknown): GameBrowserAction[] {
     } else if (a.type === 'screenshot') {
       if (a.label !== undefined && (typeof a.label !== 'string' || !/^[a-zA-Z0-9_-]{1,40}$/.test(a.label))) throw new GameError('Screenshot labels must be 1–40 ASCII alphanumeric/dash/underscore characters');
       if (++screenshots > 8) throw new GameError('Use at most 8 screenshot actions per client');
-    } else throw new GameError('Only key, mouse, wait and screenshot actions are supported');
+    } else if (a.type === 'action') {
+      if (!a.action || typeof a.action !== 'object' || Array.isArray(a.action)) throw new GameError('Action payload must be a JSON object');
+      let serialized = '';
+      try { serialized = JSON.stringify(a.action); } catch { throw new GameError('Action payload must be JSON-serializable'); }
+      if (!serialized || serialized.length > 16384) throw new GameError('Action payload must be at most 16 KiB');
+    } else throw new GameError('Only key, mouse, wait, screenshot and action actions are supported');
   }
   if (waits > 60000) throw new GameError('Script waits must total at most 60000 ms');
   return value;
+}
+
+/** Composite 2–8 playtest diagnostic captures into one labeled row-major contact sheet when ffmpeg is available. */
+export async function buildPlaytestContactSheet(
+  shots: Array<{ label: string; path: string }>,
+  outputPath: string,
+  options: { ffmpeg?: string } = {},
+): Promise<{ path: string; legend: string; grid: { cols: number; rows: number } } | null> {
+  if (shots.length < 2) return null;
+  const cols = shots.length <= 4 ? 2 : 3;
+  const rows = Math.ceil(shots.length / cols);
+  const cellW = cols === 2 ? 640 : 480;
+  const cellH = cols === 2 ? 360 : 270;
+  const pad = 6;
+  const margin = 6;
+  const ffmpegBin = options.ffmpeg ?? verificationBinaries().ffmpeg;
+  const args: string[] = ['-v', 'error', '-nostdin'];
+  const filters: string[] = [];
+  for (let idx = 0; idx < shots.length; idx++) {
+    args.push('-i', shots[idx].path);
+    filters.push(
+      `[${idx}:v]format=rgba,scale=w=${cellW}:h=${cellH}:force_original_aspect_ratio=decrease,pad=${cellW}:${cellH}:(ow-iw)/2:(oh-ih)/2:color=0x1c1e24,setpts=PTS-STARTPTS[c${idx}]`,
+    );
+  }
+  const inputs = shots.map((_, idx) => `[c${idx}]`).join('');
+  filters.push(`${inputs}concat=n=${shots.length}:v=1:a=0,tile=${cols}x${rows}:padding=${pad}:margin=${margin}:color=0x111318[out]`);
+  args.push('-filter_complex', filters.join(';'), '-map', '[out]', '-frames:v', '1', '-y', outputPath);
+  try {
+    await mkdir(path.dirname(outputPath), { recursive: true });
+    const res = await execute(ffmpegBin, args, path.dirname(outputPath), 20_000);
+    if (res.code !== 0) return null;
+    const info = await lstat(outputPath).catch(() => null);
+    if (!info?.isFile() || info.size <= 0) return null;
+    const legend = `Grid ${cols}x${rows} (row-major): ` + shots.map((s, idx) => {
+      const r = Math.floor(idx / cols) + 1;
+      const c = (idx % cols) + 1;
+      return `[${idx + 1}] r${r}c${c}=${s.label}`;
+    }).join(', ');
+    return { path: outputPath, legend, grid: { cols, rows } };
+  } catch {
+    return null;
+  }
 }
 
 export function gameCoverDimensions(bytes: Buffer, extension: string): { width: number; height: number } {
@@ -1372,6 +1420,16 @@ server.listen(port, '127.0.0.1', () => {
       const execute=async(page:Page,actions:GameBrowserAction[],clientIndex = 0)=>{
         for(const a of actions){
           if(a.type==='wait')await new Promise(resolve=>setTimeout(resolve,a.ms));
+          else if(a.type==='action'){
+            const dispatched = await page.evaluate(async (payload) => {
+              const hook = (window as any).__omGame;
+              if (typeof hook?.sendAction !== 'function') return { ok: false, reason: 'window.__omGame.sendAction is not defined' };
+              await hook.sendAction(payload);
+              return { ok: true };
+            }, a.action);
+            if (!dispatched.ok) throw new Error(dispatched.reason);
+            await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())));
+          }
           else if(a.type==='screenshot'){
             const label = a.label ?? `shot-${clientScreenshots[clientIndex].length + 1}`;
             const relative = `assets/playtests/${room}-${clientIndex+1}-${label}-${randomUUID().slice(0,8)}.png`;
@@ -1410,7 +1468,13 @@ server.listen(port, '127.0.0.1', () => {
           assertions=gamePlaytestAssertions({before:before[i],after:authoritative,clients,script:scripts[i],mobile,movementThreshold:expectations.movementThreshold,expectedPhase:expectations.expectedPhase,autoJoin:game.multiplayer?reports[i].autoJoin:undefined,selfTests});
           await page.setViewport({width:1280,height:720,deviceScaleFactor:1});
         }
-        return {...reports[i],screenshotPath,...(clientScreenshots[i].length?{screenshots:clientScreenshots[i]}:{}),...(selfTests!==null?{selfTests}:{}),authoritative,assertions,metrics:{fpsEstimate:+((metrics.frames-initial[i])*1000/Math.max(1,elapsed)).toFixed(1),roomJoined:metrics.roomJoined,playerCount:metrics.playerCount,frames:metrics.frames-initial[i]}};
+        let contactSheet: { path: string; legend: string; grid: { cols: number; rows: number } } | null = null;
+        if (!cover && clientScreenshots[i].length >= 2) {
+          const sheetRel = `assets/playtests/${room}-${i+1}-sheet-${randomUUID().slice(0,8)}.png`;
+          const sheetPath = await safeFile(dir, sheetRel, true);
+          contactSheet = await buildPlaytestContactSheet(clientScreenshots[i], sheetPath);
+        }
+        return {...reports[i],screenshotPath,...(clientScreenshots[i].length?{screenshots:clientScreenshots[i]}:{}),...(contactSheet?{contactSheetPath:contactSheet.path,contactSheetLegend:contactSheet.legend}:{}),...(selfTests!==null?{selfTests}:{}),authoritative,assertions,metrics:{fpsEstimate:+((metrics.frames-initial[i])*1000/Math.max(1,elapsed)).toFixed(1),roomJoined:metrics.roomJoined,playerCount:metrics.playerCount,frames:metrics.frames-initial[i]}};
       }));
       return {recordedClips,room,durationMs:Math.round(elapsed),clients:output,scope:'Each run has its own temporary room server; the room name does not attach to live user rooms. Isolated server-owned headless Chrome; canvas/root screenshots only; offline requests; no user profile. Client visibility is forced for concurrent rendering; background suspension is not tested. FPS is requestAnimationFrame pacing, not GPU performance acceptance.'};
     } finally {
