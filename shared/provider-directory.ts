@@ -59,6 +59,8 @@ export type AccountSummary = {
   /** While authorizing: the browser approved the sign-in and the account is being set up locally. */
   syncing?: boolean;
   plan?: string; balance?: string | null; billingUnavailable?: boolean;
+  /** Design Plan quota left in the tightest window (5-hour or 7-day), from the workspace billing snapshot. Absent when the plan has none or it could not be read. */
+  quota?: { kind: '5h' | '7d'; remainingPercent: number; resetsAt: string | null };
   /** Service rejection behind `billingUnavailable`, when the connector reported one. */
   billingError?: { status: number; code?: string };
   error?: string; errorCode?: AccountErrorCode; attempt?: AccountAttempt;

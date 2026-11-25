@@ -1,0 +1,53 @@
+/* Remaining plan credits: a ring on the header avatar and a row in the account menu. */
+.ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.ringTrack { fill: none; stroke: var(--motion-border); stroke-width: 2; }
+.ringFill { fill: none; stroke: var(--motion-brand); stroke-width: 2; stroke-linecap: round; }
+/* The initial on a quiet grey disc, inset so the ring keeps a gap; the ring carries the only colour. */
+.face {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--motion-hover);
+  color: var(--motion-text);
+  font-size: var(--motion-text-xs);
+  font-weight: var(--motion-weight-semibold);
+  line-height: 1;
+}
+
+.item.item { display: block; padding-block: var(--motion-space-8); }
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--motion-space-12);
+}
+.left {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--motion-space-2);
+  color: var(--motion-muted);
+  font-variant-numeric: tabular-nums;
+}
+.meter {
+  display: block;
+  height: 4px;
+  margin-top: var(--motion-space-8);
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--motion-border);
+}
+.fill { display: block; height: 100%; border-radius: inherit; background: var(--motion-brand); }
+
+/* Account menu identity: name over the plan. */
+.identity { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
+.plan { color: var(--motion-muted); font-size: var(--motion-text-xs); font-weight: var(--motion-weight-medium); }
+.wallet { display: block; margin-top: var(--motion-space-6); color: var(--motion-muted); font-size: var(--motion-text-xs); font-variant-numeric: tabular-nums; }

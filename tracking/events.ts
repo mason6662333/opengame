@@ -9,7 +9,7 @@ export const toolNames = ['motion_capability_discover', 'motion_capability_run',
   'motion_import_assets', 'motion_get_project', 'motion_edit_project', 'motion_export_request', 'motion_list_versions',
   'motion_restore_version', 'motion_export_cancel', 'motion_project_archive', 'motion_manage_project',
   'motion_design_catalog', 'motion_design_project', 'motion_design_edit', 'motion_design_comments',
-  'motion_game_create', 'motion_game_get', 'motion_game_read_file', 'motion_game_write_files', 'motion_game_update_meta', 'motion_game_capture_cover', 'motion_game_playtest', 'motion_game_simulate', 'motion_game_trailer', 'motion_game_validate', 'motion_game_set_status', 'motion_game_publish'] as const;
+  'motion_game_create', 'motion_game_get', 'motion_game_read_file', 'motion_game_write_files', 'motion_game_update_meta', 'motion_game_capture_cover', 'motion_game_playtest', 'motion_game_simulate', 'motion_game_trailer', 'motion_game_validate', 'motion_game_set_status', 'motion_game_publish', 'motion_game_wechat'] as const;
 const outcome = ['success', 'failure', 'partial', 'cancelled', 'unknown'] as const;
 export const mcpToolNames = [...toolNames, 'motion_show_video', 'motion_show_template_recommendations'] as const;
 const tool = { tool_name: mcpToolNames, ...toolDimensions, call_id: 'uuid', operation_id: 'uuid', accepted: 'boolean' } as const;
@@ -115,8 +115,8 @@ export const omEvents = {
     required: ['tool_name', 'transport', 'call_id', 'outcome', 'duration_ms'] },
   webmcp_registration_result: { producers: ['studio'], fields: { ...webMcp, outcome: ['success', 'failure', 'cancelled'], duration_ms: 'integer' },
     required: ['tool_name', 'transport', 'outcome', 'duration_ms'] },
-  mcp_tool_started: { producers: ['mcp'], fields: tool, required: ['tool_name', 'call_id', 'accepted'] },
-  mcp_tool_finished: { producers: ['mcp'], fields: { ...tool, outcome, duration_ms: 'integer', ...toolFailureDimensions, replayed: 'boolean' },
+  mcp_tool_started: { producers: ['mcp'], fields: { ...tool, game_id: game.game_id }, required: ['tool_name', 'call_id', 'accepted'] },
+  mcp_tool_finished: { producers: ['mcp'], fields: { ...tool, game_id: game.game_id, game_status: game.game_status, outcome, duration_ms: 'integer', ...toolFailureDimensions, replayed: 'boolean' },
     required: ['tool_name', 'call_id', 'accepted', 'outcome', 'duration_ms'] },
   project_create_result: { producers: ['mcp'], fields: { ...business, creation_route: ['natural_language', 'template', 'reference_video', 'existing_project'], effect_status: ['applied', 'not_applied', 'unknown'] }, required: ['outcome'] },
   project_open_result: { producers: ['mcp'], fields: { ...business, opened_by_host_status: ['unknown', 'opened', 'not_opened'] }, required: ['outcome'] },
@@ -210,7 +210,7 @@ export const omEvents = {
       'community_tab', 'creators', 'media_filter', 'open_scene', 'open_skill', 'open_template', 'try_prompt', 'open_studio', 'slide_select', 'slide_toggle', 'slide_action',
       'load_more', 'view_all_templates', 'models_toggle', 'skill_category', 'open_brand_kit', 'open_assets', 'open_providers', 'open_mcp', 'open_skills',
       'back_to_explore', 'open_editor', 'scene_tab', 'open_in_studio', 'connect_key', 'manage_connection', 'view_plans',
-      'claim_offer', 'close_banner', 'open_pricing',
+      'claim_offer', 'close_banner', 'open_pricing', 'start_sign_in', 'open_balance',
       'submit_game', 'game_option', 'open_game', 'remix_game', 'favorite_game', 'like_game', 'dislike_game', 'copy_game_link', 'edit_in_agent', 'continue_in_agent',
       'open_in_codex', 'open_external', 'reload_game', 'fullscreen_game', 'game_tab', 'open_publish', 'toggle_link_access', 'publish_link', 'new_link', 'copy_publish_link',
       'create_trailer', 'regenerate_trailer', 'open_trailer_project', 'open_game_studio', 'view_all_games',

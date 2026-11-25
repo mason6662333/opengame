@@ -759,10 +759,10 @@ export class GameProjects {
     assertSinglePlayerAuthoring(original.multiplayer);
     const { dir } = await this.locate(id), newId = randomUUID(), target = path.join(this.root, newId);
     return this.populate(target, async () => {
-    for (const file of await inventory(dir)) { const dest = path.join(target, file.path); await mkdir(path.dirname(dest), { recursive: true }); await writeFile(dest, await readFile(await safeFile(dir, file.path))); }
+    for (const file of await inventory(dir)) { if (isPublishRecord(file.path)) continue; const dest = path.join(target, file.path); await mkdir(path.dirname(dest), { recursive: true }); await writeFile(dest, await readFile(await safeFile(dir, file.path))); }
     const originalMeta = await jsonFile<StoredGame>(path.join(dir, 'game.json'));
     // A remix keeps the original brief (and its playable-ad format line) so the Agent follows the same recipe.
-    const game = { ...original, titleCustomized: undefined, kit: originalMeta.kit, cover: originalMeta.cover ?? null, ...(originalMeta.rawPrompt ? { rawPrompt: originalMeta.rawPrompt } : {}), id: newId, title: `${original.title.slice(0,72)} remix`, source: 'mine' as const, status: 'draft' as const, plays: 0, likes: 0, dislikes: 0, reaction: 0 as const, favorite: false, remixOf: id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    const game = { ...original, titleCustomized: undefined, tags: undefined, kit: originalMeta.kit, cover: originalMeta.cover ?? null, ...(originalMeta.rawPrompt ? { rawPrompt: originalMeta.rawPrompt } : {}), id: newId, title: `${original.title.slice(0,72)} remix`, source: 'mine' as const, status: 'draft' as const, plays: 0, likes: 0, dislikes: 0, reaction: 0 as const, favorite: false, remixOf: id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     await this.save(newId, game);
     return { game: await this.get(newId), agentInstruction: instruction(game, { prompt: originalMeta.rawPrompt ?? original.description, genre: original.genre, style: original.style, setting: original.setting, multiplayer: original.multiplayer, orientation: original.orientation, playableAd: original.playableAd }, true) };
     });
@@ -873,6 +873,8 @@ server.listen(port, '127.0.0.1', () => {
       let total = 0;
       entries = [];
       for (const item of files) {
+        // WeChat publish progress belongs to this computer, not to the game source.
+        if (isPublishRecord(item.path)) continue;
         if (/^(?:game\.json$|(?:trailer|design|assets\/playtests|assets-raw)(?:\/|$))/i.test(item.path)) continue;
         total += item.bytes;
         if (total > maxExportBytes) throw new GameError('Game export exceeds 64 MiB limit', 413);
@@ -1483,7 +1485,7 @@ server.listen(port, '127.0.0.1', () => {
   }
 
   async staticFile(id: string, relative: string) {
-    if (relative.toLowerCase() === 'game.json' || relative.toLowerCase()==='trailer/job.json') throw new GameError('Private game metadata', 404);
+    if (relative.toLowerCase() === 'game.json' || relative.toLowerCase()==='trailer/job.json' || isPublishRecord(relative)) throw new GameError('Private game metadata', 404);
     const root=relative.startsWith('trailer/')?await this.trailerStorage(id):(await this.locate(id)).dir;
     const file = await safeFile(root, relative);
     return { data: await readFile(file), mime: mime[path.extname(file).toLowerCase()] ?? 'application/octet-stream' };
@@ -1562,6 +1564,9 @@ export function gameProjectsFor(workspace: string, runtimeRoot?: string) {
   const key = path.resolve(workspace); if (!services.has(key)) services.set(key,new GameProjects(key));
   const service = services.get(key)!; if (runtimeRoot) service.runtimeRoot = runtimeRoot; return service;
 }
+/** publish/ holds this computer's publish records (WeChat AppID, preview code): never served, exported or remixed. */
+function isPublishRecord(relative: string) { return /^publish(?:\/|$)/i.test(path.posix.normalize(relative.replace(/\\/g, '/')).replace(/^(?:\.\/|\/)+/, '')); }
+
 export async function dispatchGameTool(name: string, args: any, workspace: string, runtimeRoot?: string) {
   const service = gameProjectsFor(workspace, runtimeRoot);
   switch (name.replace(/^(?:openmotion|motion)_game_/,'')) {
@@ -1581,6 +1586,7 @@ export async function dispatchGameTool(name: string, args: any, workspace: strin
       if (args.status === 'building') assertSinglePlayerAuthoring((await service.get(args.id)).multiplayer);
       return service.status(args.id,args.status);
     case 'publish': return service.publish(args.id);
+    case 'wechat': return (await import('./gateway/wechat-minigame.ts')).wechatMinigameFor(workspace).action(args);
     default: throw new GameError('Unknown game tool');
   }
 }

@@ -378,7 +378,13 @@
     "Follow-up behavior": "跟随提问方式",
     "Queue follow-ups while the agent runs or steer the current run. Press ⌘ / Ctrl + Enter to do the opposite for one message.": "在智能体运行期间将新消息加入队列，或立即打断并引导当前任务。按 ⌘ / Ctrl + Enter 可临时以相反方式发送当前消息。",
     "Steer": "Steer（即时打断引导）",
-    "Queue": "Queue（加入队列）"
+    "Queue": "Queue（加入队列）",
+    "Get started": "开始使用",
+    "Signing in…": "登录中…",
+    "Remaining": "剩余",
+    "Plan credits": "套餐额度",
+    "{plan} plan": "{plan} 套餐",
+    "Plan quota": "套餐额度"
   },
   "ja": {
     "Go back": "戻る",
@@ -523,7 +529,16 @@
     "Follow-up behavior": "フォローアップの動作",
     "Queue follow-ups while the agent runs or steer the current run. Press ⌘ / Ctrl + Enter to do the opposite for one message.": "エージェント実行中の追加入力をキューに入れるか、現在の実行を割り込んで切り替えます。⌘ / Ctrl + Enter で今回のみ逆の方式で送信します。",
     "Steer": "Steer（即時切り替え）",
-    "Queue": "Queue（キュー待機）"
+    "Queue": "Queue（キュー待機）",
+    "Get started": "はじめる",
+    "Signing in…": "サインイン中…",
+    "Remaining": "残り",
+    "Plan credits": "プラン枠",
+    "Available balance": "利用可能残高",
+    "Subscription & usage": "サブスクリプションと使用量",
+    "Free plan": "無料プラン",
+    "{plan} plan": "{plan} プラン",
+    "Plan quota": "プラン枠"
   },
   "ko": {
     "Go back": "뒤로",
@@ -563,7 +578,16 @@
     "Follow-up behavior": "후속 질문 방식",
     "Queue follow-ups while the agent runs or steer the current run. Press ⌘ / Ctrl + Enter to do the opposite for one message.": "에이전트 실행 중 새 메시지를 대기열에 넣거나 현재 실행을 즉시 전환합니다. ⌘ / Ctrl + Enter를 누르면 이번 메시지만 반대 방식으로 전송합니다.",
     "Steer": "Steer (즉시 전환)",
-    "Queue": "Queue (대기열)"
+    "Queue": "Queue (대기열)",
+    "Get started": "시작하기",
+    "Signing in…": "로그인 중…",
+    "Remaining": "남음",
+    "Plan credits": "플랜 크레딧",
+    "Available balance": "사용 가능 잔액",
+    "Subscription & usage": "구독 및 사용량",
+    "Free plan": "무료 플랜",
+    "{plan} plan": "{plan} 플랜",
+    "Plan quota": "플랜 사용량"
   },
   "de": {
     "Go back": "Zurück",
@@ -603,7 +627,16 @@
     "Follow-up behavior": "Verhalten bei Nachfragen",
     "Queue follow-ups while the agent runs or steer the current run. Press ⌘ / Ctrl + Enter to do the opposite for one message.": "Nachfragen während eines Laufs in die Warteschlange stellen oder den aktuellen Lauf umlenken. Mit ⌘ / Ctrl + Enter für eine Nachricht umkehren.",
     "Steer": "Steer (Sofort steuern)",
-    "Queue": "Queue (Warteschlange)"
+    "Queue": "Queue (Warteschlange)",
+    "Get started": "Loslegen",
+    "Signing in…": "Anmeldung läuft…",
+    "Remaining": "Verbleibend",
+    "Plan credits": "Planguthaben",
+    "Available balance": "Verfügbares Guthaben",
+    "Subscription & usage": "Abo & Nutzung",
+    "Free plan": "Kostenloser Plan",
+    "{plan} plan": "{plan}-Plan",
+    "Plan quota": "Plankontingent"
   },
   "fr": {
     "Go back": "Retour",
@@ -643,7 +676,16 @@
     "Follow-up behavior": "Comportement des relances",
     "Queue follow-ups while the agent runs or steer the current run. Press ⌘ / Ctrl + Enter to do the opposite for one message.": "Mettez les relances en file d’attente pendant l’exécution ou réorientez la tâche en cours. Appuyez sur ⌘ / Ctrl + Entrée pour inverser sur un message.",
     "Steer": "Steer (Réorienter)",
-    "Queue": "Queue (File d’attente)"
+    "Queue": "Queue (File d’attente)",
+    "Get started": "Commencer",
+    "Signing in…": "Connexion…",
+    "Remaining": "Restant",
+    "Plan credits": "Crédits du forfait",
+    "Available balance": "Solde disponible",
+    "Subscription & usage": "Abonnement et utilisation",
+    "Free plan": "Forfait gratuit",
+    "{plan} plan": "Forfait {plan}",
+    "Plan quota": "Quota du forfait"
   },
   "ru": {
     "Go back": "Назад",
@@ -683,7 +725,16 @@
     "Follow-up behavior": "Поведение при уточнении",
     "Queue follow-ups while the agent runs or steer the current run. Press ⌘ / Ctrl + Enter to do the opposite for one message.": "Ставьте новые сообщения в очередь во время работы агента или сразу переключайте текущее выполнение. Нажмите ⌘ / Ctrl + Enter для обратного действия на одно сообщение.",
     "Steer": "Steer (Переключить)",
-    "Queue": "Queue (В очередь)"
+    "Queue": "Queue (В очередь)",
+    "Get started": "Начать",
+    "Signing in…": "Вход…",
+    "Remaining": "Осталось",
+    "Plan credits": "Кредиты тарифа",
+    "Available balance": "Доступный баланс",
+    "Subscription & usage": "Подписка и использование",
+    "Free plan": "Бесплатный тариф",
+    "{plan} plan": "Тариф {plan}",
+    "Plan quota": "Лимит тарифа"
   },
   "es": {
     "Go back": "Volver",
@@ -723,7 +774,16 @@
     "Follow-up behavior": "Comportamiento de seguimiento",
     "Queue follow-ups while the agent runs or steer the current run. Press ⌘ / Ctrl + Enter to do the opposite for one message.": "Encola los seguimientos mientras el agente ejecuta o redirige la ejecución actual. Pulsa ⌘ / Ctrl + Enter para usar el modo opuesto en un mensaje.",
     "Steer": "Steer (Redirigir)",
-    "Queue": "Queue (En cola)"
+    "Queue": "Queue (En cola)",
+    "Get started": "Empezar",
+    "Signing in…": "Iniciando sesión…",
+    "Remaining": "Restante",
+    "Plan credits": "Créditos del plan",
+    "Available balance": "Saldo disponible",
+    "Subscription & usage": "Suscripción y uso",
+    "Free plan": "Plan gratuito",
+    "{plan} plan": "Plan {plan}",
+    "Plan quota": "Cuota del plan"
   },
   "pt-BR": {
     "Go back": "Voltar",
@@ -763,7 +823,16 @@
     "Follow-up behavior": "Comportamento de acompanhamento",
     "Queue follow-ups while the agent runs or steer the current run. Press ⌘ / Ctrl + Enter to do the opposite for one message.": "Coloque mensagens na fila enquanto o agente executa ou redirecione a execução atual. Pressione ⌘ / Ctrl + Enter para alternar em uma mensagem.",
     "Steer": "Steer (Redirecionar)",
-    "Queue": "Queue (Na fila)"
+    "Queue": "Queue (Na fila)",
+    "Get started": "Começar",
+    "Signing in…": "Entrando…",
+    "Remaining": "Restante",
+    "Plan credits": "Créditos do plano",
+    "Available balance": "Saldo disponível",
+    "Subscription & usage": "Assinatura e uso",
+    "Free plan": "Plano gratuito",
+    "{plan} plan": "Plano {plan}",
+    "Plan quota": "Cota do plano"
   },
   "it": {
     "Go back": "Indietro",
@@ -803,7 +872,16 @@
     "Follow-up behavior": "Comportamento dei messaggi successivi",
     "Queue follow-ups while the agent runs or steer the current run. Press ⌘ / Ctrl + Enter to do the opposite for one message.": "Accoda i messaggi mentre l’agente è in esecuzione oppure reindirizza l’attività corrente. Premi ⌘ / Ctrl + Invio per invertire su un singolo messaggio.",
     "Steer": "Steer (Reindirizza)",
-    "Queue": "Queue (In coda)"
+    "Queue": "Queue (In coda)",
+    "Get started": "Inizia",
+    "Signing in…": "Accesso in corso…",
+    "Remaining": "Rimanente",
+    "Plan credits": "Crediti del piano",
+    "Available balance": "Saldo disponibile",
+    "Subscription & usage": "Abbonamento e utilizzo",
+    "Free plan": "Piano gratuito",
+    "{plan} plan": "Piano {plan}",
+    "Plan quota": "Quota del piano"
   },
   "tr": {
     "Go back": "Geri",
@@ -843,6 +921,15 @@
     "Follow-up behavior": "Devam mesajı davranışı",
     "Queue follow-ups while the agent runs or steer the current run. Press ⌘ / Ctrl + Enter to do the opposite for one message.": "Ajan çalışırken yeni mesajları sıraya alın veya mevcut çalıştırmayı yönlendirin. Tek bir mesajda tersini yapmak için ⌘ / Ctrl + Enter’a basın.",
     "Steer": "Steer (Yönlendir)",
-    "Queue": "Queue (Kuyruk)"
+    "Queue": "Queue (Kuyruk)",
+    "Get started": "Başla",
+    "Signing in…": "Giriş yapılıyor…",
+    "Remaining": "Kalan",
+    "Plan credits": "Plan kredisi",
+    "Available balance": "Kullanılabilir bakiye",
+    "Subscription & usage": "Abonelik ve kullanım",
+    "Free plan": "Ücretsiz plan",
+    "{plan} plan": "{plan} planı",
+    "Plan quota": "Plan kotası"
   }
 }

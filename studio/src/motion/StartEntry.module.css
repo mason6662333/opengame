@@ -1,0 +1,32 @@
+/* Signed-out call to action in the avatar's place: the same black chip as Pricing, with a brand-green mark. */
+.start {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--motion-space-6);
+  flex-shrink: 0;
+  box-sizing: border-box;
+  height: 30px;
+  padding: 0 var(--motion-space-12) 1px;
+  border: 1px solid color-mix(in srgb, var(--motion-black-friday-ink-light) 18%, transparent);
+  border-radius: var(--motion-radius-step-9);
+  background: var(--motion-black-friday-night);
+  color: var(--motion-black-friday-ink-light);
+  font-family: var(--motion-font-sans);
+  font-size: var(--motion-text-md);
+  font-weight: var(--motion-weight-medium);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color var(--motion-duration-fast) var(--motion-ease-out);
+}
+/* Stays black over the shared plain-button hover fill, which outranks module classes. */
+.start.start:hover, .start.start:active, .start.start:disabled {
+  background: var(--motion-black-friday-night) !important;
+  color: var(--motion-black-friday-ink-light) !important;
+}
+.start.start:hover { border-color: var(--motion-brand); }
+.start:focus-visible { outline: 1.5px solid var(--motion-brand); outline-offset: 2px; }
+.start:disabled { cursor: progress; }
+.icon { flex: none; color: var(--motion-brand); }

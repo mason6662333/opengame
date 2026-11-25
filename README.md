@@ -1,591 +1,485 @@
-<p align="center"><img src="packages/design-system/brand/opengame-logo.svg" width="420" alt="OpenGame"></p>
+<p align="center"><img src="docs/readme/opengame-logo.svg" width="400" alt="OpenGame"></p>
 
-<p align="center"><strong>The Open-source Super Game Agent</strong><br>Everyone can build games that make money.</p>
-
-<p align="center"><img src="docs/readme/opengame/cover.webp" width="100%" alt="OpenGame — The Open-source Super Game Agent. Make games. Make money. 100+ viral games, 29 agents, 11+ media models and 3+ publishing platforms, with the real Game Studio interface."></p>
+<p align="center"><strong>The First Super Game Agent — Open-Source Full-Stack AI Game Studio</strong></p>
 
 <p align="center">
-  <a href="https://github.com/OpenDesignHQ/opengame"><img src="docs/readme/opengame/badges/stars.svg" alt="GitHub Stars · 3 (2026-11-24)"></a>
+  <img src="docs/readme/opengame-hero.webp" width="100%" alt="OpenGame — The First Super Game Agent. Remix, re-style, test, and publish playable 3D, anime, pixel, and 9:16 mini-games from 26 built-in playable templates across 22 local AI agents.">
+</p>
+
+<p align="center">
   <a href="package.json"><img src="docs/readme/badges/node.svg" alt="Node.js 22.18+"></a>
   <a href="LICENSE"><img src="docs/readme/badges/license.svg" alt="Apache 2.0 license"></a>
-  <a href="https://github.com/OpenDesignHQ"><img src="docs/readme/badges/built-by-opendesign.svg" alt="Built by OpenDesign"></a>
+  <a href="https://github.com/nexu-io/open-design"><img src="docs/readme/badges/built-by-opendesign.svg" alt="Built by OpenDesign"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/OpenDesignHQ/opengame"><img src="docs/readme/opengame/badges/project.svg" alt="OpenGame on GitHub"></a>
-  <a href="https://go.open-design.ai/?utm_source=github&amp;utm_medium=referral&amp;utm_campaign=opengame&amp;utm_content=readme_en"><img src="docs/readme/badges/opendesign-go.svg" alt="OpenDesign Go model subscriptions"></a>
-  <a href="https://discord.com/invite/M7NnHS9gNa"><img src="docs/readme/badges/discord.svg" alt="Join the OpenDesign Discord"></a>
-  <a href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=b6cs46dc-acb2-48ed-941d-c45642ead841"><img src="docs/readme/badges/feishu.svg" alt="Join the OpenDesign Feishu group"></a>
-  <a href="https://x.com/OpenDesignHQ"><img src="docs/readme/badges/x-opendesignhq.svg" alt="OpenDesign on X (@OpenDesignHQ)"></a>
-  <a href="https://x.com/OpenDesignDevs"><img src="docs/readme/badges/x-opendesigndevs.svg" alt="OpenDesign Developers on X (@OpenDesignDevs)"></a>
-  <a href="https://www.youtube.com/channel/UChtshixMhvtgBWzoD9R_Qfg"><img src="docs/readme/badges/youtube.svg" alt="OpenDesign on YouTube"></a>
+  <a href="https://go.open-design.ai/?utm_source=github&amp;utm_medium=referral&amp;utm_campaign=opengame&amp;utm_content=readme_en"><img src="docs/readme/badges/opendesign-go.svg" alt="OpenDesign Go model subscriptions" /></a>
+  <a href="https://discord.com/invite/M7NnHS9gNa"><img src="docs/readme/badges/discord.svg" alt="Join the OpenGame Discord" /></a>
+  <a href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=b6cs46dc-acb2-48ed-941d-c45642ead841"><img src="docs/readme/badges/feishu.svg" alt="Join the OpenGame Feishu group" /></a>
+  <a href="https://x.com/OpenDesignHQ"><img src="docs/readme/badges/x-opendesignhq.svg" alt="OpenDesign on X (@OpenDesignHQ)" /></a>
+  <a href="https://x.com/OpenDesignDevs"><img src="docs/readme/badges/x-opendesigndevs.svg" alt="OpenDesign Developers on X (@OpenDesignDevs)" /></a>
+  <a href="https://www.youtube.com/channel/UChtshixMhvtgBWzoD9R_Qfg"><img src="docs/readme/badges/youtube.svg" alt="OpenDesign on YouTube" /></a>
 </p>
 
-<p align="center"><a href="#quick-start">Install</a> · <a href="#agent-wall">Agents</a> · <a href="#showcase">Games &amp; remixes</a> · <a href="#features">Why OpenGame</a> · <a href="#technical-guide">Setup &amp; architecture</a> · <a href="#community">Community</a></p>
+<p align="center"><a href="#quick-start">Quick Start</a> · <a href="#agent-wall">Agents</a> · <a href="#showcase">Playable Templates</a> · <a href="#features">Why OpenGame</a> · <a href="#publish-monetize">Publish &amp; Monetize</a> · <a href="#technical-guide">Setup &amp; MCP</a> · <a href="#community">Community</a></p>
 
 <div align="center">
 
-**English** · [简体中文](docs/README.zh-CN.md) · [日本語](docs/README.ja.md)
+**English** · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
 
 </div>
 
-# OpenGame
+# Introducing OpenGame
 
-OpenGame is **The Open-source Super Game Agent**. Start with an idea or a game you love. Let your agent turn the mechanics, world and rewards into a playable game of your own, then keep improving it for real players.
+OpenGame is **the first Super Game Agent** — turning your local coding agent into an open-source AI Unreal Engine / Unity and full-stack game studio, taking you from a single prompt or viral game template all the way to automated QA, instant web sharing, and monetization-ready builds.
 
-**Our mission: everyone can build games that make money.**
+- 🎮 **One-Click Remix Any Game.** **26 built-in playable templates** (3D, voxel, anime, pixel & 9:16 mini-games / playable ads) with full editable source and design specs.
+- 🎨 **One-Click Re-style Any Game.** Keep a proven game loop while swapping characters, art style, and audio — affordable models like **DeepSeek** ship polished reskins fast, while **Claude Fable 5.2**, **Opus**, **Codex**, and **Gemini** build original 3D worlds from scratch.
+- 💰 **End-to-End Pipeline: Build → Verify → Publish & Monetize.** Automated validation, simulation, headless playtesting, cover capture, and trailers — ship a live web link, a 9:16 Playable Ad, or mini-game platform builds.
+- 🔓 **Full-Stack Open Source (BYOA + BYOK).** Code, art, video, music, voice, SFX, and Three.js 3D are all open source. Bring [your local agent](#agent-wall) and keys, or connect [OpenDesign Go](https://go.open-design.ai/?utm_source=github&utm_medium=referral&utm_campaign=opengame&utm_content=readme_en).
 
-You bring the idea and taste. OpenGame brings the creation workflow, remixable source, art and sound tools, playable previews and a path from first build to launch.
+<a id="quick-start"></a> <a id="快速开始"></a>
 
-- 🎮 **Remix Any Game** Start a remix in one click. Turn a reference or bundled game's core loop into your own theme, rules and experience.
-- 🌍 **Publish to TikTok, WeChat & Douyin** Publish to TikTok, WeChat, Douyin and more. Turn one game idea into a business that reaches players across platforms.
-- 🔥 **100+ TOP Viral Games** Our first open-source release of 100+ top viral games, bringing commercially successful game formats into a collection you can study, run and remix.
-- 🔑 **29 agents. Your choice.** Bring your agent and model keys; keep your source and workflow. [Choose an agent](#choose-agent).
-- 🎨 **11+ media models.** Create the art, music and voice your game needs. [Explore models](#model-wall).
+## ⚡ Quick Start
 
-**Remix → Create → Play-test → Launch → Earn.** Start with the fun. Make it yours. Build a reason for players to return.
+### 1. Give one prompt to your local Agent
 
-<a id="quick-start"></a>
+Paste this instruction into **DeepSeek TUI / Harness**, **Claude Code**, **Codex**, **WorkBuddy**, **Cursor**, **Gemini CLI**, or any of the [22 supported local agents](#agent-wall):
 
-## 🚀 Start playing. Then start creating.
+```text
+Read https://github.com/OpenDesignHQ/opengame/blob/main/docs/install.md and follow the instructions to install and connect OpenGame in the current agent, open Game Studio at /studios/game, and help me remix or build a playable game with the openmotion-game skill.
+```
 
-### Run from source
+### 2. Install the Game Skill with Skills CLI
 
-Use Git, npm and **Node.js 26.11.1**, the version pinned in CI. The declared runtime minimum is 22.18.0.
+Install the dedicated game-engineering skill (`openmotion-game` + 18 game craft, 3C, animation, playable-ad, and QA reference handbooks) with the [Skills CLI](https://github.com/vercel-labs/skills):
+
+```sh
+npx skills add OpenDesignHQ/opengame --skill openmotion-game
+```
+
+> Installing the Skill copies the game engineering instructions into your agent. Complete the local Studio & MCP setup below so your agent can call the 12 `openmotion_game_*` tools and open Game Studio.
+
+### 3. Run OpenGame Studio locally from source
+
+Requires **Git**, **npm**, and **Node.js 22.18+** (CI pins Node.js 26.11.1).
 
 ```sh
 git -c filter.lfs.process= -c filter.lfs.smudge= -c filter.lfs.required=false clone --depth 1 --single-branch --branch main https://github.com/OpenDesignHQ/opengame.git
 cd opengame
 npm ci
 npm run build:studio
-```
-
-Start with a separate workspace on macOS / Linux:
-
-```sh
-MOTION_DATA_DIR="$HOME/.opengame/workspace" npm start
-```
-
-Open the startup result's `previewUrl` and choose **Game Studio** (`/game`). You can browse and play bundled games before connecting an agent. To create or remix, select your agent and describe what you want to change. In the integrated Studio, creation can hand the task directly to the selected agent.
-
-[Windows instructions, manual MCP configuration and troubleshooting →](docs/opengame-setup.md)
-
-### Your first remix
-
-1. **Find the fun.** Open a game and try its controls. Choose one mechanic to keep.
-2. **Make a copy.** Use **Remix** on a bundled game to create your own editable draft.
-3. **Change one thing well.** Give the agent a concrete theme, rule or level change.
-4. **Play it again.** Check the result, refine the feel and share when it is ready.
-
-Try this with a connected agent:
-
-```text
-Remix Drift Dash into a moon buggy race. Keep the portrait controls,
-replace the city with a lunar base, and add a boost that recharges
-when I drift. Validate and play-test the result, then open it for me.
-Use bundled or procedural assets for the first version.
+npm start
 ```
 
 <a id="agent-wall"></a>
 
-**29 local agents** · [Choose your agent](#choose-agent)
+**Works with 22 local agents (BYOA)** · [Choose your agent](#choose-agent)
 
-<p align="center"><a href="#choose-agent"><picture><source media="(max-width: 600px)" srcset="docs/readme/opengame/agents.mobile.webp"><img src="docs/readme/opengame/agents.webp" width="100%" alt="29 agents: Codex, Claude Code, OpenCode, Cursor, Gemini CLI, Kimi Code, GitHub Copilot, Antigravity, DeepSeek, Qwen, Pi, Hermes, Kiro, Kilo, Mistral Vibe, Amp, Devin, Grok, CodeBuddy, Qoder, Trae, MiMo, Aider, AtomCode, OpenClaude, Cline and IBM Bob"></picture></a></p>
+<p align="center"><a href="#choose-agent"><picture><source media="(max-width: 600px)" srcset="docs/readme/agents/local-agents.mobile.png"><img src="docs/readme/agents/local-agents.png" width="100%" alt="WorkBuddy, Codex CLI, Claude Code, OpenCode, Hermes, Antigravity, Gemini CLI, Grok Build, Kimi CLI, Cursor Agent, Qwen Code, Qoder CLI, GitHub Copilot, Pi, Kiro CLI, Kilo, Mistral Vibe, DeepSeek TUI, Reasonix, Aider, Devin, Trae CLI"></picture></a></p>
 
 <a id="showcase"></a>
 
-## 🔥 100+ TOP Viral Games. Open source. Yours to remix.
+## 🕹️ Playable Game Templates & Showcase
 
-For the first time, we are opening up our **100+ TOP Viral Games** collection: a starting point for creators who want to learn from commercially successful game formats and build their own. Explore the mechanics, run the source, change the world and create a version for your audience.
+OpenGame ships with **26 ready-to-play games** right inside [`templates/games/`](templates/games/) — complete with playable HTML5 / Three.js source, artwork, controls, and localization. Play them locally in Game Studio, **Remix** any title with one click, or **Re-style** it into your own IP, theme, or brand.
 
+### 3D, Voxel & Action Games (16:9)
 
-These six examples are **real captures from games bundled in this repository**. Each image links to editable source. Run Game Studio locally to play and remix them.
-
-<table><tr>
+<table width="100%">
+<tr>
 <td width="50%" valign="top">
-<a href="templates/games/harbor-skirmish"><img src="docs/readme/opengame/harbor-skirmish.webp" width="480" alt="Harbor Skirmish — 3D action"></a><br>
-<strong>Harbor Skirmish</strong><br>
-<sub>3D action</sub><br>
-Run, jump, dash and grapple across a seaside island. Remix the world, enemies and weapons.<br>
-<a href="templates/games/harbor-skirmish">View source</a>
+<img src="templates/games/tidebreaker/cover.webp" width="100%" alt="Tidebreaker — 3D storm archipelago speedboat racing"><br>
+<strong>Tidebreaker</strong> · <code>3D · Racing · Three.js</code><br>
+Race a speedboat through a storm-lashed archipelago, jump wave crests, dodge reefs, and beat the tide across eight checkpoints.<br>
+<a href="templates/games/tidebreaker/">Inspect source &amp; DESIGN.md →</a>
 </td>
 <td width="50%" valign="top">
-<a href="templates/games/rooftop-roast"><img src="docs/readme/opengame/rooftop-roast.webp" width="480" alt="Rooftop Roast — Brand mini-game"></a><br>
-<strong>Rooftop Roast</strong><br>
-<sub>Brand mini-game</sub><br>
-Pilot a tiny drone, collect coffee beans and land on the café roof. Make the shop, offer and reward your own.<br>
-<a href="templates/games/rooftop-roast">View source</a>
+<img src="templates/games/starlight-bastion/cover.webp" width="100%" alt="Starlight Bastion — Voxel space crystal wave shooter"><br>
+<strong>Starlight Bastion</strong> · <code>Voxel · Shooter · Upgrades</code><br>
+Defend a luminous crystal against five escalating waves of voxel invaders, choosing roguelite upgrades between waves.<br>
+<a href="templates/games/starlight-bastion/">Inspect source &amp; DESIGN.md →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/skyline-courier/cover.webp" width="100%" alt="Skyline Courier — 3D cyberpunk rooftop parkour platformer"><br>
+<strong>Skyline Courier</strong> · <code>3D · Platformer · Cyberpunk</code><br>
+Run, leap, and wall-kick across rain-soaked cyberpunk skyscrapers to deliver three final parcels in 90 seconds.<br>
+<a href="templates/games/skyline-courier/">Inspect source &amp; DESIGN.md →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/neon-drift/cover.webp" width="100%" alt="Neon Drift — 3D synthwave night highway racer"><br>
+<strong>Neon Drift</strong> · <code>3D · Racing · Cyberpunk</code><br>
+Weave through rain-slick neon highway traffic, chain near-misses to recharge boost, and chase a new distance record.<br>
+<a href="templates/games/neon-drift/">Inspect source →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/comet-guard/cover.webp" width="100%" alt="Comet Guard — Orbital defense space shooter"><br>
+<strong>Comet Guard</strong> · <code>Shooter · Space</code><br>
+Pilot an orbital interceptor in a painted starfield, shatter molten comets, and defend the station through escalating waves.<br>
+<a href="templates/games/comet-guard/">Inspect source →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/harbor-skirmish/cover.webp" width="100%" alt="Harbor Skirmish — 3D first-person island shooter"><br>
+<strong>Harbor Skirmish</strong> · <code>3D FPS · Grapple &amp; Slide</code><br>
+A stylized 3D first-person shooter on a curved island with double-jump, slide, dash, and grappling-hook mobility.<br>
+<a href="templates/games/harbor-skirmish/">Inspect source →</a>
 </td>
 </tr>
 </table>
 
-<table>
+### Stylized, Narrative & Atmospheric Games (16:9)
+
+<table width="100%">
 <tr>
 <td width="50%" valign="top">
-<a href="templates/games/drift-dash"><img src="docs/readme/opengame/drift-dash.webp" width="320" alt="Drift Dash — Arcade racing"></a><br>
-<strong>Drift Dash</strong><br>
-<sub>Arcade racing</sub><br>
-Race three AI rivals through a three-lap circuit. Change the handling, track and win condition.<br>
-<a href="templates/games/drift-dash">View source</a>
+<img src="templates/games/glyph-garden/cover.webp" width="100%" alt="Glyph Garden — Anime fantasy match-3 puzzle"><br>
+<strong>Glyph Garden</strong> · <code>Anime · Puzzle · Fantasy</code><br>
+Trade moonlit petals and trigger cascading combo blooms to reach 2,200 points in 24 moves.<br>
+<a href="templates/games/glyph-garden/">Inspect source →</a>
 </td>
 <td width="50%" valign="top">
-<a href="templates/games/pin-rescue"><img src="docs/readme/opengame/pin-rescue.webp" width="320" alt="Pin Rescue — Puzzle"></a><br>
+<img src="templates/games/lantern-hop/cover.webp" width="100%" alt="Lantern Hop — Pixel fantasy rooftop platformer"><br>
+<strong>Lantern Hop</strong> · <code>Pixel · Platformer · Fantasy</code><br>
+Guide a scarf-wearing pixel fox across layered moonlit rooftops, double-jumping gaps and collecting glowing paper lanterns.<br>
+<a href="templates/games/lantern-hop/">Inspect source →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/lighthouse-log/cover.webp" width="100%" alt="Lighthouse Log — Anime stormy-night narrative survival"><br>
+<strong>Lighthouse Log</strong> · <code>Anime · Story · Survival</code><br>
+Keep a coastal lighthouse burning through seven stormy nights, rationing fuel and making impossible radio choices.<br>
+<a href="templates/games/lighthouse-log/">Inspect source →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/last-light/cover.webp" width="100%" alt="Last Light — Torch-beam horror escape"><br>
+<strong>Last Light</strong> · <code>Horror · Atmospheric</code><br>
+Search an abandoned school for three keys before your torch dies while keeping the pursuing shade pinned in your beam.<br>
+<a href="templates/games/last-light/">Inspect source →</a>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="templates/games/night-train/cover.webp" width="100%" alt="Night Train Letters — Interactive branching story"><br>
+<strong>Night Train Letters</strong> · <code>Story · Branching Narrative</code><br>
+Three unsent letters on a rain-soaked night train to the sea — an intimate branching narrative built in pure HTML.<br>
+<a href="templates/games/night-train/">Inspect source →</a>
+</td>
+<td width="50%" valign="top">
+<img src="templates/games/stack-the-moon/cover.webp" width="100%" alt="Stack the Moon — One-tap moonlit tower stacker"><br>
+<strong>Stack the Moon</strong> · <code>Casual · One-Tap Arcade</code><br>
+Build a moonlit observatory above the clouds one timed stone at a time; chain perfect landings to widen your tower.<br>
+<a href="templates/games/stack-the-moon/">Inspect source →</a>
+</td>
+</tr>
+</table>
+
+### Viral Portrait Mini-Games & Playable Ads (9:16)
+
+Built for mobile thumbs, instant first-frame engagement, short high-retention loops, and **mini-game / playable-ad monetization**:
+
+<table width="100%">
+<tr>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/gate-legion/cover.webp" width="220" alt="Gate Legion — 9:16 arithmetic gate army runner"><br>
+<strong>Gate Legion</strong><br>
+<code>9:16 · Gate Runner</code><br>
+Lead your squad through <code>+10</code> / <code>×2</code> arithmetic gates and clash with the final boss army.<br>
+<a href="templates/games/gate-legion/">Source →</a>
+</td>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/pin-rescue/cover.webp" width="220" alt="Pin Rescue — 9:16 pull-the-pin puzzle"><br>
 <strong>Pin Rescue</strong><br>
-<sub>Puzzle</sub><br>
-Pull pins to combine water and lava, then release the gold. Build a new sequence of puzzles.<br>
-<a href="templates/games/pin-rescue">View source</a>
+<code>9:16 · Pull-the-Pin Puzzle</code><br>
+Pull pins to mix water and lava into stone, clear hazards, and deliver gold across five stages.<br>
+<a href="templates/games/pin-rescue/">Source →</a>
+</td>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/sky-runner/cover.webp" width="220" alt="Sky Runner — 9:16 3D neon hoverboard runner"><br>
+<strong>Sky Runner</strong><br>
+<code>9:16 · 3D Lane Runner</code><br>
+Swipe lanes, collect coins, dodge drones, and boost through an accelerating neon skyway.<br>
+<a href="templates/games/sky-runner/">Source →</a>
 </td>
 </tr>
-</table>
-
-<table>
 <tr>
-<td width="50%" valign="top">
-<a href="templates/games/sort-stack"><img src="docs/readme/opengame/sort-stack.webp" width="320" alt="Sort Stack — Casual puzzle"></a><br>
-<strong>Sort Stack</strong><br>
-<sub>Casual puzzle</sub><br>
-Move matching rings between poles. Remix the colors, level layouts and time pressure.<br>
-<a href="templates/games/sort-stack">View source</a>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/slime-swell/cover.webp" width="220" alt="Slime Swell — 9:16 city-eating arcade arena"><br>
+<strong>Slime Swell</strong><br>
+<code>9:16 · Grow &amp; Devour .io</code><br>
+Swallow street objects, grow bigger than buildings, and outrank three rival slimes in 60 seconds.<br>
+<a href="templates/games/slime-swell/">Source →</a>
 </td>
-<td width="50%" valign="top">
-<a href="templates/games/tilt-temple"><img src="docs/readme/opengame/tilt-temple.webp" width="320" alt="Tilt Temple — Physics challenge"></a><br>
-<strong>Tilt Temple</strong><br>
-<sub>Physics challenge</sub><br>
-Tilt a maze, collect a key and reach the portal. Rework its paths, hazards and atmosphere.<br>
-<a href="templates/games/tilt-temple">View source</a>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/lane-turret/cover.webp" width="220" alt="Lane Turret — 9:16 space turret upgrade shooter"><br>
+<strong>Lane Turret</strong><br>
+<code>9:16 · Upgrade Shooter</code><br>
+Aim a triple-barrel turret, draft upgrade cards, and hold the line across ten waves.<br>
+<a href="templates/games/lane-turret/">Source →</a>
+</td>
+<td width="33%" valign="top" align="center">
+<img src="templates/games/merge-bakery/cover.webp" width="220" alt="Merge Bakery — 9:16 pastry merge game"><br>
+<strong>Merge Bakery</strong><br>
+<code>9:16 · Merge &amp; Serve</code><br>
+Bake dough, merge matching pastries, and serve timed customer orders to hit \$250 in 90 seconds.<br>
+<a href="templates/games/merge-bakery/">Source →</a>
 </td>
 </tr>
 </table>
 
-### Explore the whole collection
+<details>
+<summary><strong>Browse all 26 built-in playable game templates</strong></summary>
 
-The source examples below cover six genres. Use them to explore a core loop, visual treatment or input scheme, then develop your own version. This checkout contains **26 bundled examples** from the broader collection.
+| Game | Genre | Style | Format | Summary | Source |
+| --- | --- | --- | --- | --- | --- |
+| **Castle Crush** | Casual | Anime | 9:16 Portrait | Slingshot physics siege across four timber-and-stone stages | [castle-crush](templates/games/castle-crush/) |
+| **Comet Guard** | Shooter | Minimal | 16:9 Landscape | Orbital interceptor defending a starfield station from molten comets | [comet-guard](templates/games/comet-guard/) |
+| **Drift Dash** | Racing | Voxel | 9:16 Portrait | One-thumb retro circuit drifting against three AI rivals | [drift-dash](templates/games/drift-dash/) |
+| **Gate Legion** | Casual | Pixel | 9:16 Portrait | Viral arithmetic-gate squad multiplier & boss clash | [gate-legion](templates/games/gate-legion/) |
+| **Glyph Garden** | Casual | Anime | 16:9 Landscape | Cascading fantasy match-3 bloom puzzle | [glyph-garden](templates/games/glyph-garden/) |
+| **Harbor Skirmish** | Shooter | 3D | 16:9 Landscape | Stylized 3D FPS with double-jump, slide, dash, and grapple | [harbor-skirmish](templates/games/harbor-skirmish/) |
+| **Hollow Signal** | Horror | Minimal | 16:9 Landscape | Static-tuning radio horror before sanity fades | [hollow-signal](templates/games/hollow-signal/) |
+| **Jingyang Ridge** | Casual | Anime | 16:9 Landscape | Ink-wash martial arts boss duel — read tells, dodge lanes, punish | [jingyang-ridge](templates/games/jingyang-ridge/) |
+| **Lane Turret** | Shooter | Pixel | 9:16 Portrait | Auto-turret wave defense with upgrade cards | [lane-turret](templates/games/lane-turret/) |
+| **Lantern Hop** | Platformer | Pixel | 16:9 Landscape | Moonlit rooftop fox endless double-jump runner | [lantern-hop](templates/games/lantern-hop/) |
+| **Last Light** | Horror | Minimal | 16:9 Landscape | Flashlight survival escape through an abandoned school | [last-light](templates/games/last-light/) |
+| **Lighthouse Log** | Story | Anime | 16:9 Landscape | Seven stormy nights of fuel rationing & branching radio choices | [lighthouse-log](templates/games/lighthouse-log/) |
+| **Merge Bakery** | Casual | Anime | 9:16 Portrait | Bake, merge pastries, and clear timed customer orders | [merge-bakery](templates/games/merge-bakery/) |
+| **Neon Drift** | Racing | 3D | 16:9 Landscape | Rain-slick synthwave highway traffic weaving & boost | [neon-drift](templates/games/neon-drift/) |
+| **Night Train Letters** | Story | Minimal | 16:9 Landscape | Intimate branching story of three unsent letters on a night train | [night-train](templates/games/night-train/) |
+| **Periscope Depth** | Shooter | Minimal | 16:9 Landscape | Submarine patrol: torpedo carriers on periscope, dodge sonar depth charges | [periscope-depth](templates/games/periscope-depth/) |
+| **Pin Rescue** | Casual | Minimal | 9:16 Portrait | Pull-the-pin lava, water, and gold physics puzzles | [pin-rescue](templates/games/pin-rescue/) |
+| **Rooftop Roast** | Casual | Minimal | 16:9 Landscape | Brandable café promo drone game — edit one `SHOP` object to rebrand | [rooftop-roast](templates/games/rooftop-roast/) |
+| **Sky Runner** | Racing | 3D | 9:16 Portrait | Cyberpunk 3D hoverboard lane runner with coins & boost | [sky-runner](templates/games/sky-runner/) |
+| **Skyline Courier** | Platformer | 3D | 16:9 Landscape | 3D rooftop parkour & wall-kicks against a 90-second timer | [skyline-courier](templates/games/skyline-courier/) |
+| **Slime Swell** | Casual | Minimal | 9:16 Portrait | City-devouring growth arena against three rival slimes | [slime-swell](templates/games/slime-swell/) |
+| **Sort Stack** | Casual | Minimal | 9:16 Portrait | Five-stage ring-sorting logic puzzle with undo | [sort-stack](templates/games/sort-stack/) |
+| **Stack the Moon** | Casual | Minimal | 16:9 Landscape | One-tap moonlit observatory tower stacker | [stack-the-moon](templates/games/stack-the-moon/) |
+| **Starlight Bastion** | Shooter | Voxel | 16:9 Landscape | Five-wave crystal defense with roguelite upgrades | [starlight-bastion](templates/games/starlight-bastion/) |
+| **Tidebreaker** | Racing | 3D | 16:9 Landscape | Storm archipelago 3D speedboat racing & wave jumps | [tidebreaker](templates/games/tidebreaker/) |
+| **Tilt Temple** | Casual | 3D | 9:16 Portrait | 3D floating labyrinth — tilt, collect the key, reach the portal | [tilt-temple](templates/games/tilt-temple/) |
 
-| Genre | Bundled games |
-| --- | --- |
-| Shooters · 5 | [Comet Guard](templates/games/comet-guard) · [Harbor Skirmish](templates/games/harbor-skirmish) · [Lane Turret](templates/games/lane-turret) · [Periscope Depth](templates/games/periscope-depth) · [Starlight Bastion](templates/games/starlight-bastion) |
-| Platformers · 2 | [Lantern Hop](templates/games/lantern-hop) · [Skyline Courier](templates/games/skyline-courier) |
-| Stories · 2 | [Lighthouse Log](templates/games/lighthouse-log) · [Night Train Letters](templates/games/night-train) |
-| Casual & puzzles · 11 | [Castle Crush](templates/games/castle-crush) · [Gate Legion](templates/games/gate-legion) · [Glyph Garden](templates/games/glyph-garden) · [Jingyang Ridge](templates/games/jingyang-ridge) · [Merge Bakery](templates/games/merge-bakery) · [Pin Rescue](templates/games/pin-rescue) · [Rooftop Roast](templates/games/rooftop-roast) · [Slime Swell](templates/games/slime-swell) · [Sort Stack](templates/games/sort-stack) · [Stack the Moon](templates/games/stack-the-moon) · [Tilt Temple](templates/games/tilt-temple) |
-| Racing · 4 | [Drift Dash](templates/games/drift-dash) · [Neon Drift](templates/games/neon-drift) · [Sky Runner](templates/games/sky-runner) · [Tidebreaker](templates/games/tidebreaker) |
-| Horror · 2 | [Hollow Signal](templates/games/hollow-signal) · [Last Light](templates/games/last-light) |
-
-Studio also displays community references with their original author links. Those references are separate from the bundled source collection. Remixing an external reference starts a new original game brief; it does not import the creator's code or assets.
+</details>
 
 <a id="features"></a>
 
 ## ✨ Why OpenGame
 
-### 1. The Open-source Super Game Agent
+### 1. One-Click Remix & Re-style — Powered by Game-as-Code
 
-<p><img src="docs/readme/opengame/diagrams/creation-stack.svg" width="100%" alt="OpenGame creation loop: idea, remix, assets, play-testing and publishing"></p>
+Building a polished game from a blank prompt is hard for any model. OpenGame solves this by separating **verified game engineering** from **theme, art direction, and content**:
 
-#### Create, play and improve in Game Studio
+- **Every game is clean, inspectable source**: `index.html`, deterministic `logic.js`, vendored Three.js for 3D titles, plus structured design docs (`design/plan.md`, `design/style.md`, `design/assets.csv`, `design/verification.md`).
+- **Remix in one click**: Click **Remix** on any of the 26 templates in Game Studio (or ask your agent to remix it) to fork an owned, editable draft with full controls, tuning knobs, and automated test hooks already wired up.
+- **Re-style into any universe**: Swap genre dressing, characters, palette, sprites, textures, and music without breaking physics or win/loss rules — ideal for fast iteration with affordable models like **DeepSeek**, or pushing AAA-grade 3D & shader ambition with **Claude Fable 5.2**, **Opus**, **Codex**, and **Gemini**.
 
-Describe a game on the left and explore its result in the **Artifact Viewer**. Switch between preview and source, reopen an existing game, or continue the next iteration with your agent. You can look at what is being built while deciding what should change next.
-
-<p><img src="docs/readme/opengame/studio-play.webp" width="100%" alt="Actual Game Studio showing creation controls beside the Harbor Skirmish playable preview"></p>
-
-*Actual source-build interface: Game Studio and Harbor Skirmish in the same workspace.*
-
-| In the workspace | What it helps you do |
-| --- | --- |
-| Genre, style and setting controls | Give the agent a useful starting direction before writing a detailed prompt |
-| Template discovery and search | Find a working example by gameplay or visual idea |
-| Playable preview | Try the game instead of judging it only from a cover |
-| Preview / Code modes | Inspect the HTML source behind the current game |
-| Landscape / portrait orientation | Design around the target screen and control scheme |
-| Workspace assets and owned games | Return to your own drafts and keep developing them |
-| Sharing and trailer tools | Prepare a playable link or a gameplay video when the prerequisites are ready |
-
-The creative cycle is simple: **describe → build → play → refine**. A useful next instruction is specific: “the first jump is too hard,” “make the reward clearer,” or “give the player a reason to take the risky route.”
-
-#### From a brief to a playable game
-
-Good games need a readable objective, responsive controls and a reason to continue. The game workflow asks the agent to plan the experience before implementing it: who is playing, what they do, how they win, what makes them fail and how the difficulty develops.
-
-<p><img src="docs/readme/opengame/studio-create.webp" width="100%" alt="Actual Game Studio creation entry with six genre choices, templates and prompt composer"></p>
-
-Choose from **shooter, platformer, story, casual, racing and horror**; explore **pixel, minimal, ASCII, voxel, anime or 3D** treatments; set the world in **medieval, cyberpunk, retro, modern, space or fantasy** surroundings. These controls guide the brief. The resulting game still needs implementation and review.
-
-| Step | The work | What you can review |
-| --- | --- | --- |
-| Brief | Core action, audience, device, session length and success condition | A focused description of the experience |
-| Plan | Controls, camera, rules, difficulty and visual formula | The game plan and art direction |
-| Assets | Reuse, author or generate the required visuals and audio | An asset list with sources, licenses and costs |
-| Build | Implement mechanics, feedback, menus and restart behavior | Real game files and a playable preview |
-| Verify | Validate resources, simulate rules and exercise controls | Actual results, screenshots and remaining gaps |
-| Deliver | Capture a cover, save metadata and prepare sharing | An owned game you can revisit and improve |
-
-A brief you can use:
+**Try these prompts in your connected Agent:**
 
 ```text
-Create a cozy rooftop delivery game for desktop browsers.
-The player has 90 seconds to deliver three parcels, with a double jump
-and a clearly marked landing zone. Use a warm sunset palette and chunky
-3D shapes. Include an opening instruction, a visible timer, win/loss
-states, pause and restart. Make the first delivery easy to learn.
-Plan the game, implement it, and test the complete loop.
+# 1. One-click Remix & Re-style (great for DeepSeek / fast models)
+Use openmotion-game to remix the "Lantern Hop" template into a cyberpunk rain-city cat runner. Keep the double-jump physics and endless scoring loop, replace the fox and lanterns with a neon cyber-cat and holo-batteries, generate new key art and synthwave BGM, then validate, playtest, and capture a fresh cover.
 ```
 
-<a id="choose-agent"></a>
+```text
+# 2. Build a 9:16 Playable Ad ready for mobile campaigns
+Use openmotion-game to create a portrait 9:16 playable ad (playableAd: true) for a medieval tower-defense mobile game: instant first-frame interaction with a hand tutorial, a 25-second escalating wave battle, and an end card with an App Store / Google Play CTA. Validate, simulate, playtest at 390x844, and bundle as a single-file HTML.
+```
 
-### 2. Free and open source. Bring your agent and keys.
-
-**BYOA — Bring Your Own Agent. BYOK — Bring Your Own Keys.** Choose your local agent and connect your own model providers. Your game source stays in your workspace.
-
-<p align="center">
-<img src="docs/readme/agents/codex-badge.svg" height="36" alt="Codex">
-<img src="docs/readme/agents/claude-code-badge.svg" height="36" alt="Claude Code">
-<img src="docs/readme/agents/opencode-badge.svg" height="36" alt="OpenCode">
-<img src="docs/readme/agents/gemini-badge.svg" height="36" alt="Gemini CLI">
-<img src="docs/readme/agents/cursor-badge.svg" height="36" alt="Cursor">
-<img src="docs/readme/agents/copilot-badge.svg" height="36" alt="GitHub Copilot">
-<img src="docs/readme/agents/kimi-badge.svg" height="36" alt="Kimi">
-<img src="docs/readme/agents/qwen-badge.svg" height="36" alt="Qwen">
-<img src="docs/readme/agents/aider-badge.svg" height="36" alt="Aider">
-<img src="docs/readme/agents/kiro-badge.svg" height="36" alt="Kiro">
-<img src="docs/readme/agents/trae-badge.svg" height="36" alt="Trae">
-<img src="docs/readme/agents/qoder-badge.svg" height="36" alt="Qoder">
-<img src="docs/readme/agents/hermes-badge.svg" height="36" alt="Hermes">
-<img src="docs/readme/agents/pi-badge.svg" height="36" alt="Pi">
-</p>
-
-**29 local agents, one game workflow.** [See the supported agents above](#agent-wall) or inspect the [current client registry](shared/local-agents.ts).
-
-OpenGame connects game tools, source files and a visible workspace to your coding agent. Use the integrated local-agent entry or connect a client that supports **local stdio MCP**. The source includes adapters for the clients above; installation, authentication and model support depend on each client. A badge does not mean every client/model combination has been tested.
-
-| You bring | OpenGame provides |
-| --- | --- |
-| An installed, authenticated coding agent | Game creation, file editing, preview and verification tools |
-| A game idea, reference or starting template | A brief, reusable workflow instructions and an editable project |
-| Your own art, music or configured media provider | Asset discovery, generation jobs and a shared asset library |
-| Creative judgment and play-testing | Repeatable checks, visible results and source you can keep |
-
-The open-source application does not include model credits. Your agent subscription, media-provider usage and optional hosting have their own requirements. You can start with bundled assets and procedural graphics before generating new media.
-
-### 3. 100+ TOP Viral Games. Remix Any Game.
-
-**Bring the game. Make your version.** A mechanic, a reference link or a playable starting point can become the brief for a new game. Ask the agent to identify the core loop, change the setting, design a fresh progression and build a playable version.
-
-For bundled games, **Remix** copies the source into an owned draft. For community references, the same action starts a new original-game brief from the catalog description, genre and style. One click starts the workflow; the agent then implements and play-tests the result. An external game's source and assets are not automatically imported.
-
-<p><img src="docs/readme/opengame/studio-code.webp" width="100%" alt="Actual Game Studio Code mode displaying Harbor Skirmish HTML source"></p>
-
-*Preview and source are views of the same game. The screenshot preserves the interface's original labels.*
-
-| Starting point | A meaningful remix |
-| --- | --- |
-| Harbor Skirmish | Turn wave survival into a timed rescue mission with fewer enemies and clear objectives |
-| Drift Dash | Reward careful drifting with a rechargeable boost and redesign the circuit |
-| Pin Rescue | Add a new puzzle sequence where water must cool lava before gold can fall |
-| Sort Stack | Build a relaxed learning mode with color labels, undo and increasingly constrained layouts |
-| Rooftop Roast | Change the shop, collection objective and end reward for a brand campaign |
-| Tilt Temple | Add alternate routes, checkpoints and a different risk/reward balance |
-
-These are suggested briefs, not claims that those variations ship as finished games. Start with a small change, play it and expand once the loop feels right.
-
-The workflow keeps useful context in ordinary project documents: `design/plan.md` for the experience and acceptance conditions, `design/assets.csv` for the asset inventory, and `design/verification.md` for actual checks and gaps. These files make it easier to continue a game later or hand it to another agent.
-
-#### Project context that travels with your game
-
-<p><img src="docs/readme/opengame/diagrams/project-context.svg" width="100%" alt="Game project context: plan, asset inventory, verification and playable source"></p>
-
-### 4. Images, video, music and voice for your game
+```text
+# 3. Original 3D Game from Scratch (great for Claude Fable 5.2 / Opus / Codex / Gemini)
+Use openmotion-game to create a 3D wuxia boss-duel game (style: "3d") set on a misty bamboo cliff at dusk. Include parry timing, dodge i-frames, stamina management, and two boss phases. Run 3-tier simulation, headless Chromium playtest, capture a 1280x720 cover, and record a gameplay trailer.
+```
 
 <a id="model-wall"></a>
 
-**11+ media models** for images, video, music and voice. Use the models available through your connected providers.
+### 2. Full-Stack Multimodal Game Creation (BYOK)
 
-<p align="center">
-<img src="docs/readme/opengame/models/gpt-image.svg" width="133" alt="GPT Image">
-<img src="docs/readme/opengame/models/seedream.svg" width="133" alt="Seedream">
-<img src="docs/readme/models/nano-banana.svg" width="133" alt="Nano Banana">
-<img src="docs/readme/models/flux.svg" width="133" alt="FLUX">
-<img src="docs/readme/models/seedance.svg" width="133" alt="Seedance">
-<img src="docs/readme/models/wan.svg" width="133" alt="Wan">
-<img src="docs/readme/models/suno.svg" width="133" alt="Suno">
-<img src="docs/readme/models/elevenlabs.svg" width="133" alt="ElevenLabs">
-<img src="docs/readme/models/kokoro.svg" width="133" alt="Kokoro">
-<img src="docs/readme/opengame/models/byteplus.svg" width="133" alt="BytePlus Voice">
+A real game needs more than code — it needs key art, character sprites, seamless 3D textures, music loops, voice lines, and crisp sound effects. OpenGame's **Model Gateway** wires multimodal generation directly into the game project while keeping your API keys local and separate from game source.
+
+<p>
+  <img src="docs/readme/opengame/models/gpt-image.svg" width="148" alt="GPT Image">
+  <img src="docs/readme/opengame/models/seedream.svg" width="148" alt="Seedream">
+  <img src="docs/readme/models/nano-banana.svg" width="148" alt="Nano Banana 2">
+  <img src="docs/readme/models/flux.svg" width="148" alt="FLUX">
+  <img src="docs/readme/models/codex.svg" width="148" alt="Codex Image"><br>
+  <img src="docs/readme/models/seedance.svg" width="148" alt="Seedance">
+  <img src="docs/readme/models/wan.svg" width="148" alt="Wan">
+  <img src="docs/readme/models/suno.svg" width="148" alt="Suno">
+  <img src="docs/readme/models/elevenlabs.svg" width="148" alt="ElevenLabs">
+  <img src="docs/readme/opengame/models/byteplus.svg" width="148" alt="BytePlus Voice">
 </p>
 
-Bring existing assets or use configured media providers for character art, backgrounds, textures, music, speech and video. The agent discovers the live model catalog, chooses a suitable capability and brings completed assets into the game. Keep art direction consistent across the whole experience.
-
-| Creative need | Current route | Example model families in the workflow |
+| Game Asset Layer | Recommended Models (when configured in Model Gateway) | Zero-Key / Built-in Fallback |
 | --- | --- | --- |
-| Character art, environments, textures, covers | Image generation or supplied images | GPT Image, Seedream |
-| Music and atmosphere | Music generation or supplied audio | ElevenLabs Music |
-| Narration and character lines | Text-to-speech or supplied recordings | ElevenLabs, BytePlus TTS |
-| Cinematic clips or launch material | Video generation | Wan, Seedance |
-| Immediate gameplay sound effects | Code-authored Web Audio | Local synthesis, no media-model call |
-| 3D characters and props | Bundled CC0 GLBs or procedural Three.js geometry | Existing 3D assets and code |
+| **🖼️ Key art, portraits, sprites & textures** | `GPT Image 2.6` (edits & transparent PNGs), `Seedream 5.5` / `5.0 Flash`, `Nano Banana 2`, `FLUX`, `Codex Image` | Crisp procedural Canvas/SVG sprites & procedural textures |
+| **🎵 Background music (menu, stage, boss)** | `ElevenLabs Music v2` (`no vocals` loops), `Suno v4` | Procedural Web Audio synthesized soundtrack |
+| **🎙️ Character voice & announcer lines** | `ElevenLabs v3` (English & multilingual), `BytePlus TTS 2` (Chinese), `Kokoro` | Styled dialogue captions & subtitle UI |
+| **🎬 Intro cutscenes & motion clips** | `Wan 2.7`, `Seedance 2.5` (short I2V clips) | In-engine animated intro camera & title sequence |
+| **🔊 Impact SFX (hits, jumps, coins, UI)** | Synthesized directly in game code via the Web Audio API | Same (zero latency, zero external files) |
+| **🧊 3D scenes & models** | Vendored **Three.js** + bundled CC0 kits + reserved 3D gateway slot (auto-discovered when connected) | Procedural Three.js geometry, lighting & shaders |
 
-Model IDs and availability come from the configured environment; the table describes asset roles, not a promise that every account has every model. Dedicated image-to-3D, rigging and animation generation are not part of the currently listed game-model capabilities.
+> OpenGame charges no software subscription for the local open-source stack. Use your own provider keys in **Model Settings**, connect [OpenDesign Go](https://go.open-design.ai/?utm_source=github&utm_medium=referral&utm_campaign=opengame&utm_content=readme_en) for unified multi-model access, or build 100% code-generated zero-API-cost games. [Model catalog](gateway/catalog.ts) · [Provider setup](docs/model-gateway.md)
 
-For a first playable version, reuse art and keep the scope small. Once the mechanics work, specify the assets worth generating. The asset manifest records each source, license and approved cost, so a polished game remains understandable and maintainable.
+### 3. Automated Game QA, Balance Simulation & Auto-Trailers
+
+Agents shouldn't just output code and hope it runs. OpenGame enforces an automated engineering verification loop before marking any game **ready**:
+
+1. **Static & 50-Tick Logic Validation (`openmotion_game_validate`)** — Verifies `index.html`, allowed asset/CDN policies, required deterministic exports, and runs a 50-tick smoke test (`< 5 ms` per tick).
+2. **3-Tier Deterministic Balance Simulation (`openmotion_game_simulate`)** — Executes bounded headless routes without a browser to verify that a skilled `reference` route reaches a real win milestone, a degraded weak route struggles, and an `idle` player loses cleanly (`< 2500` ticks).
+3. **Headless Chromium Playtesting (`openmotion_game_playtest`)** — Drives real keyboard/mouse/touch controls across 1–4 clients, checking 3C responsiveness, `390×844` mobile layout integrity, media URL loads, and zero console/network errors.
+4. **Game-Only Cover Capture (`openmotion_game_capture_cover`)** — Captures a clean `1280×720` PNG directly from the game canvas in isolated headless Chrome.
+5. **Automated Gameplay Trailer (`openmotion_game_trailer`)** — Records three real 5-second headless gameplay clips at `1280×720`, composes an editable ~19-second title + highlights + Play Now trailer, and renders an MP4 ready for social launch.
+
+<a id="publish-monetize"></a>
+
+## 🚀 End-to-End Distribution & Monetization
+
+Turn playable prototypes into real games people can play, share, and pay for.
+
+| Stage | Available Today | Roadmap (In Progress) |
+| --- | --- | --- |
+| **Play & Local Catalog** | Publish straight to your local OpenGame Studio market (`openmotion_game_publish`) with play tracking, favorites, and 1-click Remix | **Top 100 Profitable Mini-Game Templates** curated by genre & revenue mechanics for instant remixing |
+| **Instant Web Share** | One-click static bundle & live web share link via OpenDesign Cloud (`openmotion_assets_use action="web_publish"`), rewriting local media URLs and compressing assets automatically | Custom domain & embeddable game widget cards |
+| **Mobile Playable Ads** | Built-in **9:16 Playable Ad mode** (`playableAd: true`): first-frame instant play, hand tutorial, short levels, single-file inline HTML, and App Store / Google Play end-card CTA | Direct ad-network packaging presets (AppLovin, Unity Ads, Meta, TikTok) |
+| **Mini-Game Platforms & Monetization** | Clean self-contained HTML5/JS project exports ready for manual platform wrapping, plus auto-recorded gameplay trailers for launch marketing | **L1–L4 Guided Platform Publishing** (packaging scripts, checklists & Skills) for **WeChat Mini Games (微信小游戏)**, **Douyin Mini Games (抖音小游戏)**, **TikTok**, **Xiaohongshu Mini-Tools**, and **itch.io / Poki / CrazyGames** |
+| **AI Game Playground** | Local single-player & existing room-based playtesting | **Multi-Model Live Game Arena** — pit multiple frontier LLMs against each other inside live games in real time |
 
 <a id="technical-guide"></a>
 
-## 🛠️ Setup & technical architecture
+## 🛠️ Setup & MCP Tools
 
-### This source snapshot
+<a id="agent-setup"></a> <a id="choose-agent"></a>
 
-The product offering includes the 100+ game collection and cross-platform publishing described above. The checkout used for this guide contains 26 bundled source games; the commands and tool names below describe this checkout. Its game publication tool lists a game locally, and public web sharing uses the separate hosting workflow. Platform release instructions belong to the corresponding product integration.
+### Connect Your Local Agent
 
-### Source checkout + MCP
+Choose your agent to connect the local OpenGame MCP server and Skills:
 
-The [setup guide](docs/opengame-setup.md) covers installation, a separate data directory, Windows and manual client configuration. **Studio and MCP must use the same absolute `MOTION_DATA_DIR`** so the agent edits the games visible in your workspace.
+<p>
+  <a href="#deepseek-setup"><img src="docs/readme/agents/deepseek-badge.svg" width="144" height="34" alt="DeepSeek TUI / Harness" /></a>
+  <a href="#claude-setup"><img src="docs/readme/agents/claude-code-badge.svg" width="144" height="34" alt="Claude Code" /></a>
+  <a href="#codex-setup"><img src="docs/readme/agents/codex-badge.svg" width="144" height="34" alt="Codex CLI" /></a>
+  <a href="#workbuddy-setup"><img src="docs/readme/agents/workbuddy-badge.svg" width="144" height="34" alt="WorkBuddy" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/opencode-badge.svg" width="144" height="34" alt="OpenCode" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/hermes-badge.svg" width="144" height="34" alt="Hermes" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/antigravity-badge.svg" width="144" height="34" alt="Antigravity" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/gemini-badge.svg" width="144" height="34" alt="Gemini CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/grok-build-badge.svg" width="144" height="34" alt="Grok Build" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/kimi-badge.svg" width="144" height="34" alt="Kimi CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/cursor-badge.svg" width="144" height="34" alt="Cursor Agent" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/qwen-badge.svg" width="144" height="34" alt="Qwen Code" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/qoder-badge.svg" width="144" height="34" alt="Qoder CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/copilot-badge.svg" width="144" height="34" alt="GitHub Copilot" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/pi-badge.svg" width="144" height="34" alt="Pi" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/kiro-badge.svg" width="144" height="34" alt="Kiro CLI" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/kilo-badge.svg" width="144" height="34" alt="Kilo" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/vibe-badge.svg" width="144" height="34" alt="Mistral Vibe" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/reasonix-badge.svg" width="144" height="34" alt="Reasonix" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/aider-badge.svg" width="144" height="34" alt="Aider" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/devin-badge.svg" width="144" height="34" alt="Devin" /></a>
+  <a href="#manual-mcp"><img src="docs/readme/agents/trae-badge.svg" width="144" height="34" alt="Trae CLI" /></a>
+</p>
 
-<details>
-<summary><strong>Manual stdio MCP configuration</strong></summary>
+- <a id="deepseek-setup"></a>**DeepSeek TUI / Harness** · Install the `openmotion-game` skill and connect the local MCP tools via Cordis configuration, or run `node integrations/dsh/install.ts` from the checkout. [DeepSeek Harness guide](docs/agent-adapters.md#deepseek-harness)
+- <a id="claude-setup"></a>**Claude Code** · Add the stdio MCP entry below, install the `openmotion-game` skill, and run `/mcp` to verify the tools are active.
+- <a id="codex-setup"></a>**Codex CLI** · Run `bash scripts/install-motion.command` from the checkout to register the local plugin and MCP server automatically.
+- <a id="workbuddy-setup"></a>**WorkBuddy** · Import the connector or paste the `mcp.json` configuration below. [WorkBuddy guide](docs/agent-adapters.md#workbuddy)
 
-Use this with clients that accept an `mcpServers` object. Replace all paths with absolute paths to your Node executable, this checkout and the workspace. Use your client's native configuration format where it differs.
+<a id="manual-mcp"></a>
+
+#### Manual stdio MCP configuration (works in any MCP client)
 
 ```json
 {
   "mcpServers": {
-    "opengame": {
+    "openmotion": {
       "command": "/absolute/path/to/node",
-      "args": [
-        "--experimental-strip-types",
-        "/absolute/path/to/opengame/mcp.ts"
-      ],
+      "args": ["--experimental-strip-types", "/absolute/path/to/opengame/mcp.ts"],
       "env": {
-        "MOTION_DATA_DIR": "/absolute/path/to/.opengame/workspace"
+        "MOTION_DATA_DIR": "/absolute/path/to/opengame-data"
       }
     }
   }
 }
 ```
 
-Reload tool discovery and ask the agent to read the game workflow, then inspect a specific game ID. Installing Skill instructions alone does not install the app or establish an MCP connection. A cloud-only client cannot execute this local stdio configuration.
+> Keep `MOTION_DATA_DIR` outside the git checkout so your games, generated assets, and provider keys stay cleanly separated from repository updates. See the [full setup guide](docs/opengame-setup.md) and [architecture reference](docs/opengame-architecture.md).
 
-The current identifiers are `openmotion-game`, `openmotion://workflow/game/start` and `openmotion_game_*`. Keep those exact names when connecting this source version; `opengame` above is simply the connection label.
+### 12 Dedicated Game MCP Tools
 
-</details>
+OpenGame exposes a complete game-engineering tool surface over local stdio MCP (using the shared `openmotion_game_*` namespace so existing hosts and adapters stay 100% compatible):
 
-### The game toolset
-
-| Task | Current tool names |
+| MCP Tool | Purpose |
 | --- | --- |
-| Create and inspect | `openmotion_game_create`, `openmotion_game_get` |
-| Read and change source | `openmotion_game_read_file`, `openmotion_game_write_files` |
-| Update presentation | `openmotion_game_update_meta`, `openmotion_game_capture_cover` |
-| Verify behavior | `openmotion_game_validate`, `openmotion_game_simulate`, `openmotion_game_playtest` |
-| Manage readiness and local publication | `openmotion_game_set_status`, `openmotion_game_publish` |
-| Create gameplay video | `openmotion_game_trailer` |
+| `openmotion_game_create` | Create a new game draft (2D, 3D with vendored Three.js, or 9:16 `playableAd`) and return the complete agent brief |
+| `openmotion_game_get` | Read a game card, lifecycle status, and full file inventory |
+| `openmotion_game_read_file` | Read any source or design file inside a game project |
+| `openmotion_game_write_files` | Batch-write cohesive game source and design files (up to 100 text files / 8 MiB per owned game) |
+| `openmotion_game_update_meta` | Merge title, description, controls, cover path, and localized metadata (`zh-CN`, etc.) |
+| `openmotion_game_validate` | Check `index.html`, CDN policy, deterministic logic exports, and run a 50-tick smoke test |
+| `openmotion_game_simulate` | Run bounded 3-tier deterministic headless simulations (`reference` win / weak / `idle` loss) |
+| `openmotion_game_playtest` | Launch isolated headless Chrome (1–4 clients) to test real input controls, `390×844` layout, and console cleanliness |
+| `openmotion_game_capture_cover` | Capture a clean `1280×720` PNG directly from the game canvas into `assets/cover.png` |
+| `openmotion_game_trailer` | Record real headless gameplay clips and render an editable ~19-second MP4 trailer |
+| `openmotion_game_set_status` | Transition lifecycle status (`building`, `ready`, `failed`) |
+| `openmotion_game_publish` | Revalidate and publish the game into the local Game Studio catalog |
 
-Public web publication uses the separate assets tool with `action: "web_publish"` and `targetKind: "game"`. Media discovery and generation use the media and assets tools. Read the live schemas before calling them.
+Plus **`openmotion_media_use`** (discover & inspect configured BYOK multimodal models) and **`openmotion_assets_use`** (generate images/music/voice/video and run `action: "web_publish"` for one-click cloud share links). [Full MCP contract](docs/mcp-phase1-tools.md)
 
-<a id="system-architecture"></a>
+### Game Engineering Skill & 18 Reference Handbooks
 
-### How OpenGame works
+Every connected agent can read [`skills/openmotion-game/SKILL.md`](skills/openmotion-game/SKILL.md) (or `openmotion://workflow/game/start` via MCP resources) along with 18 specialized engineering handbooks:
 
-**Game Studio and the agent work on the same game files.** The interface handles creation controls, preview and source inspection. Agent adapters execute the creative task. Shared services manage games, assets and verification, so a project can continue in Studio or in an external MCP client.
-
-<p><img src="docs/readme/opengame/diagrams/runtime-architecture.svg" width="100%" alt="OpenGame runtime architecture: Studio, agent, shared game service, media, verification and delivery"></p>
-
-| Layer | Responsibility | Source |
-| --- | --- | --- |
-| Game Studio | Brief, discovery, playable preview and source view | [GameStudio.tsx](studio/src/motion/game/GameStudio.tsx), [ArtifactBrowserPane.tsx](studio/src/super-agent/ArtifactBrowserPane.tsx) |
-| Agent runtime | Client selection, conversation and task execution | [Runtime adapters](gateway/agent-runtimes.ts), [Super Agent](gateway/super-agent.ts), [29 clients](shared/local-agents.ts) |
-| HTTP + MCP | Two entry points into shared game operations | [server.ts](server.ts), [mcp.ts](mcp.ts), [12 game tools](shared/game-tools.ts) |
-| Game projects | Owned source, remixes, metadata and project lifecycle | [GameProjects](game-projects.ts), [game contract](shared/game-contract.ts) |
-| Models + assets | Model catalogs, generation jobs and reusable media | [Model catalog](gateway/catalog.ts), [asset library](gateway/asset-library.ts) |
-| Verification | Resource checks, rule simulation and browser play-tests | [Game service](game-projects.ts), [browser runtime](browser.ts), [game tests](tests/game-projects.test.ts) |
-| Delivery | Local catalog, hosted web snapshots and gameplay trailers | [Web publishing](gateway/web-publish.ts), [delivery workflow](skills/openmotion-game/references/game-flow.md) |
-
-### From a request to an owned game
-
-1. **Choose a starting point.** A new brief creates a draft; remixing a bundled template creates an independent owned copy.
-2. **Run the agent.** Game Studio hands the brief and game ID to the selected agent. An external client can instead use the game workflow through local MCP.
-3. **Build and verify.** The agent changes the project files, brings in assets, checks resources and tests rules and input. Studio previews those same files.
-4. **Deliver and continue.** Prepare a cover, a playable release or a trailer. Keep the local source for the next iteration; publish another snapshot when the shared version should change.
-
-Owned games live in `MOTION_DATA_DIR/games/<game-id>/`, with `game.json`, the playable entry and supporting files. The workflow keeps plans, asset sources and verification evidence in `design/`. Bundled templates remain separate in `templates/games/`. Editing a ready or published game returns it to `building`.
-
-### Technical stack
-
-| Area | Stack | Why it is here |
-| --- | --- | --- |
-| Application services | Node.js + TypeScript | Shared game, agent and asset services for HTTP and MCP |
-| Studio | React + Vite + Tailwind CSS + Zustand | A responsive workspace for creation, preview and project state |
-| Game output | HTML, CSS, JavaScript; Canvas / WebGL / Three.js as needed | Editable browser games with a direct playable preview |
-| Source inspection | [CodeViewer](studio/src/design/CodeViewer.tsx) | Read the actual game source alongside the result |
-| Verification and video | Chrome + Hyperframes + FFmpeg / ffprobe | Browser evidence, gameplay capture and MP4 delivery |
-| Interface system | Shared OpenDesign controls, fonts and brand assets | Consistent appearance across the workspace |
-
-### Choose a layer to extend
-
-| Build on OpenGame | Start here |
+| Domain | Reference Guides |
 | --- | --- |
-| Add a game or remix | [Game templates](templates/games), [game workflow](skills/openmotion-game/SKILL.md) |
-| Improve the workspace | [Game Studio](studio/src/motion/game/GameStudio.tsx), [design system](packages/design-system/README.md) |
-| Extend an agent integration | [Agent runtime architecture](docs/agent-runtime-architecture.md) |
-| Add a model or asset workflow | [Model Gateway](docs/model-gateway.md), [assets](docs/assets.md) |
-| Extend game tools or delivery | [Tool schemas](shared/game-tools.ts), [GameProjects](game-projects.ts), [contribution guide](CONTRIBUTING.md) |
+| **Game Design & Structure** | [Brief Standard](skills/openmotion-game/references/game-brief.md) · [Genres & Core Loops](skills/openmotion-game/references/game-genres.md) · [Design System](skills/openmotion-game/references/game-design-system.md) · [Reference Lookup](skills/openmotion-game/references/game-lookup.md) |
+| **3C, Controls & Game Feel** | [3C Modules](skills/openmotion-game/references/game-3c-modules.md) · [Game Feel & Craft](skills/openmotion-game/references/game-feel-craft.md) · [Production Flow](skills/openmotion-game/references/game-flow.md) |
+| **Visuals, 2D/3D & Audio** | [Stylization](skills/openmotion-game/references/game-stylization.md) · [Textures](skills/openmotion-game/references/game-textures.md) · [2D Animation](skills/openmotion-game/references/game-2d-animation.md) · [3D Animation](skills/openmotion-game/references/game-3d-animation.md) · [Procedural Motion](skills/openmotion-game/references/game-procedural-animation.md) · [Audio & Web Audio](skills/openmotion-game/references/game-audio.md) |
+| **Playable Ads & Quality Gates** | [Playable Ad Spec](skills/openmotion-game/references/game-playable-ad.md) · [Quality Gates](skills/openmotion-game/references/game-gates.md) · [Review Rubric](skills/openmotion-game/references/review-rubric.md) |
 
-[Architecture details, project layout and service boundaries →](docs/opengame-architecture.md) · [Installation & troubleshooting →](docs/opengame-setup.md)
+### Tech Stack & Source Map
 
-<a id="launch-and-earn"></a>
-
-## 🌍 Build for players. Launch for a business.
-
-### TikTok, WeChat, Douyin — go where people play
-
-Build once, then take your game to the platforms where players discover and play it. **Publish to TikTok, WeChat, Douyin and more**, with a version suited to each destination. Keep your editable source and keep improving after launch.
-
-| Destination | Take your game to market |
-| --- | --- |
-| TikTok | Publish for players discovering games through TikTok and support the launch with gameplay content |
-| WeChat | Release to the WeChat mini-game ecosystem and build an experience players can share and return to |
-| Douyin | Release to the Douyin mini-game ecosystem and connect game discovery with playable experiences |
-| The web | Share a playable link and let people try the game directly in a browser |
-
-Use your developer account and complete the destination platform's release review. Keep a playable version, source and promotional material ready for each launch.
-
-### Turn a fun loop into a commercial game
-
-A game business starts with a player who wants another round. Shape the first session, test the challenge, make progress feel valuable and choose how the experience can support revenue.
-
-| Business direction | Start with | Develop next |
+| Layer | Technology | Entry Points |
 | --- | --- | --- |
-| Ad-supported mini-games | A short, replayable challenge with clear rewards | Retention, optional rewarded moments and the destination's ad integration |
-| Paid content | A complete core experience | Additional levels, cosmetics or a premium edition, with payment integration |
-| Brand games & playable ads | A product, campaign or character worth interacting with | A focused branded loop, end card and measurable call to action |
-
-Choose the model that fits your players, then connect the relevant advertising or payment services. OpenGame makes commercial game creation accessible; your game, audience and ongoing operation create its revenue.
-
-<a id="playable-ads"></a>
-
-## 📱 Build a playable moment for your brand
-
-A playable ad gives someone a short interaction before asking them to act. OpenGame's portrait workflow focuses on an immediate start, a brief tutorial, a compact challenge and a clear end card.
-
-| Moment | Design goal | Example |
-| --- | --- | --- |
-| First interaction | Make the action obvious | Tap a pin, drag a ring, steer into a lane |
-| Tutorial | Teach through the first move | Highlight one valid action and show its result |
-| Challenge | Create a small, satisfying decision | Save the character or finish a short course |
-| Feedback | Make success or failure legible | A clear reward, result and quick retry |
-| End card | Connect the experience to the campaign | Brand, offer and a user-chosen call to action |
-
-```text
-Make a portrait coffee-shop playable ad based on Rooftop Roast.
-Keep one simple delivery action, teach it with the first interaction,
-and finish with a reward card for “Harbor Coffee”. Use supplied brand
-assets, readable touch targets and a replay button. Keep the CTA URL
-configurable. Do not publish until I review the playable result.
-```
-
-The output is an editable game. Choose the destination and its ad integration, then review the playable experience and campaign settings before submission.
-
-<a id="verification"></a>
-
-## 🧪 A game should survive being played
-
-A page loading successfully is only the start. OpenGame separates file validation, game-rule simulation and browser interaction so an agent can find different kinds of failure.
-
-| Check | What it establishes | What still needs attention |
-| --- | --- | --- |
-| Validate | Entry files, local references and supported source checks | Whether the game is enjoyable or balanced |
-| Simulate | Deterministic rule behavior for games implementing the expected simulation contract | Visual feedback and real input behavior |
-| Play-test | Scripted keyboard/mouse actions, state assertions, resource errors and layout checks | Physical touch, actual device performance and human play |
-| Capture | A real frame from the running game | A complete run, sound quality or release acceptance |
-
-The recommended verification plan includes a **reference strategy that can win**, a weak strategy that should fail and an idle path that should not silently succeed. For movement games, test meaningful displacement; for tap puzzles, use appropriate actions instead of claiming a movement test proves the puzzle works.
-
-Keep the evidence with the game. If Chrome is unavailable, or touch/audio/performance was not checked, record that gap rather than turning an unrun check into a success.
-
-<a id="sharing"></a>
-
-## 🔗 From your workspace to someone else's browser
-
-### Keep it locally, or publish a playable link
-
-A finished game can be listed in the **local game catalog**. Public sharing is a separate action: with a signed-in OpenDesign account and a configured hosting workspace, web publishing bundles the game and referenced local assets into a static snapshot.
-
-| Destination | What is delivered |
-| --- | --- |
-| Your workspace | Editable game files, metadata and source context |
-| Local game catalog | A locally available playable entry |
-| Public web publication | A shareable static snapshot through configured hosting |
-| Gameplay trailer | Recorded gameplay assembled into an editable video project and MP4 |
-
-Local edits do not automatically update a published snapshot. Publish again when you want the shared version to change, then verify that its assets load and controls work at the returned URL.
-
-### Show the game in motion
-
-The gameplay-trailer pipeline records game clips, assembles title/highlight/CTA sections and renders a video. It is useful for showing the game without asking everyone to launch it immediately. Chrome, FFmpeg/ffprobe and the prepared video runtime are required. Initial gameplay recording is silent; music, sound and final playback need their own review.
-
-[Game sharing and trailer details →](skills/openmotion-game/references/game-flow.md)
-
-<a id="faq"></a>
-
-## 💬 Before your first build
-
-<details>
-<summary><strong>Do I need to code?</strong></summary>
-
-You can start by describing a game and giving feedback in natural language. The agent writes the source. Knowing some web development helps with deeper customization, but the preview, templates and workflow provide concrete starting points for non-coders too. Review the game yourself before sharing it.
-
-</details>
-
-<details>
-<summary><strong>Can I create 2D and 3D games?</strong></summary>
-
-Yes. The bundled collection includes 2D and 3D browser games, and the workflow supports both. Choose a focused mechanic and target device; 3D assets, performance and input still need deliberate testing. Native console or app-store packaging is outside this browser-game workflow.
-
-</details>
-
-<details>
-<summary><strong>Does it support multiplayer?</strong></summary>
-
-New game creation currently uses the single-player workflow. Existing local room-based projects retain their local WebSocket server requirement. A static public share does not deploy that room server, so it should not be described as hosted multiplayer.
-
-</details>
-
-<details>
-<summary><strong>Is everything free and offline?</strong></summary>
-
-The original application code is open source. Browsing and playing locally bundled games does not require an agent. Agent services, generated media and optional hosting may require authentication, network access and payment. Individual game dependencies and third-party assets have their own terms.
-
-</details>
-
-<details>
-<summary><strong>What stays editable?</strong></summary>
-
-Your game's HTML, CSS, JavaScript and project documents remain in the workspace. Generated assets are referenced through the asset library. Public sharing produces a static snapshot; keep the local project as the source for later changes.
-
-</details>
+| **OpenGame Studio UI** | React 19, TypeScript 5.9, Vite 6, Tailwind CSS 4, Zustand | [GameStudio.tsx](studio/src/motion/game/GameStudio.tsx) · [gameCatalog.ts](studio/src/motion/game/gameCatalog.ts) |
+| **Game Runtime & QA** | Node.js, native HTTP, Puppeteer Core / Chrome, deterministic simulator | [game-projects.ts](game-projects.ts) · [shared/game-contract.ts](shared/game-contract.ts) · [server.ts](server.ts) |
+| **MCP & Agent Skills** | Local stdio MCP server, `openmotion-game` Skill & 18 handbooks | [mcp.ts](mcp.ts) · [skills/openmotion-game/](skills/openmotion-game/) |
+| **Multimodal Gateway** | BYOK model discovery, job polling, asset library & web publish | [gateway/service.ts](gateway/service.ts) · [gateway/catalog.ts](gateway/catalog.ts) · [docs/assets.md](docs/assets.md) |
+| **Playable Templates** | 26 standalone HTML5 / Canvas / Three.js games with covers & metadata | [templates/games/](templates/games/) |
+| **Trailer Pipeline** | Headless gameplay capture + HTML composition + FFmpeg MP4 export | [docs/usage.md](docs/usage.md) · [scripts/verify-export.ts](scripts/verify-export.ts) |
 
 <a id="community"></a>
 
-## 🤝 Build something people want to play
+## 🤝 Build Games Together
 
-A useful contribution can be a tiny mechanic with great feel, a clearer tutorial, a reusable asset workflow or a reproducible bug report. Help the next creator begin with something better.
+Share a playable game template, a remixable mini-game genre kit, an art-style guide, a platform publishing script (WeChat / Douyin / TikTok / itch.io), or a Game Studio improvement.
 
-| Contribution | Include |
+| Contribution | What to include |
 | --- | --- |
-| A game or remix | Source, controls, a real screenshot, asset credits and how you tested it |
-| A workflow improvement | The creation problem, proposed change and an example showing its effect |
-| A bug report | Steps, expected/actual behavior, environment and relevant diagnostics |
-| A Studio improvement | The user interaction, implementation and checks for affected layouts |
-| Documentation or translation | Working commands, accurate examples and links that resolve |
+| **A playable game template** | Self-contained folder under `templates/games/<id>/` with `index.html`, `game.json`, `cover.webp`, and optional `DESIGN.md` |
+| **A genre or playable-ad recipe** | Clear 3C rules, balance invariants, and reference verification notes |
+| **Platform publishing adapters** | Packaging scripts, manifest generators, or submission checklists for mini-game & web portals |
+| **Agent & model integrations** | Host setup adapters or BYOK multimodal provider support |
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a change. For source work, use the pinned Node version, preserve lockfiles and run checks for the affected boundary. Keep generated projects and credentials outside the checkout.
+[Contribute](CONTRIBUTING.md) · [Repository Guidelines](AGENTS.md) · [Report an Issue](https://github.com/OpenDesignHQ/opengame/issues)
 
-[Report an issue](https://github.com/OpenDesignHQ/opengame/issues) · [Contribute](CONTRIBUTING.md) · [Discord](https://discord.com/invite/M7NnHS9gNa) · [Feishu](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=b6cs46dc-acb2-48ed-941d-c45642ead841) · [Follow OpenDesign](https://x.com/OpenDesignHQ)
+## Contributors
 
-**[Star OpenGame](https://github.com/OpenDesignHQ/opengame)** to follow new games and improvements. Share what you made, and the idea that made it fun.
+Thanks to everyone who has taken part — code, game templates, skills, docs, feedback, and issues.
 
-## Acknowledgements
+<a href="https://github.com/OpenDesignHQ/opengame/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=OpenDesignHQ/opengame&amp;max=500&amp;columns=20&amp;anon=1" alt="OpenGame contributors" />
+</a>
 
-OpenGame is built by **OpenDesign** on the [OpenMotion](https://github.com/nexu-io/openmotion) codebase. Runtime identifiers and the source-build screenshots retain their existing labels. The README focuses on the game creation workflow of this repository.
+## Star History
 
-The game workflow includes adapted guidance from [Higgsfield's skills](https://github.com/higgsfield-ai/skills); see the [provenance](skills/openmotion-game/PROVENANCE.md) and [MIT notice](skills/openmotion-game/LICENSE-HIGGSFIELD). The bundled video engine retains its [Hyperframes attribution](docs/hyperframes.md) and [Studio license](studio/LICENSE). Community references retain their original author credits in the catalog.
-
-The hero combines a generated game-world background with an unaltered real Studio screenshot. Standalone game images are actual local captures; none of the background illustration is presented as game output. [Image sources and capture notes](docs/readme/opengame/ASSETS.md) · [Font notices](packages/design-system/fonts/NOTICES.txt)
-
-[Apache-2.0](LICENSE) applies to this repository's original code. Third-party code, fonts and media retain their own terms.
+<a href="https://www.star-history.com/#OpenDesignHQ/opengame&amp;Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date&amp;theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date" />
+    <img alt="OpenGame Star History" src="https://api.star-history.com/svg?repos=opendesignhq%2Fopengame&amp;type=Date" />
+  </picture>
+</a>

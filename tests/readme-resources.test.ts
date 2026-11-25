@@ -13,21 +13,34 @@ test('README viewing resources and shipped browser dependencies resolve locally 
 });
 
 test('each OpenGame README language links its guide and bundled game captures', async () => {
-  const pages = [
+  const rootPages = [
+    ['README.md', 'English'],
+    ['README.zh-CN.md', '简体中文'],
+    ['README.ja.md', '日本語'],
+  ];
+  const docsPages = [
     ['README.md', 'English'],
     ['docs/README.zh-CN.md', '简体中文'],
     ['docs/README.ja.md', '日本語'],
   ];
   const shipped = new Set(distributionDocuments);
-  const manifest = JSON.parse(await readFile('docs/readme/opengame/manifest.json', 'utf8'));
-  for (const [file, language] of [...pages, ['README.zh-CN.md', '简体中文']]) {
+  const requiredAssets = [
+    'docs/readme/opengame-logo.svg',
+    'docs/readme/opengame-hero.webp',
+    'docs/readme/agents/local-agents.png',
+    'docs/readme/agents/local-agents.mobile.png',
+  ];
+  for (const [file, language, expectedPages] of [
+    ...rootPages.map(([f, l]) => [f, l, rootPages] as const),
+    ...docsPages.slice(1).map(([f, l]) => [f, l, docsPages] as const),
+  ]) {
     const text = await readFile(file, 'utf8');
     await checkDocument(file);
     const selector = text.split('\n').find(line => line.includes(`**${language}**`) && line.includes(' · '));
     assert(selector, `Missing language selector in ${file}`);
     const destinations = [...selector.matchAll(/\[([^\]]+)\]\(([^)]+)\)/g)]
       .map(([, label, target]) => [path.normalize(path.join(path.dirname(file), target)), label]);
-    assert.deepEqual(destinations, pages.filter(([, label]) => label !== language)
+    assert.deepEqual(destinations, expectedPages.filter(([, label]) => label !== language)
       .map(([target, label]) => [target, label]), file);
     for (const section of ['quick-start', 'agent-wall', 'showcase', 'features', 'technical-guide', 'community']) {
       assert(text.includes(`id="${section}"`), `${file}: missing ${section}`);
@@ -35,11 +48,13 @@ test('each OpenGame README language links its guide and bundled game captures', 
     assert(text.includes('https://github.com/OpenDesignHQ/opengame.git'), file);
     assert(!text.includes('capcut-claude-motion-cover'), `${file}: stale video cover`);
     assert(!text.includes('npx skills add nexu-io/openmotion'), `${file}: upstream installer`);
-    for (const asset of manifest.files) {
-      const relative = path.relative(path.dirname(file), asset.file).split(path.sep).join('/');
-      if (asset.display !== false) assert(text.includes(`src="${relative}"`), `${file}: missing ${asset.file}`);
-      assert(shipped.has(asset.file), `Missing from distribution: ${asset.file}`);
+    for (const asset of requiredAssets) {
+      const relative = path.relative(path.dirname(file), asset).split(path.sep).join('/');
+      assert(text.includes(`="${relative}"`), `${file}: missing ${asset}`);
+      assert(shipped.has(asset), `Missing from distribution: ${asset}`);
     }
+    const sampleCover = path.relative(path.dirname(file), 'templates/games/tidebreaker/cover.webp').split(path.sep).join('/');
+    assert(text.includes(`src="${sampleCover}"`), `${file}: missing bundled game cover`);
   }
   assert(shipped.has('docs/opengame-setup.md'));
 });

@@ -346,6 +346,10 @@ function WorkspaceFrameInner({ children, waitForSaves, projectId, sessionId, blo
       template: null,
     });
   }, [navigatePage]);
+  const openSuperAgentChat = useCallback((chatId: string) => {
+    preloadWorkspaceSurface('agent');
+    navigatePage({ superAgent: true, superAgentChat: chatId, settings: null, assets: false, skills: false, templates: false, template: null });
+  }, [navigatePage]);
   const value: WorkspaceChrome = { workspace, switchingDisabled, saveState: editorState?.saveState || saveState, registerEditor, beforeViewChange,
     openLibrary,
     openConnections: entry => {
@@ -356,7 +360,7 @@ function WorkspaceFrameInner({ children, waitForSaves, projectId, sessionId, blo
     openProviderSettings: provider => navigatePage({ settings: 'providers', provider, assets: false, skills: false, templates: false }),
     openAccountSettings: () => openSettings('account'),
     openSubscriptionSettings: () => openSettings('subscription'),
-    openHome, openAssets, openInSuperAgent, preloadSurface: preloadWorkspaceSurface, assetsOpen: assetsOpen && !settings && !templatesPage, openSkills, skillsOpen: skillsOpen && !settings, toggleSidebar, sidebarOpen, navigationCollapsed,
+    openHome, openAssets, openInSuperAgent, openSuperAgentChat, preloadSurface: preloadWorkspaceSurface, assetsOpen: assetsOpen && !settings && !templatesPage, openSkills, skillsOpen: skillsOpen && !settings, toggleSidebar, sidebarOpen, navigationCollapsed,
     projectNavigation: !hostChrome && editorActive ? <span className="motion-project-navigation-trigger" hidden={sidebarOpen && !narrow}>
       <WorkspaceProjectsButton applicationRef={applicationRef} expanded={sidebarOpen} previewEnabled={!narrow && !sidebarOpen} onToggle={toggleSidebar}>
         {close => <WorkspaceSidebar archives={archives} currentId={projectId} close={close} expand={() => { close(); toggleSidebar(); }} onNavigate={close} query={projectQuery} setQuery={setProjectQuery} openSettings={openSettings} openTemplates={openMotionTemplates} />}

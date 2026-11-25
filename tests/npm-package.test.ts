@@ -27,7 +27,7 @@ async function verifyHostedTemplates(application: string, commit: string) {
   try {
     const hook = path.join(directory, 'hosted.mjs');
     const files = built.uploads.map(file => ['https://releases.open-design.ai/' + file.key, file.body]);
-    files.push(['https://releases.open-design.ai/open-motion/templates/main/catalog.json', built.uploads.find(file => file.key.endsWith('/catalog.json'))!.body]);
+    files.push(['https://releases.open-design.ai/open-game/templates/main/catalog.json', built.uploads.find(file => file.key.endsWith('/catalog.json'))!.body]);
     await writeFile(hook, `import {readFile} from 'node:fs/promises';
 const files = new Map(${JSON.stringify(files)}), original = globalThis.fetch;
 globalThis.fetch = async (input, init) => {
@@ -166,16 +166,16 @@ test('test npm artifacts contain their application, locked manifest and no bundl
     const readme = await readFile(path.join(installer, 'package/README.md'), 'utf8');
     const raw = `https://raw.githubusercontent.com/OpenDesignHQ/opengame/${release.commit}/`;
     const browse = `https://github.com/OpenDesignHQ/opengame/blob/${release.commit}/`;
-    assert(readme.includes('The Open-source Super Game Agent'));
-    for (const asset of ['cover.webp', 'studio-play.webp', 'diagrams/runtime-architecture.svg']) {
-      assert(readme.includes(`src="${raw}docs/readme/opengame/${asset}"`), asset);
+    assert(readme.includes('The First Super Game Agent'));
+    for (const asset of ['opengame-logo.svg', 'opengame-hero.webp', 'agents/local-agents.png']) {
+      assert(readme.includes(`src="${raw}docs/readme/${asset}"`), asset);
     }
-    assert(readme.includes(`srcset="${raw}docs/readme/opengame/agents.mobile.webp"`));
-    assert(readme.includes(`src="${raw}packages/design-system/brand/opengame-logo.svg"`));
+    assert(readme.includes(`srcset="${raw}docs/readme/agents/local-agents.mobile.png"`));
+    assert(readme.includes(`src="${raw}templates/games/tidebreaker/cover.webp"`));
     assert(readme.includes(`](${browse}docs/opengame-setup.md)`));
     assert(readme.includes(`](${browse}docs/opengame-architecture.md)`));
     assert(readme.includes('](#choose-agent)'));
-    assert(readme.includes('href="https://github.com/OpenDesignHQ/opengame"'));
+    assert(readme.includes('https://github.com/OpenDesignHQ/opengame/issues'));
     assert(readme.includes(`href="${browse}LICENSE"`));
     assert(!readme.includes('](docs/') && !readme.includes('](templates/'));
     assert(!readme.includes(`https://raw.githubusercontent.com/nexu-io/openmotion/${release.commit}/`));
@@ -184,10 +184,10 @@ test('test npm artifacts contain their application, locked manifest and no bundl
       assert(embeddedReadme.includes(`](docs/${guide})`), 'Installed documentation keeps local links to shipped guides');
       await access(path.join(application, 'docs', guide));
     }
-    assert(embeddedReadme.includes('src="packages/design-system/brand/opengame-logo.svg"'));
-    assert(embeddedReadme.includes(`src="${raw}docs/readme/opengame/cover.webp"`));
-    assert(embeddedReadme.includes(`srcset="${raw}docs/readme/opengame/agents.mobile.webp"`));
-    assert(embeddedReadme.includes(`src="${raw}docs/readme/opengame/studio-play.webp"`));
+    assert(embeddedReadme.includes(`src="${raw}docs/readme/opengame-logo.svg"`));
+    assert(embeddedReadme.includes(`src="${raw}docs/readme/opengame-hero.webp"`));
+    assert(embeddedReadme.includes(`srcset="${raw}docs/readme/agents/local-agents.mobile.png"`));
+    assert(embeddedReadme.includes('src="templates/games/tidebreaker/cover.webp"'));
     await assert.rejects(readdir(path.join(application, 'docs/readme/opengame')), { code: 'ENOENT' });
     await assert.rejects(readdir(path.join(application, 'docs/readme/media')), { code: 'ENOENT' });
     await assert.rejects(readFile(path.join(application, 'scripts/install-library-skill.mjs')), { code: 'ENOENT' });
@@ -262,7 +262,7 @@ test('test npm artifacts contain their application, locked manifest and no bundl
     }
     assert(!entryPaths.some(parts => parts.some(part => part.startsWith('.env'))), 'Environment files must not ship');
     assert(!entryPaths.some(parts => parts.includes('.motion-data')), 'Workspace data must not ship');
-    const nonRuntimePackageEntries = entryNames.filter(file => !file.startsWith('packages/multimodal-models/src/')).join('\n');
+    const nonRuntimePackageEntries = entryNames.filter(file => !file.startsWith('packages/multimodal-models/src/') && !/^templates\/games\/[^/]+\/src\//.test(file)).join('\n');
     assert(!/(^|\/)(tests|src)\//.test(nonRuntimePackageEntries), 'Development sources and fixtures must not ship');
     for (const script of ['measure_frame.mjs', 'register_motion.py', 'measure_motion.py', 'observe_marks.py', 'vision-tools.mjs']) {
       const filename = 'skills/openmotion-recreate/scripts/' + script;
